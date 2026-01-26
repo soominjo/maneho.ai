@@ -6,32 +6,37 @@ A production-ready monorepo template featuring React, TypeScript, Tailwind CSS, 
 
 Think of building a web app like putting on a theater production!
 
-| Tool | Role | Analogy |
-|------|------|---------|
-| **pnpm** | Package Manager | The super-organized prop master |
-| **Turborepo** | Build System | The stage manager coordinating tasks |
-| **React + Vite** | Frontend | The stage and lighting system |
-| **TypeScript** | Type Safety | The script ensuring everyone knows their lines |
-| **Tailwind CSS** | Styling | The costume designer's fabric swatches |
-| **Shadcn UI** | Components | Pre-made costume patterns |
-| **tRPC** | API Layer | The messenger between actors |
-| **TanStack Query** | Data Fetching | Smart caching (remembers the script!) |
-| **Vitest** | Testing | Dress rehearsals before the show |
-| **Zod** | Validation | The bouncer checking IDs |
+| Tool               | Role            | Analogy                                        |
+| ------------------ | --------------- | ---------------------------------------------- |
+| **pnpm**           | Package Manager | The super-organized prop master                |
+| **Turborepo**      | Build System    | The stage manager coordinating tasks           |
+| **React + Vite**   | Frontend        | The stage and lighting system                  |
+| **TypeScript**     | Type Safety     | The script ensuring everyone knows their lines |
+| **Tailwind CSS**   | Styling         | The costume designer's fabric swatches         |
+| **Shadcn UI**      | Components      | Pre-made costume patterns                      |
+| **tRPC**           | API Layer       | The messenger between actors                   |
+| **TanStack Query** | Data Fetching   | Smart caching (remembers the script!)          |
+| **Vitest**         | Testing         | Dress rehearsals before the show               |
+| **Zod**            | Validation      | The bouncer checking IDs                       |
 
 ## Monorepo Structure
 
 ```
+├── .github/
+│   ├── workflows/        # CI/CD pipelines (ready to use!)
+│   ├── CODEOWNERS        # Auto-assign reviewers
+│   └── ISSUE_TEMPLATE/   # Issue & PR templates
+│
 ├── apps/
 │   ├── web/              # React frontend (Vite + Tailwind)
 │   │   ├── src/
 │   │   │   ├── App.tsx   # Main application component
-│   │   │   ├── hooks/    # Custom React hooks (useUsers, etc.)
+│   │   │   ├── hooks/    # Custom React hooks
 │   │   │   ├── lib/      # Utilities (tRPC client, query client)
 │   │   │   └── providers/# Context providers
 │   │   └── public/       # Static assets
 │   │
-│   └── functions/        # tRPC backend (stubbed for development)
+│   └── functions/        # tRPC backend
 │       └── src/trpc/     # API routers and procedures
 │
 ├── packages/
@@ -45,8 +50,11 @@ Think of building a web app like putting on a theater production!
 │   ├── shared/           # Shared Zod schemas & types
 │   │   └── src/schemas/  # User schemas, validation rules
 │   │
-│   └── config/           # Shared TypeScript configuration
+│   ├── eslint-config/    # Shared ESLint configuration
+│   └── typescript-config/# Shared TypeScript configuration
 │
+├── docs/ci-cd/           # CI/CD documentation
+├── scripts/              # Setup scripts (WIF, etc.)
 ├── turbo.json            # Turborepo pipeline configuration
 ├── pnpm-workspace.yaml   # Workspace definition
 └── package.json          # Root scripts
@@ -55,6 +63,7 @@ Think of building a web app like putting on a theater production!
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js 20+
 - pnpm 8+
 
@@ -63,7 +72,7 @@ Think of building a web app like putting on a theater production!
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd react-mono-repo-template
+cd hytel-react-boilerplate
 
 # Install dependencies
 pnpm install
@@ -75,6 +84,9 @@ pnpm install
 # Start the development server
 pnpm dev
 # Opens at http://localhost:5173
+
+# Run all quality checks
+pnpm precheck
 
 # Run tests
 pnpm test
@@ -128,6 +140,109 @@ import { UserSchema, CreateUserSchema } from '@repo/shared'
 const user = UserSchema.parse(data)
 ```
 
+## Scripts Reference
+
+| Command              | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `pnpm dev`           | Start development servers                     |
+| `pnpm build`         | Build all packages for production             |
+| `pnpm test`          | Run all tests                                 |
+| `pnpm test:coverage` | Run tests with coverage report                |
+| `pnpm lint`          | Lint all packages                             |
+| `pnpm lint:fix`      | Auto-fix lint issues                          |
+| `pnpm format`        | Format code with Prettier                     |
+| `pnpm format:check`  | Check code formatting                         |
+| `pnpm typecheck`     | Run TypeScript type checking                  |
+| `pnpm precheck`      | Run all checks (lint, typecheck, build, test) |
+| `pnpm changeset`     | Create a changeset for versioning             |
+| `pnpm sync:lint`     | Check dependency version consistency          |
+| `pnpm sync:fix`      | Fix dependency version mismatches             |
+
+---
+
+## CI/CD Pipeline
+
+This template includes a **fully configured CI/CD pipeline** using GitHub Actions and Workload Identity Federation (WIF) for secure deployments.
+
+### Branch Strategy
+
+| Branch  | Environment | Deployment                 |
+| ------- | ----------- | -------------------------- |
+| `dev`   | Development | Auto on push               |
+| `stage` | Staging     | Auto on push               |
+| `main`  | Production  | Manual (with confirmation) |
+
+### GitHub Actions Workflows
+
+| Workflow                | Trigger         | Purpose                              |
+| ----------------------- | --------------- | ------------------------------------ |
+| `ci.yml`                | PR & push       | Lint, typecheck, build, test         |
+| `deploy-dev.yml`        | Push to `dev`   | Deploy to development                |
+| `deploy-stage.yml`      | Push to `stage` | Deploy to staging                    |
+| `deploy-main.yml`       | Manual          | Deploy to production                 |
+| `release.yml`           | Push to `main`  | Automated versioning with Changesets |
+| `dependency-review.yml` | PR              | Check for vulnerable dependencies    |
+
+### Workload Identity Federation (WIF)
+
+All deployments use **keyless authentication** with GCP:
+
+- No stored service account keys
+- Short-lived tokens (expire in ~1 hour)
+- Full audit trail in GCP
+
+### Required GitHub Secrets
+
+Configure these in your repository settings:
+
+| Secret                           | Description           |
+| -------------------------------- | --------------------- |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | WIF provider path     |
+| `GCP_SA_EMAIL`                   | Service account email |
+
+### Setup Instructions
+
+1. **Configure WIF** using `scripts/setup-wif.sh`
+2. **Add secrets** to GitHub repository settings
+3. **Create environments** (`dev`, `stage`, `main`) in GitHub settings
+4. **Push to branches** to trigger deployments
+
+See [docs/ci-cd/CI-CD-Pipeline-Guide.md](docs/ci-cd/CI-CD-Pipeline-Guide.md) for detailed setup instructions.
+
+---
+
+## Development Tools
+
+### Git Hooks (Husky)
+
+Pre-commit hooks automatically run:
+
+- ESLint on staged `.ts`/`.tsx` files
+- Prettier on staged files
+
+### Changesets
+
+Semantic versioning for the monorepo:
+
+```bash
+# Create a changeset when you make changes
+pnpm changeset
+
+# The release workflow handles version bumps automatically
+```
+
+### Syncpack
+
+Dependency consistency across packages:
+
+```bash
+pnpm sync:lint   # Check for mismatches
+pnpm sync:fix    # Auto-fix mismatches
+pnpm sync:list   # List all versions
+```
+
+---
+
 ## Testing
 
 Each package has its own tests:
@@ -141,7 +256,12 @@ pnpm --filter web test
 pnpm --filter @repo/ui test
 pnpm --filter @repo/shared test
 pnpm --filter @repo/functions test
+
+# Run with coverage
+pnpm test:coverage
 ```
+
+---
 
 ## Adding New Packages
 
@@ -161,14 +281,25 @@ cd packages/new-package
 pnpm init
 ```
 
-Then add to `pnpm-workspace.yaml` (already configured for `apps/*` and `packages/*`).
+Packages are auto-discovered via `pnpm-workspace.yaml` (configured for `apps/*` and `packages/*`).
 
-## Tips for Experimenting
+---
 
-1. **Safe to edit**: `apps/web/src/App.tsx` - Main UI, experiment freely!
-2. **Add components**: Create new files in `packages/ui/components/`
-3. **Add schemas**: Extend `packages/shared/src/schemas/`
-4. **Don't break**: Avoid modifying `turbo.json` or workspace config unless needed
+## Version Requirements
+
+| Tool         | Minimum Version        |
+| ------------ | ---------------------- |
+| Node.js      | 20.x                   |
+| pnpm         | 8.x                    |
+| Turbo        | 2.x                    |
+| TypeScript   | 5.x                    |
+| Vitest       | 2.x                    |
+| ESLint       | 8.x                    |
+| Prettier     | 3.x                    |
+| Firebase CLI | 13.x (for deployment)  |
+| gcloud CLI   | Latest (for WIF setup) |
+
+---
 
 ## Useful Links
 
@@ -178,200 +309,15 @@ Then add to `pnpm-workspace.yaml` (already configured for `apps/*` and `packages
 - [TanStack Query](https://tanstack.com/query)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Vite](https://vitejs.dev)
-
-## Scripts Reference
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development servers |
-| `pnpm build` | Build all packages for production |
-| `pnpm test` | Run all tests |
-| `pnpm lint` | Lint all packages |
-| `pnpm format` | Format code with Prettier |
+- [Changesets](https://github.com/changesets/changesets)
+- [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation)
 
 ---
 
-## Developer CI/CD Education
+## Contributing
 
-This template includes educational CI/CD resources to help you understand deployment pipelines before implementing them.
-
-### What's Included
-
-| Location | Purpose |
-|----------|---------|
-| `scripts/setup-wif.sh` | Workload Identity Federation setup template |
-| `docs/ci-cd/` | Step-by-step CI/CD documentation |
-
-### Important: These Are Templates Only
-
-The files in `scripts/` and `docs/ci-cd/` are **educational templates** with placeholder values. They will NOT trigger any pipelines.
-
-- No `.github/workflows/` files exist
-- All sensitive values use `<YOUR-VALUE-HERE>` placeholders
-- Scripts are for learning, not production use
-
-### Making Pipelines Functional
-
-When you're ready to enable real CI/CD:
-
-1. Read the docs in order (see below)
-2. Replace ALL `<YOUR-VALUE-HERE>` placeholders
-3. Run `scripts/setup-wif.sh` with real GCP credentials
-4. Copy workflow files from docs to `.github/workflows/`
-
-> **WARNING**: Do not copy to `.github/workflows/` until you have completed all setup steps and replaced all placeholders.
-
-### Recommended Reading Order
-
-1. [CI-CD-Pipeline-Guide.md](docs/ci-cd/CI-CD-Pipeline-Guide.md) - Concepts and overview
-2. [CI.md](docs/ci-cd/CI.md) - Continuous Integration workflow
-3. [Deploy-Dev.md](docs/ci-cd/Deploy-Dev.md) - Deployment workflow
-4. [setup-wif.sh](scripts/setup-wif.sh) - Infrastructure setup script
-
-### Dependency Consistency with Syncpack
-
-This template includes **Syncpack**, a monorepo utility that helps you view, lint, and fix version mismatches across workspace packages.
-
-Syncpack is **optional and educational** — it does not run automatically. You can experiment with it to learn how monorepo dependency consistency works.
-
-#### What Syncpack Does
-
-| Command | Purpose |
-|---------|---------|
-| `pnpm sync:lint` | Reports mismatched dependency versions across packages |
-| `pnpm sync:fix` | Attempts to fix mismatches automatically |
-| `pnpm sync:list` | Lists dependency versions in all workspace packages |
-
-#### Educational Usage
-
-1. Install dependencies (if not already):
-
-```bash
-pnpm install
-```
-
-2. Check for mismatches:
-
-```bash
-pnpm sync:lint
-```
-
-3. List all versions:
-
-```bash
-pnpm sync:list
-```
-
-4. Try fixing mismatches (safe in a local environment):
-
-```bash
-pnpm sync:fix
-```
-
-> **Note:** This is an educational example. Do not use these scripts in production until you understand how version alignment affects your project.
-
-#### How It Works
-
-- Syncpack reads `.syncpackrc.json` to determine which `package.json` files and dependencies to check
-- `versionGroups` ensure dependencies match exactly across all packages
-- `semverGroups` define consistent semver range policies (e.g., all devDependencies use `^`)
-
-You can customize the Syncpack config to match your monorepo's specific needs.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and guidelines.
 
 ---
 
-### Dependency Consistency & Pre-Push Workflow
-
-This section is an educational template demonstrating the recommended steps to maintain code quality, type safety, and dependency consistency in a monorepo. All commands and configurations are examples and use `<YOUR-VALUE-HERE>` placeholders where applicable.
-
-#### Educational Commands Reference
-
-| Command | Purpose |
-|---------|---------|
-| `pnpm lint` | Run ESLint on all packages to detect code style and errors |
-| `pnpm typecheck` | Run TypeScript type checking across all packages |
-| `pnpm build` | Build all packages using Turbo pipelines |
-| `pnpm test` | Run unit tests (Vitest) after building |
-| `pnpm sync:lint` | Check for mismatched dependency versions using Syncpack |
-| `pnpm sync:fix` | Auto-fix dependency version mismatches |
-| `pnpm sync:list` | List all dependency versions across the monorepo |
-
-#### Recommended Workflow Before Pushing
-
-Follow these steps before pushing code to ensure quality and consistency:
-
-**1. Run linting:**
-
-```bash
-pnpm lint
-```
-
-**2. Run type checking:**
-
-```bash
-pnpm typecheck
-```
-
-**3. Build all packages:**
-
-```bash
-pnpm build
-```
-
-**4. Run all tests:**
-
-```bash
-pnpm test
-```
-
-**5. Check dependency consistency:**
-
-```bash
-pnpm sync:lint
-pnpm sync:fix   # optional, fix auto-fixable mismatches
-pnpm sync:list  # verify versions across packages
-```
-
-> **Note:** These steps are educational. Replace `<YOUR-VALUE-HERE>` placeholders with real values and ensure all pipelines are tested in a safe environment before applying to production.
-
-#### Why This Workflow Matters
-
-Following this workflow ensures:
-
-- **Code style consistency** (`lint`) - Catches formatting issues and common errors
-- **Type safety** (`typecheck`) - Verifies TypeScript types across all packages
-- **Successful builds** (`build`) - Confirms all packages compile correctly
-- **Verified functionality** (`test`) - Ensures tests pass before pushing
-- **Aligned dependency versions** (`syncpack`) - Prevents version conflicts in the monorepo
-
----
-
-### Version Requirements
-
-| Tool | Minimum Version |
-|------|-----------------|
-| Node.js | 20.x |
-| pnpm | 8.x |
-| Turbo | 2.x |
-| TypeScript | 5.x |
-| Vitest | 1.x |
-| Syncpack | 13.x |
-| ESLint | 8.x |
-| Prettier | 3.x |
-| Firebase CLI | 13.x |
-| gcloud CLI | Latest |
-
----
-
-### Further Reading
-
-Continue learning about CI/CD and deployment:
-
-1. [CI-CD-Pipeline-Guide.md](docs/ci-cd/CI-CD-Pipeline-Guide.md) - Concepts and overview
-2. [CI.md](docs/ci-cd/CI.md) - Continuous Integration workflow
-3. [Deploy-Dev.md](docs/ci-cd/Deploy-Dev.md) - Deployment workflow
-4. [setup-wif.sh](scripts/setup-wif.sh) - Workload Identity Federation setup
-
----
-
-Built with Turborepo
+Built with ❤️ using Turborepo

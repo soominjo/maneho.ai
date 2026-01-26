@@ -1,17 +1,17 @@
 # Development Deployment Workflow
 
-> **EDUCATIONAL TEMPLATE** - This document explains the deployment workflow.
-> Copy to `.github/workflows/deploy-dev.yml` only after replacing all placeholders.
+> This document explains the development deployment workflow.
+> The actual workflow file is located at `.github/workflows/deploy-dev.yml`.
 
 **Prerequisites**: Read [CI-CD-Pipeline-Guide.md](CI-CD-Pipeline-Guide.md) and [CI.md](CI.md) first.
 
-**Previous**: [CI.md](CI.md) - Continuous Integration workflow
+**Next**: [Deploy-Stage.md](Deploy-Stage.md) - Staging deployment workflow
 
 ---
 
 ## Overview
 
-The deployment workflow runs when code is merged to `main`. It:
+The development deployment workflow runs when code is **pushed to the `dev` branch**. It:
 
 1. Authenticates with GCP using Workload Identity Federation
 2. Builds the application for production
@@ -19,327 +19,127 @@ The deployment workflow runs when code is merged to `main`. It:
 
 ---
 
-## Warning: Do Not Copy Until Ready
+## Trigger
 
-> **WARNING**: Do not copy this file to `.github/workflows/` until you have:
-> 1. Set up Workload Identity Federation (see [setup-wif.sh](../../scripts/setup-wif.sh))
-> 2. Replaced ALL `<YOUR-VALUE-HERE>` placeholders with real values
-> 3. Added required secrets to your GitHub repository
-> 4. Tested locally with Firebase emulators
+The workflow triggers automatically on:
+
+- **Push to `dev` branch** - Includes direct pushes and merged PRs
+- **Manual trigger** - Via GitHub Actions UI (workflow_dispatch)
 
 ---
 
-## The Workflow File
+## The Workflow
 
-Below is the complete `deploy-dev.yml` workflow with annotations.
+The actual workflow is in `.github/workflows/deploy-dev.yml`. Here's how it works:
 
-```yaml
-# ============================================================================
-# deploy-dev.yml - Development Deployment Workflow
-# ============================================================================
-# This workflow deploys to the development environment when code is merged
-# to the main branch.
-#
-# EDUCATIONAL TEMPLATE - Replace all <YOUR-VALUE-HERE> placeholders
-# before copying to .github/workflows/
-# ============================================================================
+### Step-by-Step Flow
 
-name: Deploy to Development  # <-- Display name in GitHub Actions UI
+```
+1. Checkout Code
+   └── Clone the repository
 
-# ============================================================================
-# TRIGGERS
-# ============================================================================
-on:
-  push:
-    branches:
-      - main                            # <-- Deploy on merge to main
-  workflow_dispatch:                    # <-- Allow manual trigger from UI
+2. Setup Environment
+   ├── Install pnpm (v8)
+   └── Install Node.js (v20)
 
-# ============================================================================
-# ENVIRONMENT VARIABLES
-# ============================================================================
-# Define variables used across all jobs
-env:
-  NODE_VERSION: '20'                    # <-- Match your local Node version
-  PNPM_VERSION: '8'                     # <-- Match your local pnpm version
+3. Install Dependencies
+   └── pnpm install --frozen-lockfile
 
-# ============================================================================
-# CONCURRENCY
-# ============================================================================
-# Prevents multiple deployments from running simultaneously
-# Only one deployment to dev environment at a time
-concurrency:
-  group: deploy-dev
-  cancel-in-progress: false             # <-- Don't cancel in-progress deploys
+4. Build Application
+   └── pnpm build (with VITE_API_URL set)
 
-# ============================================================================
-# JOBS
-# ============================================================================
-jobs:
-  deploy:
-    name: Build and Deploy
-    runs-on: ubuntu-latest
+5. Authenticate with GCP (WIF)
+   ├── Request OIDC token from GitHub
+   ├── Exchange for GCP temporary credentials
+   └── No long-lived keys needed!
 
-    # ========================================================================
-    # PERMISSIONS
-    # ========================================================================
-    # Required for Workload Identity Federation
-    # id-token: write - allows requesting OIDC token from GitHub
-    # contents: read - allows checking out the repository
-    permissions:
-      id-token: write                   # <-- REQUIRED for WIF authentication
-      contents: read
+6. Deploy to Firebase
+   ├── Deploy Hosting (static files)
+   └── Deploy Functions (serverless backend)
 
-    # ========================================================================
-    # ENVIRONMENT
-    # ========================================================================
-    # Links to GitHub Environment for protection rules and secrets
-    environment:
-      name: development                 # <-- GitHub Environment name
-      url: https://dev.<YOUR-DOMAIN>.com  # <-- Deployed URL (shown in UI)
-
-    steps:
-      # ======================================================================
-      # STEP 1: Checkout Code
-      # ======================================================================
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # ======================================================================
-      # STEP 2: Setup pnpm
-      # ======================================================================
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      # ======================================================================
-      # STEP 3: Setup Node.js
-      # ======================================================================
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      # ======================================================================
-      # STEP 4: Install Dependencies
-      # ======================================================================
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # ======================================================================
-      # STEP 5: Build Application
-      # ======================================================================
-      # Builds all packages for production
-      # Turborepo handles build order and caching
-      - name: Build
-        run: pnpm build
-        env:
-          # Add any build-time environment variables here
-          VITE_API_URL: https://dev-api.<YOUR-DOMAIN>.com
-
-      # ======================================================================
-      # STEP 6: Authenticate with GCP (Workload Identity Federation)
-      # ======================================================================
-      # This is where WIF magic happens:
-      # 1. GitHub provides an OIDC token proving this is a GitHub Action
-      # 2. GCP validates the token against your Workload Identity Pool
-      # 3. GCP returns temporary credentials for your service account
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          # The WIF provider you created with setup-wif.sh
-          workload_identity_provider: projects/<YOUR-GCP-PROJECT-NUMBER>/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          # The service account to impersonate
-          service_account: github-actions-sa@<YOUR-GCP-PROJECT-ID>.iam.gserviceaccount.com
-
-      # ======================================================================
-      # STEP 7: Setup Google Cloud SDK
-      # ======================================================================
-      # Installs gcloud CLI for Firebase deployment
-      - name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: <YOUR-GCP-PROJECT-ID>
-
-      # ======================================================================
-      # STEP 8: Deploy to Firebase Hosting
-      # ======================================================================
-      # Deploys the built static files to Firebase Hosting
-      - name: Deploy to Firebase Hosting
-        run: |
-          npm install -g firebase-tools
-          firebase deploy --only hosting --project <YOUR-GCP-PROJECT-ID>
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-
-      # ======================================================================
-      # STEP 9: Deploy Firebase Functions
-      # ======================================================================
-      # Deploys the serverless backend functions
-      - name: Deploy Firebase Functions
-        run: |
-          firebase deploy --only functions --project <YOUR-GCP-PROJECT-ID>
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-
-      # ======================================================================
-      # STEP 10: Post-Deployment Notification (Optional)
-      # ======================================================================
-      # Add Slack/Discord notification here if desired
-      - name: Deployment Summary
-        run: |
-          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: Development" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: https://dev.<YOUR-DOMAIN>.com" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+7. Summary
+   └── Post deployment details to workflow summary
 ```
 
 ---
 
-## Step-by-Step Explanation
+## Workload Identity Federation
 
-### Step 1-4: Setup
-
-Standard setup steps that match your local development environment:
-- Checkout code
-- Install pnpm
-- Install Node.js
-- Install dependencies
-
-### Step 5: Build
-
-```yaml
-- name: Build
-  run: pnpm build
-  env:
-    VITE_API_URL: https://dev-api.<YOUR-DOMAIN>.com
-```
-
-The build step compiles your application with production optimizations. Environment variables prefixed with `VITE_` are embedded into the frontend bundle.
-
-### Step 6: WIF Authentication
-
-This is the most important step for secure deployment:
+The workflow uses **secrets** for WIF configuration:
 
 ```yaml
 - name: Authenticate to Google Cloud
   uses: google-github-actions/auth@v2
   with:
-    workload_identity_provider: projects/<YOUR-GCP-PROJECT-NUMBER>/...
-    service_account: github-actions-sa@<YOUR-GCP-PROJECT-ID>.iam.gserviceaccount.com
+    workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+    service_account: ${{ secrets.GCP_SA_EMAIL }}
 ```
 
-**What happens:**
-1. GitHub generates a JWT token proving this workflow is running
-2. The token includes claims like `repository`, `actor`, `ref`
-3. GCP validates these claims against your Workload Identity Pool
-4. If valid, GCP issues temporary credentials (valid ~1 hour)
-5. These credentials are stored in a file for subsequent steps
+### Required Secrets
 
-### Step 7-9: Deployment
+Configure these in GitHub repository settings:
 
-The deployment steps use the credentials from Step 6:
+| Secret                           | Description            | Example                                                                                                        |
+| -------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full WIF provider path | `projects/123456/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider` |
+| `GCP_SA_EMAIL`                   | Service account email  | `github-actions-sa@my-project.iam.gserviceaccount.com`                                                         |
+
+### Why WIF?
+
+| Traditional Approach                | WIF Approach                 |
+| ----------------------------------- | ---------------------------- |
+| Store service account key as secret | No stored credentials        |
+| Keys can be leaked or stolen        | Tokens expire in ~1 hour     |
+| Manual key rotation required        | Automatic credential refresh |
+| Hard to audit usage                 | Full audit trail in GCP      |
+
+---
+
+## Environment Configuration
+
+The workflow uses the GitHub Environment `dev`:
 
 ```yaml
-env:
-  GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+environment:
+  name: dev
+  url: https://dev.example.com
 ```
 
-This tells Firebase CLI where to find the temporary credentials.
+### Setting Up the Environment
 
----
-
-## Placeholders to Replace
-
-Before using this workflow, replace these placeholders:
-
-| Placeholder | Description | Example |
-|-------------|-------------|---------|
-| `<YOUR-DOMAIN>.com` | Your domain name | `myapp.com` |
-| `<YOUR-GCP-PROJECT-ID>` | GCP project ID | `my-company-dev-123456` |
-| `<YOUR-GCP-PROJECT-NUMBER>` | GCP project number (numeric) | `123456789012` |
-
-### Finding Your Project Number
-
-```bash
-# Using gcloud CLI
-gcloud projects describe <YOUR-GCP-PROJECT-ID> --format="value(projectNumber)"
-```
-
----
-
-## Security Considerations
-
-### Why WIF Instead of Service Account Keys?
-
-| Service Account Key | Workload Identity Federation |
-|---------------------|------------------------------|
-| Long-lived (never expires) | Short-lived (~1 hour) |
-| Must be stored as secret | No secrets to store |
-| Can be leaked in logs | Token is workflow-specific |
-| Hard to rotate | Automatic rotation |
-
-### Principle of Least Privilege
-
-The service account should only have permissions needed for deployment:
-- `roles/firebase.admin` - Deploy hosting and functions
-- `roles/cloudfunctions.developer` - Deploy functions
-- `roles/iam.serviceAccountUser` - Act as service account
-
-**Do not grant** `roles/owner` or `roles/editor` - too permissive!
+1. Go to **Repository Settings** → **Environments**
+2. Click **New environment**
+3. Name it `dev`
+4. (Optional) Add environment-specific secrets
 
 ---
 
 ## Customization
 
-### Adding Staging/Production Workflows
+### Changing the API URL
 
-Create separate workflow files with different triggers:
+Update the `VITE_API_URL` environment variable in the build step:
 
-**deploy-staging.yml**:
 ```yaml
-on:
-  push:
-    branches:
-      - 'release/**'
-environment:
-  name: staging
+- name: Build
+  run: pnpm build
+  env:
+    VITE_API_URL: https://dev-api.example.com
 ```
 
-**deploy-prod.yml**:
+### Adding Notifications
+
+Add a step after deployment for Slack/Discord notifications:
+
 ```yaml
-on:
-  workflow_dispatch:  # Manual only
-environment:
-  name: production
+- name: Notify Slack
+  uses: slackapi/slack-github-action@v1
+  with:
+    payload: |
+      {"text": "Deployed to dev: ${{ github.sha }}"}
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
-
-### Adding Deployment Approval
-
-In GitHub repository settings:
-1. Go to **Settings** > **Environments**
-2. Create environment `production`
-3. Enable **Required reviewers**
-4. Add team members who can approve
-
----
-
-## Exercise
-
-To better understand this workflow:
-
-1. Copy the YAML to a temporary file
-2. Replace all placeholders with dummy values (e.g., `my-test-project`)
-3. Create a test repository
-4. Copy the modified YAML to `.github/workflows/deploy-dev.yml`
-5. Push and watch GitHub validate the workflow syntax
-6. (The deployment will fail without real WIF setup - that's expected!)
-
-This exercise helps you understand the workflow structure without risking real deployments.
 
 ---
 
@@ -350,23 +150,32 @@ This exercise helps you understand the workflow structure without risking real d
 **Cause**: WIF authentication failed.
 
 **Fix**: Verify:
-- `workload_identity_provider` path is correct
-- Service account email is correct
-- WIF was set up correctly with `setup-wif.sh`
+
+- `GCP_WORKLOAD_IDENTITY_PROVIDER` secret is set correctly
+- `GCP_SA_EMAIL` secret matches your service account
+- WIF was set up correctly with `scripts/setup-wif.sh`
 
 ### "Permission denied on Firebase"
 
 **Cause**: Service account missing Firebase permissions.
 
-**Fix**: Grant `roles/firebase.admin` to the service account.
+**Fix**: Grant `roles/firebase.admin` to the service account:
 
-### "Build failed: Cannot find module"
+```bash
+gcloud projects add-iam-policy-binding YOUR-PROJECT-ID \
+  --member="serviceAccount:YOUR-SA-EMAIL" \
+  --role="roles/firebase.admin"
+```
 
-**Cause**: Dependencies not installed or build order wrong.
+### "Build failed"
 
-**Fix**: 
+**Cause**: Build errors in the code.
+
+**Fix**:
+
 1. Run `pnpm build` locally to verify
-2. Check `turbo.json` for correct task dependencies
+2. Check the build logs for specific errors
+3. Ensure all dependencies are committed to `pnpm-lock.yaml`
 
 ---
 
@@ -374,9 +183,6 @@ This exercise helps you understand the workflow structure without risking real d
 
 - [CI-CD-Pipeline-Guide.md](CI-CD-Pipeline-Guide.md) - Overview and concepts
 - [CI.md](CI.md) - Continuous Integration workflow
+- [Deploy-Stage.md](Deploy-Stage.md) - Staging deployment workflow
+- [Deploy-Main.md](Deploy-Main.md) - Production deployment workflow
 - [setup-wif.sh](../../scripts/setup-wif.sh) - WIF setup script
-
----
-
-> **Remember**: This is an educational template. Real deployments require completing the full setup checklist in [CI-CD-Pipeline-Guide.md](CI-CD-Pipeline-Guide.md).
-

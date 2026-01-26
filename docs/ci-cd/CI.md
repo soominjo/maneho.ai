@@ -1,11 +1,11 @@
 # Continuous Integration (CI) Workflow
 
-> **EDUCATIONAL TEMPLATE** - This document explains the CI workflow.
-> Copy to `.github/workflows/ci.yml` only after replacing all placeholders.
+> This document explains the CI workflow.
+> The actual workflow file is located at `.github/workflows/ci.yml`.
 
 **Prerequisites**: Read [CI-CD-Pipeline-Guide.md](CI-CD-Pipeline-Guide.md) first.
 
-**Next**: [Deploy-Dev.md](Deploy-Dev.md) - Deployment workflow
+**Next**: [Deploy-Dev.md](Deploy-Dev.md) - Development deployment workflow
 
 ---
 
@@ -35,7 +35,7 @@ Below is the complete `ci.yml` workflow with annotations explaining each section
 # before copying to .github/workflows/
 # ============================================================================
 
-name: CI  # <-- Display name shown in GitHub Actions UI
+name: CI # <-- Display name shown in GitHub Actions UI
 
 # ============================================================================
 # TRIGGERS
@@ -44,11 +44,13 @@ name: CI  # <-- Display name shown in GitHub Actions UI
 on:
   pull_request:
     branches:
-      - main           # <-- Run on PRs targeting main branch
-      - 'release/**'   # <-- Also run on PRs to release branches
+      - main # <-- Run on PRs targeting main (production)
+      - dev # <-- Run on PRs targeting dev
+      - stage # <-- Run on PRs targeting stage
   push:
     branches:
-      - main           # <-- Run on direct pushes to main (after merge)
+      - main # <-- Run on pushes to main
+      - dev # <-- Run on pushes to dev
 
 # ============================================================================
 # CONCURRENCY
@@ -56,8 +58,8 @@ on:
 # Prevents multiple CI runs for the same PR from running simultaneously
 # If a new commit is pushed, the old run is cancelled
 concurrency:
-  group: ci-${{ github.ref }}          # <-- Group by branch/PR
-  cancel-in-progress: true              # <-- Cancel old runs
+  group: ci-${{ github.ref }} # <-- Group by branch/PR
+  cancel-in-progress: true # <-- Cancel old runs
 
 # ============================================================================
 # JOBS
@@ -65,7 +67,7 @@ concurrency:
 jobs:
   ci:
     name: Lint, Type Check, Build, Test
-    runs-on: ubuntu-latest              # <-- Use GitHub's Ubuntu runner
+    runs-on: ubuntu-latest # <-- Use GitHub's Ubuntu runner
 
     steps:
       # ======================================================================
@@ -75,7 +77,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2                # <-- Fetch 2 commits for diff detection
+          fetch-depth: 2 # <-- Fetch 2 commits for diff detection
 
       # ======================================================================
       # STEP 2: Setup pnpm
@@ -84,7 +86,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8                    # <-- Match your local pnpm version
+          version: 8 # <-- Match your local pnpm version
 
       # ======================================================================
       # STEP 3: Setup Node.js
@@ -93,8 +95,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20              # <-- Match your local Node version
-          cache: 'pnpm'                 # <-- Cache pnpm store for faster installs
+          node-version: 20 # <-- Match your local Node version
+          cache: 'pnpm' # <-- Cache pnpm store for faster installs
 
       # ======================================================================
       # STEP 4: Install Dependencies
@@ -111,7 +113,7 @@ jobs:
       - name: Cache Turborepo
         uses: actions/cache@v4
         with:
-          path: .turbo                  # <-- Turbo cache directory
+          path: .turbo # <-- Turbo cache directory
           key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             turbo-${{ runner.os }}-
@@ -216,7 +218,7 @@ Modify the test step to include coverage:
 ```yaml
 - name: Test with coverage
   run: pnpm test -- --coverage
-  
+
 - name: Upload coverage
   uses: codecov/codecov-action@v3
   with:
@@ -286,6 +288,7 @@ pnpm --filter web test src/App.test.tsx
 ## Warning: Do Not Copy Until Ready
 
 > **WARNING**: Do not copy this file to `.github/workflows/` until you have:
+>
 > 1. Read the [CI-CD-Pipeline-Guide.md](CI-CD-Pipeline-Guide.md)
 > 2. Verified your local development environment works
 > 3. Ensured `pnpm lint`, `pnpm build`, and `pnpm test` pass locally
@@ -304,4 +307,3 @@ Try this to understand the workflow better:
 ---
 
 **Next**: Read [Deploy-Dev.md](Deploy-Dev.md) to learn about the deployment workflow.
-
