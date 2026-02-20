@@ -48,6 +48,8 @@
 
 import { useState } from 'react'
 import './style.css'
+import { db } from './lib/firebase'
+import { collection, addDoc } from 'firebase/firestore'
 
 // Importing from @repo/ui - the "shared component closet"
 // These components live in packages/ui/ and can be used by any app!
@@ -75,6 +77,19 @@ import reactLogo from '/react.svg'
 export function App() {
   // React State - like a scoreboard that updates the display automatically
   const [count, setCount] = useState(0)
+
+  const testFirestore = async () => {
+    try {
+      const docRef = await addDoc(collection(db, 'test_messages'), {
+        message: 'Hello from maneho.ai!',
+        createdAt: new Date(),
+      })
+      alert(`Success! Document written with ID: ${docRef.id}`)
+    } catch (e) {
+      console.error('Error adding document: ', e)
+      alert('Error: ' + (e as Error).message)
+    }
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -140,6 +155,9 @@ export function App() {
           <CardFooter className="justify-center">
             <Button variant="ghost" onClick={() => setCount(0)}>
               Reset to Zero
+            </Button>
+            <Button variant="secondary" onClick={testFirestore}>
+              Test Firebase Connection
             </Button>
           </CardFooter>
         </Card>
