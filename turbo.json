@@ -23,5 +23,11 @@
       "cache": false,
       "persistent": true
     }
+  },
+  "pipeline": {
+    "@repo/functions#dev": {
+      "cache": false,
+      "persistent": false
+    }
   }
 }
