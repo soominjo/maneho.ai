@@ -1,0 +1,159 @@
+/**
+ * Local development server for tRPC backend
+ * Runs on http://localhost:3001
+ *
+ * Error Handling:
+ * - Try-catch around initialization
+ * - Unhandled rejection listener
+ * - Server error listener
+ */
+
+// Load environment variables from .env file
+// IMPORTANT: Load local .env first so it takes precedence
+import dotenv from 'dotenv'
+
+// Try loading from current directory first (apps/functions/.env)
+dotenv.config({ path: '.env' })
+// Then try from workspace root (maneho.ai/.env)
+dotenv.config({ path: '../../.env' })
+
+console.log('[ENV] Loaded: GEMINI_API_KEY =', process.env.GEMINI_API_KEY ? '✓ SET' : '✗ MISSING')
+
+// Initialize Firebase Admin SDK early (before request handling)
+import { isFirebaseInitialized } from './lib/firebase-admin'
+
+import express from 'express'
+import { createHTTPHandler } from '@trpc/server/adapters/standalone'
+import { appRouter } from './index'
+
+// Try to initialize Firebase Admin (non-blocking)
+try {
+  // Trigger lazy initialization
+  const initialized = isFirebaseInitialized()
+  console.log('[SERVER] 1️⃣  Firebase Admin SDK:', initialized ? '✓ READY' : '⏳ LAZY-INIT')
+} catch (error) {
+  console.warn('[SERVER] ⚠️  Firebase Admin will initialize on first request')
+}
+
+console.log('[SERVER] 2️⃣  Initializing Express app...')
+
+const app = express()
+const port = process.env.PORT || 3001
+
+console.log(
+  `[SERVER] 3️⃣  Port configuration: ${port} (from ${process.env.PORT ? 'ENV' : 'DEFAULT'})`
+)
+
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200)
+  } else {
+    next()
+  }
+})
+
+// Middleware for JSON parsing
+app.use(express.json())
+
+console.log('[SERVER] 4️⃣  Middleware configured (CORS + JSON parser)')
+
+// tRPC endpoint
+try {
+  console.log('[SERVER] 5️⃣  Setting up tRPC handler...')
+  app.use(
+    '/trpc',
+    createHTTPHandler({
+      router: appRouter,
+      createContext: () => ({}),
+    })
+  )
+  console.log('[SERVER] 6️⃣  tRPC handler mounted at /trpc')
+} catch (error) {
+  console.error('[SERVER] ❌ FAILED to setup tRPC:', error)
+  process.exit(1)
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' })
+})
+
+// Start server with error handling
+console.log(`[SERVER] 7️⃣  Attempting to listen on port ${port}...`)
+
+let server: ReturnType<typeof app.listen> | null = null
+
+try {
+  server = app.listen(port, () => {
+    console.log('')
+    console.log('═══════════════════════════════════════════════════════════')
+    console.log('✅ SUCCESS! Server is running')
+    console.log('═══════════════════════════════════════════════════════════')
+    console.log(`🚀 tRPC server running at http://localhost:${port}`)
+    console.log(`📡 API endpoint: http://localhost:${port}/trpc`)
+    console.log(`❤️  Health check: http://localhost:${port}/health`)
+    console.log('═══════════════════════════════════════════════════════════')
+    console.log('')
+  })
+
+  // Listen for server errors
+  server.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`[SERVER] ❌ ERROR: Port ${port} is already in use`)
+      console.error(
+        `[SERVER] Kill the process with: lsof -i :${port} | grep LISTEN | awk '{print $2}' | xargs kill -9`
+      )
+    } else if (error.code === 'EACCES') {
+      console.error(`[SERVER] ❌ ERROR: Permission denied to use port ${port}`)
+      console.error(`[SERVER] Try using a port >= 1024 or run with elevated privileges`)
+    } else {
+      console.error(`[SERVER] ❌ Server error (${error.code}):`, error.message)
+    }
+    process.exit(1)
+  })
+} catch (error) {
+  console.error('[SERVER] ❌ FAILED to start server:', error)
+  process.exit(1)
+}
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n[SERVER] ⏹️  Shutting down server...')
+  if (server) {
+    server.close(() => {
+      console.log('[SERVER] ✅ Server stopped gracefully')
+      process.exit(0)
+    })
+    // Force exit after 10 seconds
+    setTimeout(() => {
+      console.error('[SERVER] ❌ Server did not shut down in time, forcing exit...')
+      process.exit(1)
+    }, 10000)
+  } else {
+    process.exit(0)
+  }
+})
+
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[SERVER] ❌ UNHANDLED REJECTION:', reason)
+  console.error('[SERVER] Promise:', promise)
+})
+
+// Catch uncaught exceptions
+process.on('uncaughtException', error => {
+  console.error('[SERVER] ❌ UNCAUGHT EXCEPTION:', error)
+  process.exit(1)
+})
+
+export default app

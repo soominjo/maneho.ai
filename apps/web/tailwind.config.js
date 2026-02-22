@@ -11,6 +11,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        /* LTO Brand Colors */
+        lto: {
+          primary: "#0038A8",
+          light: "#E8F0FE",
+          dark: "#0a1d4a",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -49,6 +55,14 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      spacing: {
+        navbar: "60px",
+      },
+      boxShadow: {
+        sm: "0 1px 2px 0 rgba(0, 0, 0, 0.04)",
+        md: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+        none: "none",
       },
     },
   },

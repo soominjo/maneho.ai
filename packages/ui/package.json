@@ -7,7 +7,12 @@
     "./Counter": "./components/Counter.tsx",
     "./Button": "./components/ui/button.tsx",
     "./Card": "./components/ui/card.tsx",
-    "./utils": "./lib/utils.ts"
+    "./Badge": "./components/ui/badge.tsx",
+    "./utils": "./lib/utils.ts",
+    "./components/ui/button": "./components/ui/button.tsx",
+    "./components/ui/card": "./components/ui/card.tsx",
+    "./components/ui/badge": "./components/ui/badge.tsx",
+    "./lib/utils": "./lib/utils.ts"
   },
   "scripts": {
     "lint": "eslint \"**/*.{ts,tsx}\"",
@@ -21,6 +26,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.575.0",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {

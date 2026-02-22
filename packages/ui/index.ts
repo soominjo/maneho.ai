@@ -15,6 +15,7 @@
 // Custom Components
 export { Header } from './components/Header'
 export { Counter } from './components/Counter'
+export { Navbar } from './components/Navbar'
 
 // Shadcn UI Components
 export { Button, buttonVariants } from './components/ui/button'

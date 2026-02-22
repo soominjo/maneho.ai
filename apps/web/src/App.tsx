@@ -1,59 +1,10 @@
-/**
- * =============================================================================
- * WELCOME TO THE HYTEL WAY: MONOREPO STACK
- * =============================================================================
- *
- * This file demonstrates the key concepts of our tech stack using friendly
- * analogies. Think of building a web app like putting on a theater production!
- *
- * THE STACK EXPLAINED (Theater Analogy):
- *
- * PNPM (Package Manager)
- *    -> "The super-organized prop master"
- *    -> Manages all the tools/packages we need, storing them efficiently
- *    -> Unlike npm, it doesn't duplicate packages - saves space!
- *
- * TURBOREPO (Monorepo Build System)
- *    -> "The stage manager who coordinates everything"
- *    -> Runs tasks (build, test, dev) across multiple packages smartly
- *    -> Caches results so repeated tasks are lightning fast!
- *
- * REACT + VITE (Frontend Framework + Build Tool)
- *    -> "The stage and lighting system"
- *    -> React: Builds the interactive UI (the actors on stage)
- *    -> Vite: Super-fast dev server (instant lighting changes!)
- *
- * TAILWIND CSS + SHADCN UI (Styling)
- *    -> "The costume designer"
- *    -> Tailwind: Utility classes for quick styling (fabric swatches)
- *    -> Shadcn UI: Pre-made, beautiful component patterns (costume templates)
- *
- * @repo/ui (Shared Component Package)
- *    -> "The shared costume closet"
- *    -> Components here (Header, Button, Card) can be used by ANY app!
- *    -> Located in: packages/ui/
- *
- * @repo/shared (Shared Types & Schemas)
- *    -> "The spellbook of shared rules"
- *    -> Zod schemas define what data looks like (validation spells!)
- *    -> Located in: packages/shared/
- *
- * tRPC + TanStack Query (API Layer)
- *    -> "The messenger system between actors"
- *    -> tRPC: Type-safe communication with backend (no lost messages!)
- *    -> TanStack Query: Smart caching of server data (remembers the script!)
- *
- * =============================================================================
- */
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { ThemeProvider } from './contexts/ThemeContext'
+import { useTheme } from './hooks/useTheme'
 import './style.css'
-import { db } from './lib/firebase'
-import { collection, addDoc } from 'firebase/firestore'
 
-// Importing from @repo/ui - the "shared component closet"
-// These components live in packages/ui/ and can be used by any app!
-import { Header } from '@repo/ui/Header'
+// UI Components
+import { Navbar } from '@repo/ui/Navbar'
 import { Button } from '@repo/ui/Button'
 import {
   Card,
@@ -64,202 +15,150 @@ import {
   CardFooter,
 } from '@repo/ui/Card'
 
-// Assets
-import viteLogo from '/vite.svg'
-import reactLogo from '/react.svg'
+// Icons from lucide-react (no emojis!)
+import { Scale, Send, FileText, AlertCircle } from 'lucide-react'
 
 /**
- * Main App Component
+ * App Component with LTO Flat Design (Single Column Chat)
  *
- * This is the "main stage" of our application. Everything you see
- * in the browser starts here!
+ * Professional civic tech interface for Filipino motorists
+ * Features:
+ * - Flat UI aesthetic (no gradients, subtle borders)
+ * - Philippine Blue primary color (#0038A8)
+ * - Centered, distraction-free chat interface (No Sidebar)
  */
-export function App() {
-  // React State - like a scoreboard that updates the display automatically
-  const [count, setCount] = useState(0)
+function AppContent() {
+  const { isDarkMode, toggleDarkMode } = useTheme()
+  const [query, setQuery] = useState('')
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      text: 'Magandang araw! I am Maneho.ai, your Philippine traffic law assistant. How can I help you today?',
+      citations: [],
+    },
+  ])
 
-  const testFirestore = async () => {
-    try {
-      const docRef = await addDoc(collection(db, 'test_messages'), {
-        message: 'Hello from maneho.ai!',
-        createdAt: new Date(),
-      })
-      alert(`Success! Document written with ID: ${docRef.id}`)
-    } catch (e) {
-      console.error('Error adding document: ', e)
-      alert('Error: ' + (e as Error).message)
+  // Apply dark mode to document root
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
     }
+  }, [isDarkMode])
+
+  const handleAskLawyer = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!query.trim()) return
+
+    // Optimistic UI update for user message
+    setMessages(prev => [...prev, { role: 'user', text: query, citations: [] }])
+    setQuery('')
+
+    // TODO: Wire up to tRPC mutation here
+    // trpc.chat.askLawyer.useMutation()
   }
 
   return (
-    <div className="min-h-screen py-8 px-4">
-      {/* 
-        Header Component from @repo/ui
-        This comes from our shared "costume closet" (packages/ui)
-        Any app in the monorepo can use this same Header!
-      */}
-      <Header title="The Hytel Way" />
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      {/* Navbar */}
+      <Navbar onToggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
 
-      {/* Logo Section */}
-      <div className="flex justify-center gap-8 my-8">
-        <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
-          <img src={reactLogo} className="logo" alt="React logo" />
-        </a>
-      </div>
+      {/* Main Centered Chat Container */}
+      <main className="flex-1 w-full max-w-4xl mx-auto p-4 md:p-8 flex flex-col">
+        {/* Warning/Disclaimer Banner */}
+        <div className="mb-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-sm p-3 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800 dark:text-amber-400">
+            <strong>Disclaimer:</strong> Maneho.ai provides AI-generated guidance based on official
+            LTO documents. Always verify with actual traffic enforcers or official LTO branches for
+            formal legal disputes.
+          </p>
+        </div>
 
-      {/* Main Content Grid */}
-      <div className="max-w-4xl mx-auto grid gap-6 md:grid-cols-2">
-        {/* 
-          Interactive Counter Card
-          Demonstrates React state + Shadcn UI components
-        */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Interactive Counter</CardTitle>
+        <Card className="flex-1 flex flex-col shadow-none rounded-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 min-h-[65vh]">
+          <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <CardTitle className="flex items-center gap-2 text-xl text-slate-800 dark:text-slate-100">
+              <Scale className="text-primary" size={24} />
+              Legal Assistant
+            </CardTitle>
             <CardDescription>
-              Click the buttons to change the count. This demonstrates React state management - when
-              count changes, the UI updates automatically!
+              Ask questions about LTO violations, fines, and road policies.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <p className="text-6xl font-bold text-primary mb-6">{count}</p>
-              <div className="flex justify-center gap-4">
-                {/* 
-                  Shadcn UI Buttons
-                  These come from packages/ui/components/ui/button.tsx
-                  The "variant" prop changes the button style (like costume options!)
-                */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setCount(c => c - 1)}
-                  aria-label="Decrement counter"
+
+          <CardContent className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] md:max-w-[75%] rounded-sm px-5 py-4 text-sm ${
+                    msg.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200'
+                  }`}
                 >
-                  - Decrease
-                </Button>
-                <Button
-                  variant="default"
-                  size="lg"
-                  onClick={() => setCount(c => c + 1)}
-                  aria-label="Increment counter"
-                >
-                  + Increase
-                </Button>
+                  {/* Message Text */}
+                  <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
+
+                  {/* Inline Citations (Only show for assistant if they exist) */}
+                  {msg.role === 'assistant' && msg.citations && msg.citations.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1">
+                        <FileText size={12} />
+                        Sources
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {msg.citations.map((cite, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                          >
+                            {cite}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ))}
           </CardContent>
-          <CardFooter className="justify-center">
-            <Button variant="ghost" onClick={() => setCount(0)}>
-              Reset to Zero
-            </Button>
-            <Button variant="secondary" onClick={testFirestore}>
-              Test Firebase Connection
-            </Button>
+
+          <CardFooter className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
+            <form onSubmit={handleAskLawyer} className="flex w-full gap-2">
+              <input
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="e.g., What is the fine for driving a colorum vehicle?"
+                className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-sm bg-white dark:bg-slate-950 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-colors"
+              />
+              <Button
+                type="submit"
+                className="rounded-sm shadow-none gap-2 px-6 bg-primary hover:bg-primary/90 text-white"
+                disabled={!query.trim()}
+              >
+                <Send size={16} />
+                Ask
+              </Button>
+            </form>
           </CardFooter>
         </Card>
-
-        {/* 
-          Stack Info Card
-          Educational content about the monorepo structure
-        */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Stack Overview</CardTitle>
-            <CardDescription>
-              What powers this template? Here's the cast of characters!
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>pnpm</strong> - Fast, disk-efficient package manager
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>Turborepo</strong> - Smart monorepo build system
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>React + Vite</strong> - Fast UI development
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>Tailwind + Shadcn</strong> - Beautiful styling
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>tRPC</strong> - Type-safe API layer
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <div>
-                <strong>TanStack Query</strong> - Server state management
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 
-          Monorepo Structure Card
-        */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Monorepo Structure</CardTitle>
-            <CardDescription>Where to find things in this project</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6 text-sm font-mono">
-              <div>
-                <h4 className="font-bold text-primary mb-2">apps/</h4>
-                <ul className="space-y-1 text-muted-foreground">
-                  <li>
-                    |-- web/ <span className="text-xs">(this React app)</span>
-                  </li>
-                  <li>
-                    |-- functions/ <span className="text-xs">(tRPC backend)</span>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold text-primary mb-2">packages/</h4>
-                <ul className="space-y-1 text-muted-foreground">
-                  <li>
-                    |-- ui/ <span className="text-xs">(shared components)</span>
-                  </li>
-                  <li>
-                    |-- shared/ <span className="text-xs">(Zod schemas)</span>
-                  </li>
-                  <li>
-                    |-- config/ <span className="text-xs">(TypeScript config)</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="justify-center gap-4">
-            <a href="https://turbo.build/repo/docs" target="_blank" rel="noopener noreferrer">
-              <Button variant="secondary">Turborepo Docs</Button>
-            </a>
-            <a href="https://ui.shadcn.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="secondary">Shadcn UI Docs</Button>
-            </a>
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* Footer */}
-      <p className="text-center text-muted-foreground mt-8 text-sm">
-        Edit <code className="bg-muted px-1 rounded">apps/web/src/App.tsx</code> and save to see hot
-        reload in action!
-      </p>
+      </main>
     </div>
+  )
+}
+
+/**
+ * Main App Wrapper with Theme Provider
+ */
+export function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }

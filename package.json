@@ -10,6 +10,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:coverage": "turbo run test -- --coverage",
+    "test:ingest": "pnpm --filter @repo/functions test:ingest",
+    "ingest": "pnpm --filter @repo/functions ingest",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yaml,yml}\"",
     "sync:lint": "syncpack lint",
@@ -23,7 +25,10 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "eslint": "^8.57.0",
+    "express": "^5.2.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
@@ -44,6 +49,12 @@
     ]
   },
   "dependencies": {
-    "firebase": "^12.9.0"
+    "firebase": "^12.9.0",
+    "long": "^5.3.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "long": "^5.3.2"
+    }
   }
 }

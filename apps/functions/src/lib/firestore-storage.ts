@@ -1,0 +1,372 @@
+/**
+ * Firestore Storage Module
+ * Handles persistence of documents and chunks for RAG system
+ *
+ * Data Structure:
+ * documents/{documentId}
+ *   - metadata, createdAt, updatedAt, chunkCount, etc.
+ * documents/{documentId}/chunks/{chunkId}
+ *   - chunk text, embedding, metadata, chunkIndex
+ */
+
+import { getFirestore } from './firebase-admin'
+import type { DocumentData, WriteResult } from 'firebase-admin/firestore'
+
+export interface DocumentRecord {
+  documentId: string
+  documentType: string
+  year?: number
+  date?: string
+  jurisdiction?: string
+  chunkCount: number
+  createdAt: Date
+  updatedAt: Date
+  status: 'active' | 'archived' | 'processing'
+  totalCharacters?: number
+}
+
+export interface ChunkRecord {
+  chunkId: string
+  documentId: string
+  chunkIndex: number
+  text: string
+  embedding?: number[]
+  metadata: Record<string, unknown>
+  createdAt: Date
+}
+
+/**
+ * Store document metadata in Firestore
+ */
+export async function storeDocumentMetadata(
+  documentRecord: Omit<DocumentRecord, 'createdAt' | 'updatedAt'> & {
+    createdAt?: Date
+    updatedAt?: Date
+  }
+): Promise<WriteResult> {
+  const db = getFirestore()
+
+  const now = new Date()
+  const docData = {
+    ...documentRecord,
+    createdAt: documentRecord.createdAt || now,
+    updatedAt: documentRecord.updatedAt || now,
+  }
+
+  // Filter out undefined values - Firestore doesn't allow undefined fields
+  const cleanedData = Object.fromEntries(Object.entries(docData).filter(([, v]) => v !== undefined))
+
+  try {
+    const result = await db.collection('documents').doc(documentRecord.documentId).set(cleanedData)
+
+    console.log(`[Firestore] ✓ Stored document metadata: ${documentRecord.documentId}`)
+    return result
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to store document metadata:`, error)
+    throw error
+  }
+}
+
+/**
+ * Store chunks for a document
+ * Uses batch writes (up to 500 ops per batch) with fallback to individual sets
+ * Graceful: continues even if individual chunks fail
+ */
+export async function storeChunks(
+  documentId: string,
+  chunks: Array<{
+    chunkId: string
+    chunkIndex: number
+    text: string
+    embedding?: number[]
+    metadata: Record<string, unknown>
+  }>
+): Promise<WriteResult[]> {
+  const db = getFirestore()
+  const results: WriteResult[] = []
+  const chunkCollection = db.collection('documents').doc(documentId).collection('chunks')
+  const batchSize = 100 // Process 100 chunks per attempt before trying batch write
+
+  try {
+    // Process chunks in batches using atomic batch writes
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batchChunks = chunks.slice(i, i + batchSize)
+      const batch = db.batch()
+      const batchNumber = Math.floor(i / batchSize) + 1
+
+      try {
+        // Prepare batch operations
+        for (const chunk of batchChunks) {
+          const chunkData: ChunkRecord = {
+            chunkId: chunk.chunkId,
+            documentId,
+            chunkIndex: chunk.chunkIndex,
+            text: chunk.text,
+            embedding: chunk.embedding,
+            metadata: chunk.metadata,
+            createdAt: new Date(),
+          }
+
+          // Filter out undefined values - critical for Firestore compatibility
+          const cleanedChunkData = Object.fromEntries(
+            Object.entries(chunkData).filter(([, v]) => v !== undefined)
+          )
+
+          batch.set(chunkCollection.doc(chunk.chunkId), cleanedChunkData)
+        }
+
+        // Attempt batch commit
+        try {
+          await batch.commit()
+          console.log(
+            `[Firestore] ✓ Batch ${batchNumber}: Stored ${batchChunks.length} chunks (batch write)`
+          )
+          // Record batch success - add placeholder results for each chunk
+          results.push(...batchChunks.map(() => ({}) as WriteResult))
+        } catch (batchError) {
+          // If batch write fails (e.g., util.Long error), fallback to individual writes
+          console.warn(
+            `[Firestore] Batch ${batchNumber}: Batch write failed, falling back to individual writes`,
+            batchError instanceof Error ? batchError.message : String(batchError)
+          )
+
+          // Fallback: write each chunk individually
+          for (const chunk of batchChunks) {
+            try {
+              const chunkData: ChunkRecord = {
+                chunkId: chunk.chunkId,
+                documentId,
+                chunkIndex: chunk.chunkIndex,
+                text: chunk.text,
+                embedding: chunk.embedding,
+                metadata: chunk.metadata,
+                createdAt: new Date(),
+              }
+
+              const cleanedChunkData = Object.fromEntries(
+                Object.entries(chunkData).filter(([, v]) => v !== undefined)
+              )
+
+              const result = await chunkCollection.doc(chunk.chunkId).set(cleanedChunkData)
+              results.push(result)
+              console.log(
+                `[Firestore] Batch ${batchNumber}: ✓ Chunk ${chunk.chunkId} (individual write)`
+              )
+            } catch (individualError) {
+              console.error(
+                `[Firestore] Batch ${batchNumber}: ✗ Failed to write chunk ${chunk.chunkId}:`,
+                individualError instanceof Error ? individualError.message : String(individualError)
+              )
+              // Continue with next chunk even if this one fails (graceful degradation)
+            }
+          }
+        }
+      } catch (batchPrepError) {
+        console.error(
+          `[Firestore] Batch ${batchNumber}: ✗ Error preparing batch:`,
+          batchPrepError instanceof Error ? batchPrepError.message : String(batchPrepError)
+        )
+        // Continue with next batch
+        continue
+      }
+    }
+
+    const successCount = results.filter(r => r !== undefined).length
+    console.log(
+      `[Firestore] ✓ Completed storing chunks: ${successCount}/${chunks.length} successful`
+    )
+    return results
+  } catch (error) {
+    console.error(`[Firestore] ✗ Critical error in storeChunks:`, error)
+    // Don't throw - already logged individual failures
+    return results
+  }
+}
+
+/**
+ * Retrieve document metadata
+ */
+export async function getDocumentMetadata(documentId: string): Promise<DocumentRecord | null> {
+  const db = getFirestore()
+
+  try {
+    const doc = await db.collection('documents').doc(documentId).get()
+
+    if (!doc.exists) {
+      return null
+    }
+
+    return doc.data() as DocumentRecord
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to retrieve document metadata:`, error)
+    throw error
+  }
+}
+
+/**
+ * Retrieve all chunks for a document
+ */
+export async function getDocumentChunks(documentId: string): Promise<ChunkRecord[]> {
+  const db = getFirestore()
+
+  try {
+    const snapshot = await db
+      .collection('documents')
+      .doc(documentId)
+      .collection('chunks')
+      .orderBy('chunkIndex', 'asc')
+      .get()
+
+    return snapshot.docs.map(doc => doc.data() as ChunkRecord)
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to retrieve chunks:`, error)
+    throw error
+  }
+}
+
+/**
+ * Update document status
+ */
+export async function updateDocumentStatus(
+  documentId: string,
+  status: 'active' | 'archived' | 'processing'
+): Promise<WriteResult> {
+  const db = getFirestore()
+
+  try {
+    const result = await db.collection('documents').doc(documentId).update({
+      status,
+      updatedAt: new Date(),
+    })
+
+    console.log(`[Firestore] ✓ Updated document status: ${documentId} -> ${status}`)
+    return result
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to update document status:`, error)
+    throw error
+  }
+}
+
+/**
+ * Delete document and all its chunks
+ */
+export async function deleteDocument(documentId: string): Promise<void> {
+  const db = getFirestore()
+
+  try {
+    // Delete all chunks
+    const chunksSnapshot = await db
+      .collection('documents')
+      .doc(documentId)
+      .collection('chunks')
+      .get()
+
+    for (const doc of chunksSnapshot.docs) {
+      await doc.ref.delete()
+    }
+
+    // Delete document metadata
+    await db.collection('documents').doc(documentId).delete()
+
+    console.log(`[Firestore] ✓ Deleted document and chunks: ${documentId}`)
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to delete document:`, error)
+    throw error
+  }
+}
+
+/**
+ * Get all documents with pagination
+ */
+export async function listDocuments(
+  status: 'active' | 'archived' | 'all' = 'active',
+  limit = 50
+): Promise<{
+  documents: Array<DocumentRecord & { _id: string }>
+  hasMore: boolean
+}> {
+  const db = getFirestore()
+
+  try {
+    let baseQuery:
+      | import('firebase-admin/firestore').CollectionReference<DocumentData>
+      | import('firebase-admin/firestore').Query<DocumentData> = db.collection('documents')
+
+    if (status !== 'all') {
+      baseQuery = (
+        baseQuery as import('firebase-admin/firestore').CollectionReference<DocumentData>
+      ).where('status', '==', status)
+    }
+
+    const q = (baseQuery as import('firebase-admin/firestore').Query<DocumentData>)
+      .orderBy('createdAt', 'desc')
+      .limit(limit + 1) // +1 to check if hasMore
+
+    const snapshot = await q.get()
+
+    const documents = snapshot.docs
+      .slice(0, limit)
+      .map((doc: import('firebase-admin/firestore').QueryDocumentSnapshot<DocumentData>) => ({
+        ...doc.data(),
+        _id: doc.id,
+      })) as (DocumentRecord & { _id: string })[]
+
+    return {
+      documents,
+      hasMore: snapshot.docs.length > limit,
+    }
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to list documents:`, error)
+    throw error
+  }
+}
+
+/**
+ * Get document statistics
+ */
+export async function getDocumentStats(): Promise<{
+  totalDocuments: number
+  activeDocuments: number
+  archivedDocuments: number
+  totalChunks: number
+}> {
+  const db = getFirestore()
+
+  try {
+    // Get all documents
+    const docsSnapshot = await db.collection('documents').get()
+
+    let totalChunks = 0
+    let activeDocuments = 0
+    let archivedDocuments = 0
+
+    for (const doc of docsSnapshot.docs) {
+      const data = doc.data() as DocumentRecord
+      if (data.status === 'active') {
+        activeDocuments++
+      } else if (data.status === 'archived') {
+        archivedDocuments++
+      }
+
+      // Get chunk count for this document
+      const chunksSnapshot = await db
+        .collection('documents')
+        .doc(doc.id)
+        .collection('chunks')
+        .count()
+        .get()
+
+      totalChunks += chunksSnapshot.data().count
+    }
+
+    return {
+      totalDocuments: docsSnapshot.size,
+      activeDocuments,
+      archivedDocuments,
+      totalChunks,
+    }
+  } catch (error) {
+    console.error(`[Firestore] ✗ Failed to get statistics:`, error)
+    throw error
+  }
+}
