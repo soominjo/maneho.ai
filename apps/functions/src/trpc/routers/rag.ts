@@ -41,7 +41,7 @@ export const ragRouter = router({
       const searchResults = await searchSimilarDocuments(queryEmbedding, 5)
       console.log(`[RAG] ✓ Vector Search returned ${searchResults.length} results`)
 
-      // Step 3: Fetch actual chunk text from Firestore (FIXED NESTED LOGIC)
+      // Step 3: Fetch actual chunk text from Firestore (FIXED NESTED LOGIC)g
 
       // 🚨 SELF-HEALING FIREBASE INIT (Fixes the test script crash)
       if (getApps().length === 0) {
