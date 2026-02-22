@@ -1,5 +1,5 @@
 // Test Gemini REST API - try v1 instead of v1beta
-const apiKey = "AIzaSyB2j_kiVYbqT7kyVSgurzL529pcqSdOm5s";
+const apiKey = "[ENCRYPTION_KEY]";
 
 const payload = {
   contents: [{

@@ -1,5 +1,5 @@
 // Test Gemini API directly
-const apiKey = "AIzaSyB2j_kiVYbqT7kyVSgurzL529pcqSdOm5s";
+const apiKey = "[ENCRYPTION_KEY]";
 
 const payload = {
   contents: [{
