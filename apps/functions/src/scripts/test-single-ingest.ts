@@ -1,5 +1,5 @@
 /**
- * Test single file ingestion for debugging Vector Search
+ * Test single file ingestion for debugging Firestore ingestion
  * Usage: pnpm run test:ingest
  */
 
@@ -21,7 +21,7 @@ async function testSingleIngest() {
   const testText = `
     TRAFFIC VIOLATION GUIDELINES - TEST DOCUMENT
 
-    This is a test document to verify Vector Search ingestion is working.
+    This is a test document to verify Firestore ingestion is working.
 
     Speeding violations:
     - 1-10 km/h over limit: P500 fine
@@ -34,9 +34,9 @@ async function testSingleIngest() {
 
     This test verifies that chunks are properly:
     1. Generated from the text
-    2. Embedded via Vertex AI
-    3. Upserted to Vector Search Index
-    4. Retrievable via search queries
+    2. Embedded via Gemini text-embedding-004 (200x cheaper than Vertex AI)
+    3. Stored in Firestore with embeddings
+    4. Retrievable via Firestore similarity search
   `
 
   try {
@@ -61,8 +61,8 @@ async function testSingleIngest() {
     console.log(`   Message: ${result.message}`)
 
     console.log('\n🔍 Next steps:')
-    console.log('1. Check if chunks appear in Vector Search Index (Google Cloud Console)')
-    console.log('2. Run the test RAG query: node apps/functions/test-rag-simple.js')
+    console.log('1. Check if chunks appear in Firestore (Google Cloud Console)')
+    console.log('2. Run the test RAG query: pnpm run test:rag')
     console.log('3. The RAG query should now find results for "speeding violation fine"')
   } catch (error) {
     console.error('\n❌ Ingestion failed:')

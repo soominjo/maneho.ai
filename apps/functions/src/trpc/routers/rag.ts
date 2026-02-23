@@ -14,7 +14,8 @@ import {
   ExamQuizSchema,
 } from '@repo/shared'
 import * as threadStorage from '../../lib/thread-storage'
-import { generateEmbedding, searchSimilarDocuments } from '../../utils/vertex-ai'
+import { generateGeminiEmbedding } from '../../utils/gemini-embeddings'
+import { searchSimilarDocuments } from '../../utils/firestore-search'
 import {
   generateRAGAnswer,
   callGeminiAPI,
@@ -51,12 +52,12 @@ export const ragRouter = router({
       })
 
       // Step 1: Generate embedding for the query (768-dim)
-      const queryEmbedding = await generateEmbedding(input.query)
+      const queryEmbedding = await generateGeminiEmbedding(input.query)
       console.log(`[RAG] ✓ Generated query embedding (${queryEmbedding.length} dimensions)`)
 
-      // Step 2: Search Vector Search Index for relevant documents
+      // Step 2: Search Firestore for relevant documents using similarity
       const searchResults = await searchSimilarDocuments(queryEmbedding, 5)
-      console.log(`[RAG] ✓ Vector Search returned ${searchResults.length} results`)
+      console.log(`[RAG] ✓ Firestore search returned ${searchResults.length} results`)
 
       // Step 3: Fetch actual chunk text from Firestore
 
@@ -100,7 +101,7 @@ export const ragRouter = router({
       }
 
       if (sourceDocuments.length === 0) {
-        console.warn('[RAG] ⚠️ No documents found in Vector Search or Firestore.')
+        console.warn('[RAG] ⚠️ No documents found in Firestore.')
       } else {
         console.log(`[RAG] 📚 Passing ${sourceDocuments.length} source chunks to Gemini...`)
       }
@@ -188,12 +189,12 @@ export const ragRouter = router({
 
       // Step 3: Generate embedding for violation lookup in LTO documents
       const searchQuery = `Philippine traffic violation fine penalty: ${violationText}`
-      const queryEmbedding = await generateEmbedding(searchQuery)
+      const queryEmbedding = await generateGeminiEmbedding(searchQuery)
       console.log(`[Ticket Decoder] ✓ Generated query embedding (${queryEmbedding.length} dims)`)
 
-      // Step 4: Search Vector Search Index for relevant LTO law chunks
+      // Step 4: Search Firestore for relevant LTO law chunks
       const searchResults = await searchSimilarDocuments(queryEmbedding, 5)
-      console.log(`[Ticket Decoder] ✓ Vector Search returned ${searchResults.length} results`)
+      console.log(`[Ticket Decoder] ✓ Firestore search returned ${searchResults.length} results`)
 
       // Step 5: Fetch actual chunk text from Firestore (same pattern as askLawyer)
       if (getApps().length === 0) {
@@ -360,7 +361,7 @@ Please try again or contact support if the problem persists.`
     .mutation(async ({ input }) => {
       try {
         // Step 1: Search RAG for applicable laws
-        const embedding = await generateEmbedding(input.situation)
+        const embedding = await generateGeminiEmbedding(input.situation)
         const relevantLaws = await searchSimilarDocuments(embedding, 3)
 
         // Step 2: Generate script using Gemini
@@ -397,13 +398,13 @@ Please try again or contact support if the problem persists.`
     .mutation(async ({ input }) => {
       try {
         // Step 1: Search for vehicle class fee in LTO documents
-        const feeEmbedding = await generateEmbedding(
+        const feeEmbedding = await generateGeminiEmbedding(
           `${input.vehicleType} registration renewal fee LTO`
         )
         const feeResults = await searchSimilarDocuments(feeEmbedding, 2)
 
         // Step 2: Search for penalty structure (based on months late)
-        const penaltyEmbedding = await generateEmbedding(
+        const penaltyEmbedding = await generateGeminiEmbedding(
           `penalty for late renewal ${input.monthsLate} months`
         )
         const penaltyResults = await searchSimilarDocuments(penaltyEmbedding, 2)

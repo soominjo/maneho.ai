@@ -1,6 +1,6 @@
 /**
  * Test RAG Query Pipeline
- * Verifies Vector Search returns results with correct embedding dimensions
+ * Verifies Firestore search returns results with correct embedding dimensions
  * Usage: pnpm run test:rag
  */
 
@@ -16,19 +16,14 @@ const __dirname = path.dirname(__filename)
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 // Verify environment variables are loaded
-console.log('[ENV] VERTEX_AI_INDEX_ID:', process.env.VERTEX_AI_INDEX_ID ? '✓ Set' : '✗ Missing')
-console.log(
-  '[ENV] VERTEX_AI_ENDPOINT_ID:',
-  process.env.VERTEX_AI_ENDPOINT_ID ? '✓ Set' : '✗ Missing'
-)
-console.log(
-  '[ENV] VERTEX_AI_DEPLOYED_INDEX_ID:',
-  process.env.VERTEX_AI_DEPLOYED_INDEX_ID ? '✓ Set' : '✗ Missing'
-)
+console.log('[ENV] GCP_PROJECT_ID:', process.env.GCP_PROJECT_ID ? '✓ Set' : '✗ Missing')
+console.log('[ENV] FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? '✓ Set' : '✗ Missing')
+console.log('[ENV] GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '✓ Set' : '✗ Missing')
 console.log()
 
 // NOW import modules that depend on environment variables
-import { generateEmbedding, searchSimilarDocuments } from '../utils/vertex-ai'
+import { generateGeminiEmbedding } from '../utils/gemini-embeddings'
+import { searchSimilarDocuments } from '../utils/firestore-search'
 import { getFirestore } from '../lib/firebase-admin'
 
 async function testRAGQuery() {
@@ -39,7 +34,7 @@ async function testRAGQuery() {
 
   // Step 1: Generate query embedding
   console.log('\n1️⃣ Generating query embedding...')
-  const embedding = await generateEmbedding(testQuery)
+  const embedding = await generateGeminiEmbedding(testQuery)
   console.log(`   ✓ Embedding dimension: ${embedding.length}`)
 
   if (embedding.length !== 768) {
@@ -48,17 +43,17 @@ async function testRAGQuery() {
     process.exit(1)
   }
 
-  // Step 2: Search Vector Search index
-  console.log('\n2️⃣ Searching Vector Search index...')
+  // Step 2: Search Firestore for similar documents
+  console.log('\n2️⃣ Searching Firestore for similar documents...')
   const results = await searchSimilarDocuments(embedding, 5)
   console.log(`   ✓ Found ${results.length} results`)
 
   if (results.length === 0) {
-    console.error('   ❌ NO RESULTS FOUND - Vector Search still broken!')
+    console.error('   ❌ NO RESULTS FOUND - Firestore search returned no documents!')
     console.error('\n💡 Possible causes:')
-    console.error('   1. Ghost data: Old 3072-dim embeddings still in index (wait 2-3 min)')
-    console.error('   2. No documents: Run "pnpm run ingest" first')
-    console.error('   3. Index issue: Check VERTEX_AI_INDEX_ID in .env')
+    console.error('   1. No documents ingested: Run "pnpm run ingest" first')
+    console.error('   2. No embeddings in Firestore: Check that chunks have embedding field')
+    console.error('   3. Firestore connection issue: Check GCP_PROJECT_ID in .env')
     process.exit(1)
   }
 
@@ -68,20 +63,22 @@ async function testRAGQuery() {
 
   for (const result of results) {
     console.log(`\n   Result ID: ${result.documentId}`)
-    console.log(`   Distance: ${result.similarity}`)
+    console.log(`   Cosine Similarity: ${result.distance?.toFixed(4)}`)
 
-    // 🔍 "Smoking Gun" Verification:
-    // ✅ Good (Fixed): Distance 0.12 to 0.45 = embeddings are semantically similar
-    // ❌ Bad (Padded): Distance 0.0 or very high (>0.8) = embeddings are corrupted
-    if (result.similarity > 0.8 || result.similarity === 0.0) {
-      console.error(`   ⚠️ SUSPICIOUS DISTANCE! This might indicate corrupted embeddings.`)
-      console.error(`      Distance ${result.similarity} suggests 3072-dim ghost data.`)
-    } else if (result.similarity < 0.5) {
-      console.log(`   ✅ Good distance - embeddings are working correctly!`)
+    // 🔍 Similarity Score Verification (Cosine Similarity -1 to 1):
+    // ✅ Good: 0.3 to 0.7 = semantically similar documents
+    // ⚠️ Low: < 0.3 = loosely related
+    // ✅ Excellent: > 0.7 = very similar
+    if (result.distance !== undefined && result.distance < 0.3) {
+      console.warn(`   ⚠️ Low similarity score - document may be loosely related.`)
+    } else if (result.distance !== undefined && result.distance > 0.7) {
+      console.log(`   ✅ Excellent match - embeddings are working correctly!`)
+    } else {
+      console.log(`   ✅ Good match - document is relevant.`)
     }
 
-    // Parse the datapoint_id to extract document and chunk identifiers
-    // Format: "documentId_chunk_N" or just the raw ID from Vector Search
+    // Parse the documentId to extract document and chunk identifiers
+    // Format: "documentId_chunk_N" (same format used in Firestore)
     const parts = result.documentId.split('_chunk_')
     const documentId = parts[0]
     const chunkIndex = parts[1] || '0'
@@ -106,10 +103,9 @@ async function testRAGQuery() {
   }
 
   console.log('\n✅ RAG Query Pipeline working correctly!')
-  console.log('\n🔍 "Smoking Gun" Verification Summary:')
-  console.log('   ✅ Distance should be 0.12-0.45 (yours: varies by query)')
-  console.log('   ❌ Distance 0.0 or >0.8 = old padded embeddings')
-  console.log('   ✅ Your RAG system is now officially "breathing" again!')
+  console.log('\n🔍 Firestore Search Verification Summary:')
+  console.log('   ✅ Cosine similarity typically ranges from 0.3-0.9 for relevant documents')
+  console.log('   ✅ Your RAG system is using Firestore native vector search')
 }
 
 testRAGQuery().catch(error => {

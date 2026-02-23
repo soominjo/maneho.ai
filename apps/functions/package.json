@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "ingest": "tsx src/scripts/ingest-firebase-storage.ts",
+    "ingest:file": "tsx src/scripts/ingest-single-file.ts",
     "test:ingest": "tsx src/scripts/test-single-ingest.ts",
     "test:rag": "tsx src/scripts/test-rag-query.ts"
   },
@@ -24,6 +25,7 @@
     "@google-cloud/vision": "^4.3.3",
     "@repo/shared": "workspace:*",
     "@trpc/server": "^11.0.0-rc.660",
+    "axios": "^1.7.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

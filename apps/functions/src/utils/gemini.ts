@@ -78,8 +78,8 @@ interface GeminiResponse {
 
 /**
  * Generate RAG-grounded answer using Gemini
- * Takes user query and context from Vector Search results
- * Uses Gemini 1.5 Pro model for high-quality responses
+ * Takes user query and context from Firestore search results
+ * Uses Gemini 2.5 Flash model for cost-effective responses
  */
 export async function generateRAGAnswer(context: RAGContext): Promise<GeminiResponse> {
   const { query, sourceDocuments } = context
@@ -406,7 +406,7 @@ export async function generateLicenseChecklist(params: {
   isRenewal?: boolean
 }): Promise<string[]> {
   try {
-    // TODO: Implement with actual LTO requirements from Vector Search
+    // TODO: Implement with actual LTO requirements from Firestore documents
     // Type descriptions: student (Student Permit), non-professional (Non-Professional License),
     // professional (Professional License), renewal (License Renewal)
     const checklist = [

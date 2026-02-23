@@ -107,8 +107,8 @@ async function main() {
       console.log('✅ Firestore connection verified')
     } catch (firestoreError) {
       console.error('❌ Firestore connection FAILED:', firestoreError)
-      console.error('\n⚠️  Documents will be indexed in Vector Search only.')
-      console.error('Firestore storage will NOT be available.\n')
+      console.error('\n⚠️  Firestore storage will NOT be available.')
+      console.error('Document ingestion requires Firestore.\n')
     }
 
     const bucket = getStorage(app).bucket(STORAGE_BUCKET)

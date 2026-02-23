@@ -1,6 +1,6 @@
 /**
- * Embedding utilities for Vertex AI text-embedding-004 model
- * Handles chunking text and generating embeddings for RAG
+ * Embedding utilities for RAG pipeline
+ * Handles chunking text and generating embeddings for storage in Firestore
  */
 
 const CHUNK_SIZE = 1000 // Characters per chunk
@@ -115,7 +115,7 @@ export async function prepareDocumentForRAG(
   // Generate embeddings for each chunk
   const chunkEmbeddings = await generateChunkEmbeddings(chunks, embeddingFn)
 
-  // Format for Vector Search Index and Firestore
+  // Format for Firestore storage (with embeddings for similarity search)
   return chunkEmbeddings.map((item, index) => ({
     datapoint_id: `${documentId}_chunk_${index}`,
     chunk: item.chunk,

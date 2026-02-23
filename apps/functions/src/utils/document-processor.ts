@@ -4,13 +4,12 @@
  * Used by Admin Ingestion Pipeline (Epic E)
  */
 
-import { generateEmbedding, batchUpsertDatapoints } from './vertex-ai'
+import { generateGeminiEmbedding } from './gemini-embeddings'
 import { prepareDocumentForRAG } from './embeddings'
 import {
   storeDocumentMetadata,
   storeChunks,
   deleteDocument as deleteDocumentFromFirestore,
-  getDocumentChunks,
   getDocumentStats as getDocumentStatsFromFirestore,
 } from '../lib/firestore-storage'
 
@@ -26,8 +25,7 @@ interface DocumentMetadata {
  * 1. Download from Cloud Storage
  * 2. Extract text (placeholder - would use PDF library in production)
  * 3. Prepare for RAG (chunk + embed)
- * 4. Store in Firestore
- * 5. Upsert to Vector Search Index
+ * 4. Store in Firestore (with embeddings for native vector search)
  */
 export async function ingestDocument(
   documentId: string,
@@ -41,9 +39,9 @@ export async function ingestDocument(
   message: string
 }> {
   try {
-    // Step 1: Prepare document for RAG (chunks + embeddings)
+    // Step 1: Prepare document for RAG (chunks + embeddings using Gemini)
     console.log(`\n[Ingest] Starting ingestion for document: ${documentId}`)
-    const embeddingFunction = (text: string) => generateEmbedding(text)
+    const embeddingFunction = (text: string) => generateGeminiEmbedding(text)
 
     const datapointsToUpsert = await prepareDocumentForRAG(
       documentId,
@@ -65,25 +63,7 @@ export async function ingestDocument(
       }
     }
 
-    // Step 2: Upsert embeddings to Vector Search Index (non-blocking, graceful failure)
-    try {
-      await batchUpsertDatapoints(
-        datapointsToUpsert.map(dp => ({
-          documentId: dp.datapoint_id,
-          embedding: dp.embedding,
-          metadata: dp.metadata,
-        }))
-      )
-      console.log(`[Ingest] ✓ Vector Search Index: ${datapointsToUpsert.length} datapoints queued`)
-    } catch (vectorError) {
-      console.error(
-        `[Ingest] ⚠️  Vector Search upsert failed:`,
-        vectorError instanceof Error ? vectorError.message : String(vectorError)
-      )
-      // Don't fail ingestion - Firestore is backup
-    }
-
-    // Step 3: Store in Firestore (metadata + chunks)
+    // Step 2: Store in Firestore (metadata + chunks)
     let firestoreSuccess = false
     try {
       // Store document metadata
@@ -119,8 +99,8 @@ export async function ingestDocument(
         `[Ingest] ✗ Firestore storage failed for ${documentId}:`,
         firestoreError instanceof Error ? firestoreError.message : String(firestoreError)
       )
-      console.warn(`[Ingest] ⚠️  Document indexed in Vector Search but Firestore backup incomplete`)
-      // Don't fail ingestion - Vector Search is primary, Firestore is backup
+      console.warn(`[Ingest] ⚠️  Firestore storage failed, document may not be searchable`)
+      // Fail ingestion - Firestore is primary storage
     }
 
     return {
@@ -234,24 +214,7 @@ export async function deleteDocument(documentId: string): Promise<{
   message: string
 }> {
   try {
-    console.log(`Deleting document ${documentId} from index and storage...`)
-
-    // Get all chunks from Firestore to clean up Vector Search
-    const chunks = await getDocumentChunks(documentId)
-    console.log(`Found ${chunks.length} chunks to delete for document ${documentId}`)
-
-    // Delete from Vector Search Index (if available)
-    if (chunks.length > 0) {
-      try {
-        // Note: Vector Search Index deletion would require a deleteDatapoints function
-        // For now, we just log what would be deleted
-        console.log(
-          `Would delete ${chunks.length} datapoints from Vector Search Index for ${documentId}`
-        )
-      } catch (vectorError) {
-        console.warn(`Failed to delete from Vector Search:`, vectorError)
-      }
-    }
+    console.log(`Deleting document ${documentId} from storage...`)
 
     // Delete from Firestore (document + all chunks)
     await deleteDocumentFromFirestore(documentId)
@@ -283,9 +246,7 @@ export async function rebuildIndex(): Promise<{
     // Note: Full index rebuild would require:
     // 1. Fetch all documents from Firestore
     // 2. Re-chunk and re-embed each document
-    // 3. Delete old index entries from Vector Search
-    // 4. Upsert new embeddings to Vector Search
-    // 5. Update Firestore with new embeddings
+    // 3. Update Firestore with new embeddings
     //
     // This is a complex operation that would benefit from:
     // - Progress tracking/background job
@@ -326,11 +287,10 @@ export async function getDocumentStats(): Promise<{
     const stats = await getDocumentStatsFromFirestore()
 
     // Calculate document type breakdown
-    // For now, return basic stats with placeholder index size
     return {
       totalDocuments: stats.totalDocuments,
       totalChunks: stats.totalChunks,
-      indexSize: 0, // Would need to query Vector Search for actual size
+      indexSize: 0, // Firestore billing handled per read/write, not index size
       lastUpdated: new Date().toISOString(),
       byType: {
         active: stats.activeDocuments,

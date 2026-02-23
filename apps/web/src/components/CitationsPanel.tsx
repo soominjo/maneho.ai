@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '@repo/ui/components/ui/card'
 import { Badge } from '@repo/ui/components/ui/badge'
+import { formatDocTitle } from '../utils/formatDocTitle'
 
 interface Citation {
   documentId: string
@@ -58,8 +59,13 @@ export function CitationsPanel({ citations, sourceCount, isLoading }: CitationsP
                 key={`${citation.documentId}-${idx}`}
                 className="p-3 bg-slate-50 rounded-sm border border-slate-200 hover:bg-slate-100 transition-colors shadow-none"
               >
-                <p className="text-xs font-semibold text-blue-700 mb-1">{citation.documentId}</p>
-                <p className="text-sm text-slate-600 line-clamp-3">{citation.chunkText}</p>
+                <p className="text-xs font-semibold text-blue-700 mb-2">Source {idx + 1}</p>
+                <p className="text-xs text-slate-500 mb-2 line-clamp-1">
+                  {formatDocTitle(citation.documentId)}
+                </p>
+                <p className="text-sm text-slate-900 font-medium line-clamp-4">
+                  {citation.chunkText}
+                </p>
               </div>
             ))}
           </div>

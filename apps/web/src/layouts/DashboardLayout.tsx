@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
@@ -8,172 +9,141 @@ import {
   AlertTriangle,
   FileCheck,
   FileText,
-  DollarSign,
-  BookOpen,
-  ClipboardList,
-  User,
   Moon,
   Sun,
+  Menu,
+  X,
+  Bot,
 } from 'lucide-react'
-import { Button } from '@repo/ui/components/ui/button'
 
+// Primary navigation links
 const navigationItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: Home, category: null },
-  {
-    label: 'Ask Lawyer',
-    path: '/ask-lawyer',
-    icon: Scale,
-    category: 'RAG Features',
-    description: 'Legal AI Assistant',
-  },
-  {
-    label: 'Crisis Manager',
-    path: '/crisis-manager',
-    icon: AlertTriangle,
-    category: null,
-    description: 'Emergency Guidance',
-  },
-  {
-    label: 'Ticket Decoder',
-    path: '/ticket-decoder',
-    icon: FileCheck,
-    category: 'Killer Features',
-    description: 'Decode Citations',
-  },
-  {
-    label: 'Script Generator',
-    path: '/script-generator',
-    icon: FileText,
-    category: null,
-    description: 'Response Templates',
-  },
-  {
-    label: 'Cost Estimator',
-    path: '/cost-estimator',
-    icon: DollarSign,
-    category: null,
-    description: 'Fee Calculator',
-  },
-  {
-    label: 'License Wizard',
-    path: '/license-wizard',
-    icon: BookOpen,
-    category: 'Education',
-    description: 'Learning Paths',
-  },
-  {
-    label: 'Quiz & Study',
-    path: '/quiz',
-    icon: ClipboardList,
-    category: null,
-    description: 'Test Preparation',
-  },
-  { label: 'Profile', path: '/profile', icon: User, category: 'Settings', description: 'Settings' },
+  { label: 'Dashboard', path: '/dashboard', icon: Home },
+  { label: 'Ask Lawyer', path: '/ask-lawyer', icon: Scale },
+  { label: 'Ticket Decoder', path: '/ticket-decoder', icon: FileCheck },
+  { label: 'Crisis Manager', path: '/crisis-manager', icon: AlertTriangle },
+  { label: 'Script Generator', path: '/script-generator', icon: FileText },
 ]
 
 export function DashboardLayout() {
   const { quota } = useAuth()
   const { isDarkMode, toggleDarkMode } = useTheme()
   const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-200 bg-white overflow-y-auto shadow-none">
-        <div className="p-6 space-y-6">
-          {/* Logo */}
-          <div className="border-b border-slate-200 pb-6">
-            <h2 className="text-lg font-bold text-blue-700 mb-1">Maneho AI</h2>
-            <p className="text-xs text-slate-600">LTO Legal Assistant</p>
-          </div>
-
-          {/* Quota Indicator */}
-          <div className="p-4 border border-blue-200 bg-blue-50 rounded-sm shadow-none">
-            <div className="text-xs font-semibold text-slate-600 mb-3">Daily AI Credits</div>
-            <div className="text-3xl font-bold text-blue-700 mb-3">
-              {quota.limit - quota.used}/{quota.limit}
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
+      {/* Top Navbar - LTO Flat Design */}
+      <nav className="sticky top-0 z-50 bg-[#0038A8] border-b border-blue-900 shadow-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Branding (Left) */}
+            <div className="flex items-center gap-3">
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-[#0038A8]" />
+                </div>
+                <div>
+                  <h1 className="text-white font-bold text-lg leading-tight tracking-tight">
+                    Maneho.ai
+                  </h1>
+                  <p className="text-blue-200 text-[10px] uppercase tracking-wider hidden sm:block">
+                    LTO Legal Assistant
+                  </p>
+                </div>
+              </Link>
             </div>
-            <div className="w-full bg-slate-200 border border-slate-300 rounded-sm h-2 overflow-hidden shadow-none">
-              <div
-                className="bg-blue-700 h-full transition-all duration-300"
-                style={{ width: `${((quota.limit - quota.used) / quota.limit) * 100}%` }}
-              />
-            </div>
-            <div className="text-xs text-slate-500 mt-3">Resets at midnight</div>
-          </div>
 
-          {/* Navigation */}
-          <nav className="space-y-1">
-            {navigationItems.map((item, idx) => {
-              const Icon = item.icon
-              const isActive =
-                location.pathname === item.path || location.pathname.startsWith(item.path + '/')
-
-              return (
-                <div key={idx}>
-                  {item.category && (
-                    <div className="px-3 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider mt-4 mb-2">
-                      {item.category}
-                    </div>
-                  )}
+            {/* Desktop Navigation (Center) - Hidden on mobile */}
+            <div className="hidden lg:flex items-center space-x-1">
+              {navigationItems.map(item => {
+                const isActive = location.pathname.startsWith(item.path)
+                return (
                   <Link
+                    key={item.path}
                     to={item.path}
                     className={cn(
-                      'flex items-start gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all border shadow-none',
+                      'px-3 py-2 rounded-sm text-sm font-medium transition-colors shadow-none flex items-center gap-1.5',
                       isActive
-                        ? 'bg-blue-700 text-white border-blue-700'
-                        : 'text-slate-700 hover:bg-slate-50 border-slate-200 hover:border-slate-300'
+                        ? 'bg-blue-800 text-white'
+                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
                     )}
                   >
-                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div>{item.label}</div>
-                      {item.description && (
-                        <div
-                          className={cn(
-                            'text-xs mt-0.5',
-                            isActive ? 'text-blue-100' : 'text-slate-500'
-                          )}
-                        >
-                          {item.description}
-                        </div>
-                      )}
-                    </div>
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
                   </Link>
-                </div>
-              )
-            })}
-          </nav>
+                )
+              })}
+            </div>
 
-          {/* Theme Toggle */}
-          <div className="border-t border-slate-200 pt-6">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleDarkMode}
-              className="w-full justify-start gap-2 border border-slate-200 rounded-sm shadow-none"
-            >
-              {isDarkMode ? (
-                <>
-                  <Sun className="w-4 h-4" />
-                  Light Mode
-                </>
-              ) : (
-                <>
-                  <Moon className="w-4 h-4" />
-                  Dark Mode
-                </>
-              )}
-            </Button>
+            {/* Right Side Tools */}
+            <div className="flex items-center gap-3">
+              {/* Quota Badge */}
+              <div className="bg-blue-800 border border-blue-600 rounded-sm px-3 py-1.5 flex items-baseline gap-1 shadow-none hidden sm:flex">
+                <span className="text-[#FCD116] font-bold text-sm">
+                  {quota.limit - quota.used}/{quota.limit}
+                </span>
+                <span className="text-blue-200 text-xs">credits</span>
+              </div>
+
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-sm text-blue-200 hover:text-white hover:bg-blue-800 transition-colors hidden sm:block"
+                title="Toggle Theme"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                className="lg:hidden p-2 rounded-sm text-blue-200 hover:text-white hover:bg-blue-800"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
-      </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-slate-50">
-        <div className="container mx-auto px-8 py-8">
-          <Outlet />
-        </div>
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-blue-800 border-t border-blue-700 shadow-none">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* Mobile Quota display */}
+              <div className="px-3 py-2 text-sm text-blue-200 mb-2 border-b border-blue-700 flex justify-between">
+                <span>AI Credits Remaining:</span>
+                <span className="text-[#FCD116] font-bold">
+                  {quota.limit - quota.used}/{quota.limit}
+                </span>
+              </div>
+              {navigationItems.map(item => {
+                const isActive = location.pathname.startsWith(item.path)
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-sm text-base font-medium',
+                      isActive
+                        ? 'bg-blue-900 text-white'
+                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                    )}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        <Outlet />
       </main>
     </div>
   )

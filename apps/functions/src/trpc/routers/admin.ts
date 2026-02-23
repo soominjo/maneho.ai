@@ -79,8 +79,8 @@ export const adminRouter = router({
     }),
 
   /**
-   * Rebuild Vector Search Index
-   * Regenerates all embeddings (expensive operation)
+   * Rebuild Embeddings Index
+   * Regenerates all embeddings in Firestore (moderate operation)
    */
   rebuildIndex: publicProcedure.mutation(async () => {
     try {
@@ -114,9 +114,9 @@ export const adminRouter = router({
           byType: stats.byType,
         },
         index: {
-          dimensions: 3072,
+          dimensions: 768, // Using Vertex AI text-embedding-005 or Gemini text-embedding-004 (both 768-dim)
           totalChunks: stats.totalChunks,
-          indexSize: stats.indexSize,
+          indexSize: stats.indexSize, // Firestore - no separate index size
           lastUpdated: stats.lastUpdated,
         },
         system: {
