@@ -52,6 +52,7 @@ export function AskLawyerPage() {
         }
       )
       setMessages(loaded)
+
     }
   }, [threadQuery.data])
 
@@ -79,6 +80,8 @@ export function AskLawyerPage() {
             sourceCount: data.sourceCount,
           },
         ])
+        setLastCitations(data.citations || [])
+        setLastSourceCount(data.sourceCount || 0)
         incrementQuota()
         toast.success('Answer generated!')
 
@@ -117,6 +120,8 @@ export function AskLawyerPage() {
   const handleNewChat = () => {
     navigate('/ask-lawyer')
     setMessages([])
+    setLastCitations([])
+    setLastSourceCount(0)
   }
 
   const handleSelectThread = (selectedThreadId: string) => {

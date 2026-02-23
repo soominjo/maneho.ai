@@ -21,7 +21,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["VITE_*", "NODE_ENV", "VITE_DEV_PORT"]
     }
   }
 }

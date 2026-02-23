@@ -6,7 +6,7 @@ import './style.css'
 
 // UI Components
 import { Navbar } from '@repo/ui/Navbar'
-import { Button } from '@repo/ui/Button'
+import { Button } from '@repo/ui/components/ui/button'
 import {
   Card,
   CardHeader,
@@ -14,7 +14,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from '@repo/ui/Card'
+} from '@repo/ui/components/ui/card'
 
 // Icons from lucide-react (no emojis!)
 import { Scale, Send, FileText, AlertCircle } from 'lucide-react'
@@ -34,7 +34,7 @@ function AppContent() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: 'Magandang araw! I am Maneho.ai, your Philippine traffic law assistant. How can I help you today?',
+      text: 'Magandang araw! I am Maneho AI, your Philippine traffic law assistant. How can I help you today?',
       citations: [],
     },
   ])
@@ -71,7 +71,7 @@ function AppContent() {
         <div className="mb-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-sm p-3 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800 dark:text-amber-400">
-            <strong>Disclaimer:</strong> Maneho.ai provides AI-generated guidance based on official
+            <strong>Disclaimer:</strong> Maneho AI provides AI-generated guidance based on official
             LTO documents. Always verify with actual traffic enforcers or official LTO branches for
             formal legal disputes.
           </p>

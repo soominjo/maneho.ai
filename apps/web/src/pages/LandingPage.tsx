@@ -13,14 +13,14 @@ export function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-[calc(100vh-60px)] bg-background">
+    <div className="min-h-[calc(100vh-60px)] bg-slate-50">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-5xl font-bold mb-4 flex items-center justify-center gap-3">
-          <Car className="w-12 h-12 text-primary" />
-          Maneho.ai
+          <Car className="w-12 h-12 text-blue-700" />
+          Maneho AI
         </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
           Your AI-powered Filipino traffic and vehicle legal assistant. Get instant answers about
           LTO regulations, vehicle registration, and traffic violations.
         </p>
@@ -38,13 +38,13 @@ export function LandingPage() {
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <Scale className="w-6 h-6 text-primary" />
+                <Scale className="w-6 h-6 text-blue-700" />
                 The Lawyer
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-slate-600">
                 Ask legal questions about traffic and vehicle regulations
               </CardDescription>
             </CardHeader>
@@ -56,13 +56,15 @@ export function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <AlertCircle className="w-6 h-6 text-primary" />
+                <AlertCircle className="w-6 h-6 text-blue-700" />
                 Crisis Manager
               </CardTitle>
-              <CardDescription>Post-accident guidance and insurance analysis</CardDescription>
+              <CardDescription className="text-slate-600">
+                Post-accident guidance and insurance analysis
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -72,13 +74,15 @@ export function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <Ticket className="w-6 h-6 text-primary" />
+                <Ticket className="w-6 h-6 text-blue-700" />
                 Ticket Decoder
               </CardTitle>
-              <CardDescription>Extract and understand traffic tickets</CardDescription>
+              <CardDescription className="text-slate-600">
+                Extract and understand traffic tickets
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -88,13 +92,15 @@ export function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-primary" />
+                <DollarSign className="w-6 h-6 text-blue-700" />
                 Cost Estimator
               </CardTitle>
-              <CardDescription>Calculate vehicle registration renewal costs</CardDescription>
+              <CardDescription className="text-slate-600">
+                Calculate vehicle registration renewal costs
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -104,13 +110,15 @@ export function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-primary" />
+                <BookOpen className="w-6 h-6 text-blue-700" />
                 License Wizard
               </CardTitle>
-              <CardDescription>Personalized driver's license requirements</CardDescription>
+              <CardDescription className="text-slate-600">
+                Personalized driver's license requirements
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -120,13 +128,15 @@ export function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <GraduationCap className="w-6 h-6 text-primary" />
+                <GraduationCap className="w-6 h-6 text-blue-700" />
                 Quiz & Study
               </CardTitle>
-              <CardDescription>Interactive LTO exam preparation</CardDescription>
+              <CardDescription className="text-slate-600">
+                Interactive LTO exam preparation
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -141,7 +151,7 @@ export function LandingPage() {
       {/* Pricing Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-3xl font-bold mb-4">Always Free During Beta</h2>
-        <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
           20 AI-powered interactions per day. No credit card required. Sign up now and start getting
           expert legal guidance instantly.
         </p>

@@ -139,6 +139,54 @@ Provide a clear, helpful answer with citations to the specific documents used.`
 }
 
 /**
+ * Extract focused violation text from raw ticket OCR output
+ * Removes boilerplate and extracts only the violation details for accurate vector search
+ * Searches for key sections: VIOLATION, FINE, REMARKS
+ */
+export function extractViolationText(ticketText: string): string {
+  // Priority 1: Look for "VIOLATION(S)" section with nearby fine amounts
+  const violationMatch = ticketText.match(/VIOLATION[S]?[\s:]*([^A-Z]+?)(?=REMARKS|FINE|$)/i)
+  if (violationMatch) {
+    const violation = violationMatch[1].trim()
+    if (violation.length > 20) {
+      // Extract fine amounts if present
+      const fineMatch = ticketText.match(/FINE[\s:]*[₱$]?([\d,]+\.?\d*)/i)
+      const fineText = fineMatch ? ` Fine: ₱${fineMatch[1]}` : ''
+      return `${violation}${fineText}`
+    }
+  }
+
+  // Priority 2: Extract "Violation Type(s)" from structured OCR output
+  const structuredMatch = ticketText.match(/Violation Type\(s?\):\s*(.+?)(?:\n|$)/i)
+  if (structuredMatch) {
+    const violations = structuredMatch[1].trim()
+    const fineMatch = ticketText.match(/Fine Amount\(s?\):\s*([₱$\d,.\s]+?)(?:\n|$)/i)
+    const fineText = fineMatch ? ` ${fineMatch[1].trim()}` : ''
+    return `Philippine traffic violation: ${violations}${fineText}`
+  }
+
+  // Priority 3: Extract any text mentioning violation/fine keywords
+  const keywordMatch = ticketText.match(/(violation|offense|fine|penalty)[:\s]+([^.!?\n]+[.!?]?)/gi)
+  if (keywordMatch) {
+    const violations = keywordMatch.slice(0, 3).join(' | ')
+    if (violations.length > 20) {
+      return violations
+    }
+  }
+
+  // Fallback: Use first 300 chars if no clear violation section found
+  // This ensures focused content without entire boilerplate
+  const cleaned = ticketText
+    .split('\n')
+    .filter(line => line.trim().length > 0)
+    .slice(0, 5)
+    .join(' ')
+    .substring(0, 300)
+
+  return cleaned || ticketText.substring(0, 300)
+}
+
+/**
  * Detect MIME type from a URL or default to jpeg
  */
 function detectMimeType(url: string): string {

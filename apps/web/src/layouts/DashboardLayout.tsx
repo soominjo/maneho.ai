@@ -15,7 +15,7 @@ import {
   Moon,
   Sun,
 } from 'lucide-react'
-import { Button } from '@repo/ui/Button'
+import { Button } from '@repo/ui/components/ui/button'
 
 const navigationItems = [
   { label: 'Dashboard', path: '/dashboard', icon: Home, category: null },
@@ -79,27 +79,27 @@ export function DashboardLayout() {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card overflow-y-auto">
+      <aside className="w-64 border-r border-slate-200 bg-white overflow-y-auto shadow-none">
         <div className="p-6 space-y-6">
           {/* Logo */}
-          <div className="border-b border-border pb-6">
-            <h2 className="text-lg font-bold text-primary mb-1">Maneho.ai</h2>
-            <p className="text-xs text-muted-foreground">LTO Legal Assistant</p>
+          <div className="border-b border-slate-200 pb-6">
+            <h2 className="text-lg font-bold text-blue-700 mb-1">Maneho AI</h2>
+            <p className="text-xs text-slate-600">LTO Legal Assistant</p>
           </div>
 
           {/* Quota Indicator */}
-          <div className="p-4 border border-border bg-primary/5 rounded-sm">
-            <div className="text-xs font-semibold text-muted-foreground mb-3">Daily AI Credits</div>
-            <div className="text-3xl font-bold text-primary mb-3">
+          <div className="p-4 border border-blue-200 bg-blue-50 rounded-sm shadow-none">
+            <div className="text-xs font-semibold text-slate-600 mb-3">Daily AI Credits</div>
+            <div className="text-3xl font-bold text-blue-700 mb-3">
               {quota.limit - quota.used}/{quota.limit}
             </div>
-            <div className="w-full bg-border rounded-sm h-2 overflow-hidden">
+            <div className="w-full bg-slate-200 border border-slate-300 rounded-sm h-2 overflow-hidden shadow-none">
               <div
-                className="bg-primary h-full transition-all duration-300"
+                className="bg-blue-700 h-full transition-all duration-300"
                 style={{ width: `${((quota.limit - quota.used) / quota.limit) * 100}%` }}
               />
             </div>
-            <div className="text-xs text-muted-foreground mt-3">Resets at midnight</div>
+            <div className="text-xs text-slate-500 mt-3">Resets at midnight</div>
           </div>
 
           {/* Navigation */}
@@ -112,17 +112,17 @@ export function DashboardLayout() {
               return (
                 <div key={idx}>
                   {item.category && (
-                    <div className="px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">
+                    <div className="px-3 py-3 text-xs font-semibold text-slate-600 uppercase tracking-wider mt-4 mb-2">
                       {item.category}
                     </div>
                   )}
                   <Link
                     to={item.path}
                     className={cn(
-                      'flex items-start gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all border border-transparent',
+                      'flex items-start gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all border shadow-none',
                       isActive
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'text-foreground hover:bg-muted border-border hover:border-border'
+                        ? 'bg-blue-700 text-white border-blue-700'
+                        : 'text-slate-700 hover:bg-slate-50 border-slate-200 hover:border-slate-300'
                     )}
                   >
                     <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -132,7 +132,7 @@ export function DashboardLayout() {
                         <div
                           className={cn(
                             'text-xs mt-0.5',
-                            isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            isActive ? 'text-blue-100' : 'text-slate-500'
                           )}
                         >
                           {item.description}
@@ -146,12 +146,12 @@ export function DashboardLayout() {
           </nav>
 
           {/* Theme Toggle */}
-          <div className="border-t border-border pt-6">
+          <div className="border-t border-slate-200 pt-6">
             <Button
               variant="outline"
               size="sm"
               onClick={toggleDarkMode}
-              className="w-full justify-start gap-2 border border-border rounded-sm"
+              className="w-full justify-start gap-2 border border-slate-200 rounded-sm shadow-none"
             >
               {isDarkMode ? (
                 <>
@@ -170,7 +170,7 @@ export function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-background">
+      <main className="flex-1 overflow-y-auto bg-slate-50">
         <div className="container mx-auto px-8 py-8">
           <Outlet />
         </div>

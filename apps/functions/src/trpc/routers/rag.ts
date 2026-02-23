@@ -19,6 +19,7 @@ import {
   generateRAGAnswer,
   callGeminiAPI,
   extractTicketText,
+  extractViolationText,
   generateArgumentScript,
   analyzeInsuranceCoverage,
   explainTrafficRule,
@@ -178,16 +179,23 @@ export const ragRouter = router({
       })
       console.log(`[Ticket Decoder] ✓ Extracted ticket text (${ticketText.length} chars)`)
 
-      // Step 2: Generate embedding for violation lookup in LTO documents
-      const searchQuery = `Philippine traffic violation fine penalty: ${ticketText.substring(0, 500)}`
+      // Step 2: Extract focused violation text for accurate vector search
+      // This avoids passing boilerplate to the embedding model
+      const violationText = extractViolationText(ticketText)
+      console.log(
+        `[Ticket Decoder] ✓ Extracted focused violation text: "${violationText.substring(0, 100)}..."`
+      )
+
+      // Step 3: Generate embedding for violation lookup in LTO documents
+      const searchQuery = `Philippine traffic violation fine penalty: ${violationText}`
       const queryEmbedding = await generateEmbedding(searchQuery)
       console.log(`[Ticket Decoder] ✓ Generated query embedding (${queryEmbedding.length} dims)`)
 
-      // Step 3: Search Vector Search Index for relevant LTO law chunks
+      // Step 4: Search Vector Search Index for relevant LTO law chunks
       const searchResults = await searchSimilarDocuments(queryEmbedding, 5)
       console.log(`[Ticket Decoder] ✓ Vector Search returned ${searchResults.length} results`)
 
-      // Step 4: Fetch actual chunk text from Firestore (same pattern as askLawyer)
+      // Step 5: Fetch actual chunk text from Firestore (same pattern as askLawyer)
       if (getApps().length === 0) {
         initializeApp({
           projectId: process.env.GCP_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || 'maneho-ai',
@@ -222,46 +230,101 @@ export const ragRouter = router({
 
       console.log(`[Ticket Decoder] 📚 Fetched ${sourceDocuments.length} source chunks`)
 
-      // Step 5: Generate RAG-grounded fine explanation using Gemini
+      // Step 6: Generate RAG-grounded fine explanation using Gemini
       const contextText = sourceDocuments
         .map((doc, idx) => `[DOC ${idx + 1}] (ID: ${doc.documentId})\n${doc.chunk}`)
         .join('\n\n')
 
-      const systemPrompt = `You are a Ticket Decoder AI for Philippine traffic enforcement. Based on the provided LTO laws and regulations, identify the violation from the extracted ticket text and state the exact fine.
+      const systemPrompt = `You are an expert LTO (Land Transportation Office) legal assistant specializing in Philippine traffic enforcement regulations. Your role is to provide accurate, citation-backed analysis of traffic violations.
 
-Guidelines:
-1. Identify the specific violation(s) mentioned in the ticket text
-2. Match each violation against the LTO law documents provided
-3. State the exact fine amount and legal basis (Republic Act, Memorandum Circular, JAO, etc.)
-4. If multiple violations, list each with its corresponding fine
-5. If the fine has changed over time, cite the most recent regulation
-6. Be specific — cite the exact section, article, or provision number`
+**Your Task:**
+1. Analyze the extracted ticket text
+2. Match violations against the provided LTO document context
+3. Provide exact fine amounts with legal references
+4. Give actionable next steps for the violator
 
-      const userPrompt = `Extracted Ticket Text:
+**Response Format Requirements:**
+You MUST structure your response with these THREE sections, using Markdown:
+
+## Detected Violations
+- Bullet list each violation found in the ticket
+- Include violation code/reference if available
+- Be specific about what was violated
+
+## Computed Fines
+- List exact fine amount (₱) for each violation
+- Include the legal basis (e.g., "RA 4136 Section X" or "MMDA JAO Circular")
+- If multiple violations, show subtotal and total
+- Format: "**Violation Name**: ₱X,XXX (Legal Reference)"
+
+## Next Steps
+- Payment instructions (where to pay, deadline)
+- Options if violator wants to contest (where/how to file)
+- Consequences of non-payment if mentioned in documents
+- Any deadline information
+
+**Citation Rules:**
+- ALWAYS cite the specific law, section, or document ID when stating a fine
+- If information comes from the provided LTO context, mention the source document
+- If certain information cannot be found in documents, say "Information not available in LTO documents"
+
+**Tone:**
+- Professional, clear, and helpful
+- Use Philippine pesos (₱) for all amounts
+- Provide practical advice`
+
+      const userPrompt = `**Extracted Ticket Text:**
+\`\`\`
 ${ticketText}
+\`\`\`
 
-Context from LTO Documents:
+**Context from LTO Documents:**
 ${contextText}
 
-Based on the ticket text and the LTO documents above, identify each violation and its corresponding fine. Provide:
-1. The violation type
-2. The legal basis (specific law/regulation)
-3. The fine amount (range if applicable)
-4. A brief explanation`
+---
+
+Based on the ticket text and LTO documents above, provide a complete analysis following the required format with THREE sections: Detected Violations, Computed Fines, and Next Steps.
+
+Be thorough and cite specific legal references for all fines stated.`
 
       let explanation: string
       try {
+        console.log(`[Ticket Decoder] 🤖 Calling Gemini for RAG-grounded analysis...`)
         explanation = await callGeminiAPI(userPrompt, systemPrompt)
-        console.log(`[Ticket Decoder] ✅ Gemini analysis complete`)
+
+        // Validate that response contains expected sections
+        const hasViolations =
+          explanation.includes('Detected Violations') || explanation.includes('Violations')
+        const hasFines = explanation.includes('Computed Fines') || explanation.includes('Fines')
+        const hasNextSteps =
+          explanation.includes('Next Steps') || explanation.includes('next steps')
+
+        if (hasViolations && hasFines && hasNextSteps) {
+          console.log(`[Ticket Decoder] ✅ Gemini analysis complete with all 3 sections`)
+        } else {
+          console.warn(`[Ticket Decoder] ⚠️ Gemini response may be incomplete:`)
+          console.warn(`   - Violations section: ${hasViolations ? '✓' : '✗'}`)
+          console.warn(`   - Fines section: ${hasFines ? '✓' : '✗'}`)
+          console.warn(`   - Next Steps section: ${hasNextSteps ? '✓' : '✗'}`)
+        }
       } catch (geminiError) {
-        console.error(
-          '[Ticket Decoder] ⚠️ Gemini analysis failed, returning raw data:',
-          geminiError
-        )
-        explanation = `Could not generate analysis. Raw ticket text:\n${ticketText}`
+        console.error('[Ticket Decoder] ❌ Gemini analysis failed:', geminiError)
+        explanation = `**⚠️ Analysis Generation Failed**
+
+Could not generate AI analysis. This may be due to:
+- API service temporarily unavailable
+- Ticket image quality too poor for OCR
+- Violation type not covered in LTO database
+
+**Raw Extracted Ticket Text:**
+\`\`\`
+${ticketText}
+\`\`\`
+
+Please try again or contact support if the problem persists.`
       }
 
-      // Step 6: Return structured response
+      // Step 7: Return structured response
       const citations = sourceDocuments.map(doc => ({
         documentId: doc.documentId,
         chunkText: doc.chunk,

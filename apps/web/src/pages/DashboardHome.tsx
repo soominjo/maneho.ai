@@ -12,9 +12,9 @@ import { useAuth } from '../hooks/useAuth'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@repo/ui/components/ui/card'
 
 const features = [
@@ -60,27 +60,27 @@ export function DashboardHome() {
       {/* Welcome */}
       <div>
         <h1 className="text-3xl font-bold">Welcome back, {user?.name || 'User'}!</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-slate-600 mt-2">
           Choose a feature below to get started with AI-powered legal assistance.
         </p>
       </div>
 
       {/* Quick Stats */}
-      <Card>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Daily AI Credits</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-600">
             You have {quota.limit - quota.used} interactions remaining today
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="w-full bg-muted rounded-full h-3">
+          <div className="w-full bg-slate-200 border border-slate-300 rounded-sm h-3 overflow-hidden shadow-none">
             <div
-              className="bg-primary h-3 rounded-full transition-all"
+              className="bg-blue-700 h-3 transition-all"
               style={{ width: `${((quota.limit - quota.used) / quota.limit) * 100}%` }}
             />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-slate-500">
             Resets at midnight. {quota.used} / {quota.limit} used
           </p>
         </CardContent>
@@ -94,13 +94,13 @@ export function DashboardHome() {
             const IconComponent = feature.icon
             return (
               <Link key={feature.path} to={feature.path}>
-                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                <Card className="h-full border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer shadow-none">
                   <CardHeader>
                     <div className="mb-2">
-                      <IconComponent className="w-8 h-8 text-primary" />
+                      <IconComponent className="w-8 h-8 text-blue-700" />
                     </div>
                     <CardTitle>{feature.title}</CardTitle>
-                    <CardDescription>{feature.desc}</CardDescription>
+                    <CardDescription className="text-slate-600">{feature.desc}</CardDescription>
                   </CardHeader>
                 </Card>
               </Link>
@@ -110,11 +110,11 @@ export function DashboardHome() {
       </div>
 
       {/* Quick Tips */}
-      <Card className="bg-primary/10 border-primary/20">
+      <Card className="bg-yellow-50 border border-yellow-400 shadow-none">
         <CardHeader>
           <CardTitle>💡 Quick Tips</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className="space-y-2 text-sm text-slate-700">
           <p>• Each AI interaction (question, ticket decode, estimation) uses 1 credit</p>
           <p>• You have 20 credits per day - use them wisely!</p>
           <p>• All answers are grounded in actual LTO documents and regulations</p>

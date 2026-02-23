@@ -8,15 +8,15 @@ interface NavbarProps {
 
 export function Navbar({ onToggleDarkMode, isDarkMode }: NavbarProps = {}) {
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white dark:bg-slate-950 dark:border-slate-800">
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white dark:bg-slate-950 dark:border-slate-800 shadow-none">
       <div className="flex h-16 items-center px-4 md:px-8 max-w-7xl mx-auto">
         {/* Logo Section */}
         <div className="flex items-center gap-2 mr-8">
-          <div className="bg-blue-700 p-1.5 rounded text-white">
+          <div className="bg-blue-700 p-1.5 rounded-sm text-white shadow-none">
             <ShieldCheck size={24} strokeWidth={2.5} />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Maneho<span className="text-blue-700 dark:text-blue-500">.ai</span>
+            Maneho<span className="text-blue-700 dark:text-blue-500"> AI</span>
           </span>
         </div>
 

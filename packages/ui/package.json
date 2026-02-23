@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
+    ".": "./index.ts",
     "./Header": "./components/Header.tsx",
     "./Counter": "./components/Counter.tsx",
     "./Navbar": "./components/Navbar.tsx",

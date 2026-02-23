@@ -55,11 +55,13 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-60px)] bg-muted/50">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-[calc(100vh-60px)] bg-slate-100">
+      <Card className="w-full max-w-md shadow-none border border-slate-200">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>Join Maneho.ai to access AI-powered legal assistance</CardDescription>
+          <CardDescription className="text-slate-600">
+            Join Maneho.ai to access AI-powered legal assistance
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -69,11 +71,9 @@ export function RegisterPage() {
                 {...register('name')}
                 type="text"
                 placeholder="Juan Dela Cruz"
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 border border-slate-300 rounded-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 shadow-none"
               />
-              {errors.name && (
-                <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
             </div>
 
             <div>
@@ -82,11 +82,9 @@ export function RegisterPage() {
                 {...register('email')}
                 type="email"
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 border border-slate-300 rounded-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 shadow-none"
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
 
             <div>

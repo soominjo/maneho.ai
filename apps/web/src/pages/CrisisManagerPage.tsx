@@ -13,6 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   RotateCcw,
+  CheckCircle2,
+  CoinsIcon,
+  ListChecks,
 } from 'lucide-react'
 import {
   Card,
@@ -34,17 +37,19 @@ export function CrisisManagerPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <AlertCircle className="w-8 h-8 text-primary" />
+        <AlertCircle className="w-8 h-8 text-blue-700" />
         Crisis Manager
       </h1>
-      <p className="text-muted-foreground mb-8">Post-accident checklist and insurance analysis</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Post-accident checklist and insurance analysis</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The Crisis Manager will provide step-by-step post-accident guidance and insurance policy
             analysis.
           </p>
@@ -147,10 +152,10 @@ export function TicketDecoderPage() {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Ticket className="w-8 h-8 text-primary" />
+          <Ticket className="w-8 h-8 text-blue-700" />
           Ticket Decoder
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-slate-600 mt-2">
           Upload a photo of your traffic ticket to identify the violation and look up the exact fine
           from LTO regulations.
         </p>
@@ -160,7 +165,7 @@ export function TicketDecoderPage() {
         {/* Main Area */}
         <div className="md:col-span-2 space-y-4">
           {/* Upload Card */}
-          <Card>
+          <Card className="shadow-none border border-slate-200">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Upload Ticket Image</CardTitle>
@@ -171,7 +176,7 @@ export function TicketDecoderPage() {
                   </Button>
                 )}
               </div>
-              <CardDescription>
+              <CardDescription className="text-slate-600">
                 Take a photo or upload an image of your traffic ticket (TVR)
               </CardDescription>
             </CardHeader>
@@ -190,31 +195,29 @@ export function TicketDecoderPage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-border rounded-sm p-8 text-center hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer"
+                  className="w-full border-2 border-dashed border-slate-300 rounded-sm p-8 text-center hover:border-blue-700 hover:bg-blue-50 transition-colors cursor-pointer"
                 >
                   <div className="flex flex-col items-center gap-3">
                     <div className="flex gap-2">
-                      <Camera className="w-8 h-8 text-muted-foreground" />
-                      <Upload className="w-8 h-8 text-muted-foreground" />
+                      <Camera className="w-8 h-8 text-slate-500" />
+                      <Upload className="w-8 h-8 text-slate-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">
+                      <p className="font-medium text-slate-900">
                         Tap to take a photo or upload an image
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        JPG, PNG, or WebP up to 10MB
-                      </p>
+                      <p className="text-sm text-slate-600 mt-1">JPG, PNG, or WebP up to 10MB</p>
                     </div>
                   </div>
                 </button>
               ) : (
                 /* Image preview */
                 <div className="space-y-3">
-                  <div className="relative rounded-sm overflow-hidden border border-border">
+                  <div className="relative rounded-sm overflow-hidden border border-slate-300">
                     <img
                       src={imagePreview}
                       alt="Ticket preview"
-                      className="w-full max-h-64 object-contain bg-muted"
+                      className="w-full max-h-64 object-contain bg-slate-100"
                     />
                   </div>
                 </div>
@@ -224,23 +227,21 @@ export function TicketDecoderPage() {
 
           {/* Loading State */}
           {decodeTicket.isPending && (
-            <Card>
+            <Card className="shadow-none border border-slate-200">
               <CardContent className="py-6">
                 <div className="flex items-center gap-4">
                   <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" />
+                    <div className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce" />
                     <div
-                      className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                      className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce"
                       style={{ animationDelay: '0.1s' }}
                     />
                     <div
-                      className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
+                      className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce"
                       style={{ animationDelay: '0.2s' }}
                     />
                   </div>
-                  <p className="text-muted-foreground">
-                    Scanning ticket and searching LTO records...
-                  </p>
+                  <p className="text-slate-600">Scanning ticket and searching LTO records...</p>
                 </div>
               </CardContent>
             </Card>
@@ -248,7 +249,7 @@ export function TicketDecoderPage() {
 
           {/* Results */}
           {result && (
-            <Card>
+            <Card className="shadow-none border border-slate-200">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Analysis</CardTitle>
@@ -258,17 +259,77 @@ export function TicketDecoderPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* AI Explanation (main result) */}
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown>{result.explanation}</ReactMarkdown>
+                {/* AI Explanation (main result) with enhanced styling */}
+                <div className="space-y-0">
+                  {/* Violations Section */}
+                  <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:flex prose-headings:items-center prose-headings:gap-3 prose-h2:text-lg prose-h2:font-bold prose-h2:text-slate-900 prose-h2:mt-0 prose-h2:mb-3 prose-ul:my-2 prose-ul:pl-5 prose-li:text-slate-700">
+                    <style>{`
+                      .violation-section { padding: 1rem 0; border-bottom: 1px solid rgb(226, 232, 240); }
+                      .violation-section:last-child { border-bottom: none; }
+                      .violation-section h2 { color: rgb(15, 23, 42); margin-top: 0 !important; margin-bottom: 0.75rem !important; }
+                      .violation-section h2::before { content: ''; }
+                      .violation-section ul { margin: 0.5rem 0 !important; }
+                      .violation-section li { margin: 0.25rem 0; color: rgb(71, 85, 105); }
+                    `}</style>
+                    <ReactMarkdown
+                      components={{
+                        h2: ({ ...props }) => {
+                          const text = String(props.children?.[0] || '')
+                          let icon = null
+                          let sectionClass = 'violation-section'
+
+                          if (text.includes('Violation')) {
+                            icon = <CheckCircle2 className="w-5 h-5 text-blue-700 flex-shrink-0" />
+                          } else if (text.includes('Fine') || text.includes('Computed')) {
+                            icon = <CoinsIcon className="w-5 h-5 text-green-700 flex-shrink-0" />
+                            sectionClass = 'violation-section fines-section'
+                          } else if (text.includes('Next') || text.includes('Step')) {
+                            icon = <ListChecks className="w-5 h-5 text-amber-700 flex-shrink-0" />
+                            sectionClass = 'violation-section nextsteps-section'
+                          }
+
+                          return (
+                            <div className={sectionClass}>
+                              <h2
+                                className="flex items-center gap-3 text-lg font-bold text-slate-900 m-0 mb-3"
+                                {...props}
+                              >
+                                {icon}
+                                <span>{props.children}</span>
+                              </h2>
+                            </div>
+                          )
+                        },
+                        ul: ({ ...props }) => <ul className="my-2 pl-5 space-y-1" {...props} />,
+                        li: ({ ...props }) => <li className="text-slate-700 text-sm" {...props} />,
+                        strong: ({ ...props }) => (
+                          <strong className="font-semibold text-slate-900" {...props} />
+                        ),
+                        code: ({ inline, ...props }) =>
+                          inline ? (
+                            <code
+                              className="bg-slate-100 px-1.5 py-0.5 rounded-sm text-sm font-mono text-slate-900"
+                              {...props}
+                            />
+                          ) : (
+                            <code
+                              className="block bg-slate-100 p-3 rounded-sm text-xs font-mono text-slate-700 overflow-x-auto"
+                              {...props}
+                            />
+                          ),
+                      }}
+                    >
+                      {result.explanation}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* Raw OCR Text (collapsible) */}
-                <div className="border-t border-border pt-3">
+                <div className="border-t border-slate-300 pt-3">
                   <button
                     type="button"
                     onClick={() => setShowRawText(!showRawText)}
-                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {showRawText ? (
                       <ChevronUp className="w-4 h-4" />
@@ -278,7 +339,7 @@ export function TicketDecoderPage() {
                     Raw extracted text
                   </button>
                   {showRawText && (
-                    <pre className="mt-2 p-3 bg-muted rounded-sm text-xs text-muted-foreground whitespace-pre-wrap overflow-x-auto border border-border">
+                    <pre className="mt-2 p-3 bg-slate-100 rounded-sm text-xs text-slate-700 whitespace-pre-wrap overflow-x-auto border border-slate-300">
                       {result.ticketText}
                     </pre>
                   )}
@@ -289,9 +350,7 @@ export function TicketDecoderPage() {
 
           {/* Quota warning */}
           {quota.used >= quota.limit && (
-            <p className="text-sm text-destructive">
-              Daily AI credits exhausted. Resets at midnight.
-            </p>
+            <p className="text-sm text-red-600">Daily AI credits exhausted. Resets at midnight.</p>
           )}
         </div>
 
@@ -312,17 +371,19 @@ export function ScriptGeneratorPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <FileText className="w-8 h-8 text-primary" />
+        <FileText className="w-8 h-8 text-blue-700" />
         Script Generator
       </h1>
-      <p className="text-muted-foreground mb-8">Create persuasive traffic situation scripts</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Create persuasive traffic situation scripts</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The Script Generator will create respectful conversation scripts for traffic situations.
           </p>
         </CardContent>
@@ -335,17 +396,19 @@ export function CostEstimatorPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <DollarSign className="w-8 h-8 text-primary" />
+        <DollarSign className="w-8 h-8 text-blue-700" />
         Cost Estimator
       </h1>
-      <p className="text-muted-foreground mb-8">Calculate vehicle registration renewal costs</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Calculate vehicle registration renewal costs</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The Cost Estimator will calculate all fees for vehicle registration renewal.
           </p>
         </CardContent>
@@ -358,17 +421,19 @@ export function LicenseWizardPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <BookOpen className="w-8 h-8 text-primary" />
+        <BookOpen className="w-8 h-8 text-blue-700" />
         License Wizard
       </h1>
-      <p className="text-muted-foreground mb-8">Personalized driver's license requirements</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Personalized driver's license requirements</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The License Wizard will provide step-by-step requirements for driver's licenses.
           </p>
         </CardContent>
@@ -381,17 +446,19 @@ export function QuizPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <GraduationCap className="w-8 h-8 text-primary" />
+        <GraduationCap className="w-8 h-8 text-blue-700" />
         Quiz & Study
       </h1>
-      <p className="text-muted-foreground mb-8">Interactive LTO exam preparation</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Interactive LTO exam preparation</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The Quiz will provide LTO-based practice questions and AI-powered explanations.
           </p>
         </CardContent>
@@ -404,17 +471,19 @@ export function ProfilePage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <User className="w-8 h-8 text-primary" />
+        <User className="w-8 h-8 text-blue-700" />
         Profile
       </h1>
-      <p className="text-muted-foreground mb-8">Manage your account and view usage</p>
-      <Card>
+      <p className="text-slate-600 mb-8">Manage your account and view usage</p>
+      <Card className="shadow-none border border-slate-200">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription>This feature is under development</CardDescription>
+          <CardDescription className="text-slate-600">
+            This feature is under development
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-slate-600">
             The Profile section will show your account details and usage history.
           </p>
         </CardContent>
