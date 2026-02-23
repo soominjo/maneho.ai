@@ -12,6 +12,7 @@ describe('RAG Router', () => {
 
     const result = await caller.askLawyer({
       query: 'What is the penalty for not renewing my driver license on time?',
+      userId: 'test-user',
     })
 
     console.log('Ask Lawyer Result:', JSON.stringify(result, null, 2))
@@ -50,7 +51,7 @@ describe('RAG Router', () => {
 
     expect(result).toBeDefined()
     expect(result.success).toBe(true)
-    expect(result.fineDetails).toBeDefined()
+    expect(result.explanation).toBeDefined()
   })
 
   it('generateArgumentScript should create a script', async () => {

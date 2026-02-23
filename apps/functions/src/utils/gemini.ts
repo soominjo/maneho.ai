@@ -15,7 +15,7 @@ const apiBaseUrl = 'https://generativelanguage.googleapis.com/v1/models'
  * Note: API key is read at runtime, not at module load time, to ensure dotenv has loaded
  * Note: v1 API doesn't support systemInstruction field, so we include it in the prompt
  */
-async function callGeminiAPI(prompt: string, systemPrompt: string): Promise<string> {
+export async function callGeminiAPI(prompt: string, systemPrompt: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
     throw new Error('Gemini API key not configured. Set GEMINI_API_KEY environment variable.')
@@ -139,22 +139,119 @@ Provide a clear, helpful answer with citations to the specific documents used.`
 }
 
 /**
- * Vision API: Extract text from handwritten ticket images
- * Used by Ticket Decoder killer feature
+ * Detect MIME type from a URL or default to jpeg
  */
-export async function extractTicketText(imageUrl: string): Promise<string> {
-  try {
-    // TODO: Implement Gemini Vision API
-    // const response = await genai.getGenerativeModel({ model: 'gemini-pro-vision' })
-    //   .generateContent([
-    //     'Extract all text from this traffic enforcement ticket image. Include all fields, amounts, and details.',
-    //     { url: imageUrl }
-    //   ])
-    // return response.response.text()
+function detectMimeType(url: string): string {
+  const ext = url.split('?')[0].split('.').pop()?.toLowerCase()
+  const mimeMap: Record<string, string> = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    webp: 'image/webp',
+    gif: 'image/gif',
+  }
+  return mimeMap[ext || ''] || 'image/jpeg'
+}
 
-    console.log(`Extracting text from ticket image: ${imageUrl}`)
-    return 'Placeholder: Extracted ticket text will be here'
+/**
+ * Vision API: Extract text from handwritten/printed ticket images
+ * Uses Gemini 2.5 Flash multimodal capability
+ * Accepts either an image URL (fetches and base64-encodes) or raw base64 data
+ */
+export async function extractTicketText(input: {
+  imageUrl?: string
+  imageBase64?: string
+}): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) {
+    throw new Error('Gemini API key not configured. Set GEMINI_API_KEY environment variable.')
+  }
+
+  let base64Data: string
+  let mimeType: string
+
+  if (input.imageBase64) {
+    // Direct base64 input — strip data URI prefix if present
+    const match = input.imageBase64.match(/^data:(image\/\w+);base64,(.+)$/)
+    if (match) {
+      mimeType = match[1]
+      base64Data = match[2]
+    } else {
+      mimeType = 'image/jpeg'
+      base64Data = input.imageBase64
+    }
+    console.log('[Ticket Decoder] Using provided base64 image data')
+  } else if (input.imageUrl) {
+    // Fetch the image and convert to base64
+    console.log(`[Ticket Decoder] Fetching image from: ${input.imageUrl}`)
+    const imageResponse = await fetch(input.imageUrl)
+    if (!imageResponse.ok) {
+      throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`)
+    }
+    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
+    base64Data = imageBuffer.toString('base64')
+    mimeType = imageResponse.headers.get('content-type') || detectMimeType(input.imageUrl)
+  } else {
+    throw new Error('Either imageUrl or imageBase64 must be provided')
+  }
+
+  const prompt = `You are analyzing a Philippine traffic enforcement ticket (TVR - Temporary Violation Receipt or similar). Extract ALL text visible on the ticket, including handwritten and printed text.
+
+Structure the output as follows:
+- Violation Type(s): (list each violation)
+- Date of Violation:
+- Time:
+- Location/Place:
+- Officer Name/Badge:
+- Plate Number:
+- Vehicle Type:
+- Driver Name:
+- License Number:
+- Fine Amount(s):
+- Any other visible text or notes
+
+Be thorough — include every piece of text you can read, even if partially illegible. For unclear text, note it as [unclear: best guess].`
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/${model}:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                inlineData: {
+                  mimeType,
+                  data: base64Data,
+                },
+              },
+              { text: prompt },
+            ],
+          },
+        ],
+      }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Gemini Vision API error: ${error.error?.message || response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    if (data.candidates && data.candidates[0]?.content?.parts) {
+      const extractedText = data.candidates[0].content.parts
+        .map((part: Record<string, unknown>) => (part.text as string) || '')
+        .join('')
+
+      console.log(`[Ticket Decoder] ✓ Extracted ${extractedText.length} chars from ticket image`)
+      return extractedText
+    }
+
+    throw new Error('No response from Gemini Vision API')
   } catch (error) {
+    console.error('[Ticket Decoder] ❌ Vision extraction failed:', error)
     throw new Error(`Ticket text extraction failed: ${(error as Error).message}`)
   }
 }

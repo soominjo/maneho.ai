@@ -4,7 +4,9 @@
       "Bash(npm view:*)",
       "Bash(pnpm add:*)",
       "Bash(pnpm run ingest:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(gcloud auth application-default print-access-token:*)",
+      "Bash(dir:*)"
     ]
   }
 }

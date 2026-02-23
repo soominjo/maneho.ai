@@ -41,17 +41,19 @@ export function AskLawyerPage() {
   // Populate messages from loaded thread
   useEffect(() => {
     if (threadQuery.data) {
-      const loaded: ChatMessage[] = threadQuery.data.messages.map(msg => {
-        if (msg.role === 'ai') {
-          return {
-            type: 'ai' as const,
-            content: msg.content,
-            citations: msg.citations,
-            sourceCount: msg.sourceCount,
+      const loaded: ChatMessage[] = threadQuery.data.messages.map(
+        (msg: Record<string, unknown>) => {
+          if (msg.role === 'ai') {
+            return {
+              type: 'ai' as const,
+              content: msg.content,
+              citations: msg.citations,
+              sourceCount: msg.sourceCount,
+            }
           }
+          return { type: 'user' as const, content: msg.content }
         }
-        return { type: 'user' as const, content: msg.content }
-      })
+      )
       setMessages(loaded)
 
       // Set citations from the last AI message
