@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
-import { Scale, Bot } from 'lucide-react'
+import { Scale, Bot, X } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
 import { CitationsPanel } from '../components/CitationsPanel'
@@ -29,6 +29,8 @@ export function AskLawyerPage() {
   const [question, setQuestion] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [citationsDrawerOpen, setCitationsDrawerOpen] = useState(false)
+  const [selectedSourceIdx, setSelectedSourceIdx] = useState<number | null>(null)
 
   // Load thread messages when threadId changes
   const threadQuery = trpc.chatHistory.getThread.useQuery(
@@ -178,7 +180,17 @@ export function AskLawyerPage() {
                               {msg.citations.map((citation, cidx) => (
                                 <button
                                   key={`${citation.documentId}-${cidx}`}
-                                  className="inline-flex items-center gap-1 border border-blue-200 bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-sm hover:bg-blue-100 transition-colors shadow-none"
+                                  onClick={() => {
+                                    setSelectedSourceIdx(cidx)
+                                    if (window.innerWidth < 768) {
+                                      setCitationsDrawerOpen(true)
+                                    }
+                                  }}
+                                  className={`inline-flex items-center gap-1 border rounded-sm px-2 py-1 text-xs font-medium transition-colors shadow-none cursor-pointer ${
+                                    selectedSourceIdx === cidx
+                                      ? 'border-blue-500 bg-blue-100 text-blue-800'
+                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
+                                  }`}
                                   title={formatDocTitle(citation.documentId)}
                                 >
                                   <Scale className="w-3 h-3" />
@@ -260,6 +272,8 @@ export function AskLawyerPage() {
               citations={mostRecentAiMessage.citations || []}
               sourceCount={mostRecentAiMessage.sourceCount || 0}
               isLoading={askLawyer.isPending}
+              selectedSourceIdx={selectedSourceIdx}
+              onSourceSelect={setSelectedSourceIdx}
             />
           ) : (
             <div className="text-center text-slate-500">
@@ -268,6 +282,74 @@ export function AskLawyerPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile Citations Drawer - Bottom Sheet */}
+      {citationsDrawerOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
+          onClick={() => setCitationsDrawerOpen(false)}
+        >
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg max-h-[80vh] overflow-y-auto border-t border-slate-200"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Drawer Header */}
+            <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">Sources</h2>
+              <button
+                onClick={() => setCitationsDrawerOpen(false)}
+                className="p-1 hover:bg-slate-100 rounded-sm transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-600" />
+              </button>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="p-4">
+              {mostRecentAiMessage &&
+              mostRecentAiMessage.type === 'ai' &&
+              (mostRecentAiMessage.citations?.length ?? 0) > 0 ? (
+                <div className="space-y-3">
+                  {mostRecentAiMessage.citations?.map((citation, idx) => (
+                    <div
+                      key={`${citation.documentId}-${idx}`}
+                      className={`p-3 rounded-sm border transition-colors cursor-pointer ${
+                        selectedSourceIdx === idx
+                          ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200'
+                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                      }`}
+                      onClick={() => setSelectedSourceIdx(idx)}
+                    >
+                      <p className="text-xs font-semibold text-blue-700 mb-2">Source {idx + 1}</p>
+                      <p className="text-xs text-slate-500 mb-2 line-clamp-1">
+                        {formatDocTitle(citation.documentId)}
+                      </p>
+                      <p className="text-sm text-slate-900 font-medium line-clamp-4">
+                        {citation.chunkText}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 text-center py-8">No sources available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Citations Toggle Button - Floating Action Button */}
+      {mostRecentAiMessage &&
+        mostRecentAiMessage.type === 'ai' &&
+        (mostRecentAiMessage.citations?.length ?? 0) > 0 && (
+          <button
+            onClick={() => setCitationsDrawerOpen(true)}
+            className="md:hidden fixed bottom-6 right-6 z-40 bg-blue-700 text-white rounded-full p-3 shadow-lg hover:bg-blue-800 transition-colors flex items-center justify-center"
+            title="View sources"
+          >
+            <Scale className="w-5 h-5" />
+          </button>
+        )}
     </div>
   )
 }

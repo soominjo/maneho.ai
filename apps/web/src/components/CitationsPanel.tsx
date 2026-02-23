@@ -17,13 +17,21 @@ interface CitationsPanelProps {
   citations: Citation[]
   sourceCount: number
   isLoading?: boolean
+  selectedSourceIdx?: number | null
+  onSourceSelect?: (idx: number) => void
 }
 
 /**
  * CitationsPanel displays RAG sources and citations from the AI response
  * Responsive: hidden on mobile (hidden md:block), visible on desktop
  */
-export function CitationsPanel({ citations, sourceCount, isLoading }: CitationsPanelProps) {
+export function CitationsPanel({
+  citations,
+  sourceCount,
+  isLoading,
+  selectedSourceIdx,
+  onSourceSelect,
+}: CitationsPanelProps) {
   const hasCitations = citations.length > 0
   const displayText = sourceCount === 1 ? 'source' : 'sources'
 
@@ -57,7 +65,12 @@ export function CitationsPanel({ citations, sourceCount, isLoading }: CitationsP
             {citations.map((citation, idx) => (
               <div
                 key={`${citation.documentId}-${idx}`}
-                className="p-3 bg-slate-50 rounded-sm border border-slate-200 hover:bg-slate-100 transition-colors shadow-none"
+                onClick={() => onSourceSelect?.(idx)}
+                className={`p-3 rounded-sm border transition-colors shadow-none cursor-pointer ${
+                  selectedSourceIdx === idx
+                    ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                }`}
               >
                 <p className="text-xs font-semibold text-blue-700 mb-2">Source {idx + 1}</p>
                 <p className="text-xs text-slate-500 mb-2 line-clamp-1">
