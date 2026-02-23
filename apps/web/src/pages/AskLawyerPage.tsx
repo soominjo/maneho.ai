@@ -141,7 +141,7 @@ export function AskLawyerPage() {
   }
 
   return (
-    <div className="flex h-full -mx-8 -my-8">
+    <div className="flex h-full -mx-8 -my-8 bg-slate-50 dark:bg-slate-950">
       {/* Chat History Sidebar */}
       <ChatHistorySidebar
         isOpen={sidebarOpen}
@@ -152,106 +152,147 @@ export function AskLawyerPage() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 px-8 py-8 overflow-y-auto">
-        <div className="space-y-8">
-          {/* Page Header */}
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Scale className="w-8 h-8 text-primary" />
-              Ask the Lawyer
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Ask questions about traffic, vehicle, and LTO regulations. Answers are grounded in
-              actual LTO documents.
-            </p>
-          </div>
-
-          {/* Split-View Layout: Chat + Citations */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Main Chat Area - 2 columns on desktop */}
-            <div className="md:col-span-2 flex flex-col space-y-4">
-              {/* Message History */}
-              <Card className="flex-1 flex flex-col min-h-96">
-                <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messages.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
-                      <p>Start a conversation by asking a question...</p>
-                    </div>
-                  ) : (
-                    messages.map((msg, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[85%] md:max-w-[75%] px-4 py-2 rounded-sm border ${
-                            msg.type === 'user'
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-muted text-foreground border-border'
-                          }`}
-                        >
-                          {msg.type === 'ai' ? (
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                              <ReactMarkdown>{msg.content}</ReactMarkdown>
-                            </div>
-                          ) : (
-                            msg.content
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  {askLawyer.isPending && (
-                    <div className="flex justify-start">
-                      <div className="bg-muted p-4 rounded-sm border border-border">
-                        <div className="flex gap-2">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                          <div
-                            className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                            style={{ animationDelay: '0.1s' }}
-                          ></div>
-                          <div
-                            className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                            style={{ animationDelay: '0.2s' }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </CardContent>
-              </Card>
-
-              {/* Chat Input Form */}
-              <form onSubmit={handleSubmit} className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={question}
-                    onChange={e => setQuestion(e.target.value)}
-                    placeholder="What's your question about LTO regulations?"
-                    className="flex-1 px-4 py-2 border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <Button type="submit" disabled={askLawyer.isPending || quota.used >= quota.limit}>
-                    Ask
-                  </Button>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Sticky Header with Quota */}
+        <div className="sticky top-0 z-10 px-8 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center gap-3">
+              <Scale className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Ask the Lawyer</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                  Daily Credits
                 </div>
-                {quota.used >= quota.limit && (
-                  <p className="text-sm text-destructive">
-                    Daily AI credits exhausted. Resets at midnight.
-                  </p>
-                )}
-              </form>
+                <div className={`text-lg font-bold ${quota.used >= quota.limit ? 'text-red-600 dark:text-red-400' : 'text-blue-700 dark:text-blue-500'}`}>
+                  {quota.limit - quota.used}/{quota.limit}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages Area with max-width constraint */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {/* Disclaimer */}
+            <div className="rounded-sm border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 p-4">
+              <p className="text-sm text-amber-900 dark:text-amber-100">
+                <strong>Disclaimer:</strong> Maneho.ai provides AI-generated guidance based on official LTO documents. Always verify with actual traffic enforcers or official LTO branches for formal legal disputes.
+              </p>
             </div>
 
-            {/* Citations Sidebar - 1 column, hidden on mobile */}
-            <div className="hidden md:flex md:flex-col">
-              <CitationsPanel
-                citations={lastCitations}
-                sourceCount={lastSourceCount}
-                isLoading={askLawyer.isPending}
-              />
+            {/* Chat Messages */}
+            <div className="space-y-6">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="text-center">
+                    <Scale className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
+                    <p className="text-slate-500 dark:text-slate-400 text-lg">
+                      Start a conversation by asking a question about LTO regulations
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-sm px-5 py-4 text-sm ${
+                        msg.type === 'user'
+                          ? 'bg-blue-700 text-white border border-blue-700 dark:border-blue-600'
+                          : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100'
+                      }`}
+                    >
+                      {msg.type === 'ai' ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        msg.content
+                      )}
+
+                      {/* Inline Citations for AI Messages */}
+                      {msg.type === 'ai' && msg.citations && msg.citations.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 flex items-center gap-1 uppercase tracking-wide">
+                            <FileText size={12} />
+                            Sources
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {msg.citations.map((cite, citIdx) => (
+                              <span
+                                key={citIdx}
+                                className="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                              >
+                                {cite.documentId}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {askLawyer.isPending && (
+                <div className="flex justify-start">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-sm">
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"
+                        style={{ animationDelay: '0.1s' }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"
+                        style={{ animationDelay: '0.2s' }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
             </div>
+          </div>
+        </div>
+
+        {/* Sticky Input Area */}
+        <div className="sticky bottom-0 px-8 py-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={question}
+                  onChange={e => setQuestion(e.target.value)}
+                  placeholder="Ask about traffic violations, fines, LTO rules..."
+                  disabled={quota.used >= quota.limit}
+                  className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-700 focus:border-blue-700 text-sm transition-colors disabled:opacity-50"
+                />
+                <Button
+                  type="submit"
+                  disabled={askLawyer.isPending || quota.used >= quota.limit || !question.trim()}
+                  className="rounded-sm shadow-none gap-2 px-6 bg-blue-700 hover:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-800 text-white border-0"
+                >
+                  <Send size={16} />
+                  Ask
+                </Button>
+              </div>
+              {quota.used >= quota.limit && (
+                <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                  Daily AI credits exhausted. Resets at midnight.
+                </p>
+              )}
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Maneho.ai can make mistakes. Always verify with official LTO documentation or a legal professional.
+              </p>
+            </form>
           </div>
         </div>
       </div>
