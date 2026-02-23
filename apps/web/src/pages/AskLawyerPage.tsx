@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import { Scale, Bot } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
-import { AskLawyerNavbar } from '../components/AskLawyerNavbar'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
 import { CitationsPanel } from '../components/CitationsPanel'
 import { trpc } from '../lib/trpc'
@@ -129,11 +128,8 @@ export function AskLawyerPage() {
   const mostRecentAiMessage = [...messages].reverse().find(msg => msg.type === 'ai')
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
-      {/* Navbar - Sticky Top with LTO Branding */}
-      <AskLawyerNavbar quota={quota} onNewChat={handleNewChat} />
-
-      {/* Chat History Sidebar */}
+    <div className="flex flex-col h-full bg-slate-50">
+      {/* Chat History Sidebar - With New Chat Button */}
       <ChatHistorySidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
