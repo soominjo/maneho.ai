@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { useTheme } from './hooks/useTheme'
 import './style.css'
@@ -101,7 +102,13 @@ function AppContent() {
                   }`}
                 >
                   {/* Message Text */}
-                  <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
+                  {msg.role === 'assistant' ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
+                  )}
 
                   {/* Inline Citations (Only show for assistant if they exist) */}
                   {msg.role === 'assistant' && msg.citations && msg.citations.length > 0 && (

@@ -8,11 +8,12 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { router, publicProcedure } from '../trpc'
 import { z } from 'zod'
 import {
-  AskLawyerSchema,
+  AskLawyerWithThreadSchema,
   TicketDecoderSchema,
   CostEstimatorSchema,
   ExamQuizSchema,
 } from '@repo/shared'
+import * as threadStorage from '../../lib/thread-storage'
 import { generateEmbedding, searchSimilarDocuments } from '../../utils/vertex-ai'
 import {
   generateRAGAnswer,
@@ -28,10 +29,24 @@ export const ragRouter = router({
    * Epic B: The Lawyer
    * Ask traffic/vehicle legal questions with RAG-grounded answers
    */
-  askLawyer: publicProcedure.input(AskLawyerSchema).mutation(async ({ input }) => {
+  askLawyer: publicProcedure.input(AskLawyerWithThreadSchema).mutation(async ({ input }) => {
     try {
       console.log(`\n[RAG] ------------------------------------------------`)
       console.log(`[RAG] 🧠 askLawyer query: "${input.query}"`)
+
+      // Thread management: create or use existing thread
+      let threadId = input.threadId
+      if (!threadId) {
+        const thread = await threadStorage.createThread(input.userId)
+        threadId = thread.id
+        console.log(`[RAG] ✓ Created new thread: ${threadId}`)
+      }
+
+      // Save user message to thread
+      await threadStorage.addMessage(input.userId, threadId, {
+        role: 'user',
+        content: input.query,
+      })
 
       // Step 1: Generate embedding for the query (768-dim)
       const queryEmbedding = await generateEmbedding(input.query)
@@ -41,12 +56,10 @@ export const ragRouter = router({
       const searchResults = await searchSimilarDocuments(queryEmbedding, 5)
       console.log(`[RAG] ✓ Vector Search returned ${searchResults.length} results`)
 
-      // Step 3: Fetch actual chunk text from Firestore (FIXED NESTED LOGIC)g
+      // Step 3: Fetch actual chunk text from Firestore
 
-      // 🚨 SELF-HEALING FIREBASE INIT (Fixes the test script crash)
       if (getApps().length === 0) {
         console.log('[RAG] 🔄 Initializing Firebase Admin locally...')
-        // Pass the explicit project ID here
         initializeApp({
           projectId: process.env.GCP_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || 'maneho-ai',
         })
@@ -56,10 +69,7 @@ export const ragRouter = router({
 
       for (const result of searchResults) {
         try {
-          // Extract the parent document ID (e.g., "test-doc-001" from "test-doc-001_chunk_15")
           const parentDocId = result.documentId.split('_chunk_')[0]
-
-          // Fetch the exact chunk from the nested subcollection
           const docSnap = await db
             .collection('documents')
             .doc(parentDocId)
@@ -69,8 +79,6 @@ export const ragRouter = router({
 
           if (docSnap.exists) {
             const data = docSnap.data()
-
-            // Adjust 'text' to whatever field holds your string in Firestore
             const chunkText = data?.text || data?.content || data?.pageContent || ''
 
             sourceDocuments.push({
@@ -105,8 +113,17 @@ export const ragRouter = router({
         `[RAG] ✅ Answer generated successfully! Citations found: ${response.citations.length}`
       )
 
+      // Save AI response to thread
+      await threadStorage.addMessage(input.userId, threadId, {
+        role: 'ai',
+        content: response.content,
+        citations: response.citations,
+        sourceCount: sourceDocuments.length,
+      })
+
       return {
         success: true,
+        threadId,
         query: input.query,
         answer: response.content,
         citations: response.citations,

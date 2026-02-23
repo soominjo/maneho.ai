@@ -17,3 +17,13 @@ export type { ExamQuiz } from './exam-quiz'
 
 export { IngestDocumentSchema } from './ingest-document'
 export type { IngestDocument } from './ingest-document'
+
+// Chat History Schemas
+export {
+  ListThreadsSchema,
+  GetThreadSchema,
+  RenameThreadSchema,
+  DeleteThreadSchema,
+  AskLawyerWithThreadSchema,
+} from './chat-history'
+export type { AskLawyerWithThread } from './chat-history'

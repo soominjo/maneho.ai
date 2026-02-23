@@ -1,7 +1,12 @@
-import { ShieldCheck, Scale, FileText, Menu } from 'lucide-react'
+import { ShieldCheck, Scale, FileText, Menu, Moon, Sun } from 'lucide-react'
 import { Button } from './ui/button'
 
-export function Navbar() {
+interface NavbarProps {
+  onToggleDarkMode?: () => void
+  isDarkMode?: boolean
+}
+
+export function Navbar({ onToggleDarkMode, isDarkMode }: NavbarProps = {}) {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white dark:bg-slate-950 dark:border-slate-800">
       <div className="flex h-16 items-center px-4 md:px-8 max-w-7xl mx-auto">
@@ -27,6 +32,16 @@ export function Navbar() {
 
         {/* Right Actions */}
         <div className="ml-auto flex items-center space-x-4">
+          {onToggleDarkMode && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleDarkMode}
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </Button>
+          )}
           <Button
             variant="outline"
             className="hidden md:inline-flex shadow-none border-slate-200 rounded-sm"

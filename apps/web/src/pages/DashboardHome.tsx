@@ -9,7 +9,13 @@ import {
   GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { Card, CardContent } from '@repo/ui/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@repo/ui/components/ui/card'
 
 const features = [
   { icon: Scale, title: 'Ask Lawyer', desc: 'Legal questions answered', path: '/ask-lawyer' },

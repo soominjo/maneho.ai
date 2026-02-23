@@ -60,6 +60,10 @@ export const router = createBrowserRouter([
             element: <AskLawyerPage />,
           },
           {
+            path: 'ask-lawyer/:threadId',
+            element: <AskLawyerPage />,
+          },
+          {
             path: 'crisis-manager',
             element: <CrisisManagerPage />,
           },

@@ -3,8 +3,7 @@
  */
 
 import { ImageAnnotatorClient } from '@google-cloud/vision'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParse = require('pdf-parse')
+import pdfParse from 'pdf-parse'
 
 const visionClient = new ImageAnnotatorClient()
 

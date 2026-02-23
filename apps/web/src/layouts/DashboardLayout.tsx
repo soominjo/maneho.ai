@@ -106,7 +106,8 @@ export function DashboardLayout() {
           <nav className="space-y-1">
             {navigationItems.map((item, idx) => {
               const Icon = item.icon
-              const isActive = location.pathname === item.path
+              const isActive =
+                location.pathname === item.path || location.pathname.startsWith(item.path + '/')
 
               return (
                 <div key={idx}>
