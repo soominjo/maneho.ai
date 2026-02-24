@@ -46,7 +46,7 @@ export function DashboardLayout() {
             {/* Branding (Left) */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
+                <div className="w-15 h-14 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
                   <img
                     src="/maneho-logo.png"
                     alt="Maneho Logo"
@@ -55,7 +55,7 @@ export function DashboardLayout() {
                 </div>
                 <div>
                   <h1 className="text-slate-900 dark:text-white font-bold text-lg leading-tight tracking-tight">
-                    Maneho.ai
+                    Maneho AI
                   </h1>
                   <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wider hidden sm:block">
                     Legal Assistant
