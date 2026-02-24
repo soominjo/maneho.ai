@@ -213,7 +213,7 @@ export function AskLawyerPage() {
       >
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col space-y-6 pb-48">
+          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col space-y-6 pb-64">
             {messages.length === 0 ? (
               <div className="text-center text-slate-500 py-12">
                 <img
