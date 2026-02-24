@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@repo/ui/components/ui/button'
-import { Bot } from 'lucide-react'
 
 /**
  * PublicNavbar - Simple navbar for public pages (landing, login, register)
@@ -15,12 +14,16 @@ export function PublicNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#0038A8] rounded-sm flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
+              <img
+                src="/maneho-logo.png"
+                alt="Maneho Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="text-slate-900 dark:text-white font-bold text-lg leading-tight">
-                Maneho.ai
+                Maneho AI
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wider hidden sm:block">
                 LTO Legal Assistant

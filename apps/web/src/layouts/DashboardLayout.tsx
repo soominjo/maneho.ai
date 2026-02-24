@@ -13,7 +13,6 @@ import {
   Sun,
   Menu,
   X,
-  Bot,
   LogOut,
 } from 'lucide-react'
 
@@ -47,8 +46,12 @@ export function DashboardLayout() {
             {/* Branding (Left) */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
+                  <img
+                    src="/maneho-logo.png"
+                    alt="Maneho Logo"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
                   <h1 className="text-slate-900 dark:text-white font-bold text-lg leading-tight tracking-tight">

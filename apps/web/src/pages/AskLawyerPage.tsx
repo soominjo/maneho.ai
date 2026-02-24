@@ -147,7 +147,11 @@ export function AskLawyerPage() {
           <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-4 pb-32">
             {messages.length === 0 ? (
               <div className="text-center text-slate-500 py-12">
-                <img src="/maneho-bot.png" alt="Maneho Bot" className="w-12 h-12 mx-auto mb-3" />
+                <img
+                  src="/maneho-bot.png"
+                  alt="Maneho Bot"
+                  className="w-12 h-12 mx-auto mb-3 aspect-square object-contain"
+                />
                 <p className="text-lg font-medium">Ask me anything about LTO regulations</p>
                 <p className="text-sm mt-1">I'm grounded in official LTO documents</p>
               </div>
@@ -167,7 +171,7 @@ export function AskLawyerPage() {
                       <img
                         src="/maneho-bot.png"
                         alt="Maneho Bot"
-                        className="w-5 h-5 mt-1 flex-shrink-0"
+                        className="w-5 h-5 mt-1 flex-shrink-0 aspect-square object-contain"
                       />
                       <div className="flex-1">
                         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4">
@@ -206,7 +210,11 @@ export function AskLawyerPage() {
             {/* Loading Indicator */}
             {askLawyer.isPending && (
               <div className="flex justify-start gap-3">
-                <img src="/maneho-bot.png" alt="Maneho Bot" className="w-5 h-5 mt-1" />
+                <img
+                  src="/maneho-bot.png"
+                  alt="Maneho Bot"
+                  className="w-5 h-5 mt-1 aspect-square object-contain"
+                />
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm">
                   <div className="flex gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
