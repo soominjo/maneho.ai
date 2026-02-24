@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth'
 import { getStorage } from 'firebase/storage'
 
 // In Vite, we use import.meta.env instead of process.env to access variables
@@ -53,4 +53,20 @@ export function getStorageInstance() {
     _storage = getStorage(app)
   }
   return _storage
+}
+
+/**
+ * Get Google OAuth Provider - creates new instance for signInWithPopup
+ * @returns GoogleAuthProvider instance
+ */
+export function getGoogleProvider() {
+  return new GoogleAuthProvider()
+}
+
+/**
+ * Get GitHub OAuth Provider - creates new instance for signInWithPopup
+ * @returns GithubAuthProvider instance
+ */
+export function getGithubProvider() {
+  return new GithubAuthProvider()
 }

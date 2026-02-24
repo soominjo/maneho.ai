@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { TermsAndServicesModal } from '../components/TermsAndServices'
+import { PrivacyPolicyModal } from '../components/PrivacyPolicy'
 
 export function SignUpPage() {
   const navigate = useNavigate()
@@ -14,6 +16,9 @@ export function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [acceptTerms, setAcceptTerms] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +46,7 @@ export function SignUpPage() {
 
     try {
       await signUp(email, password, name)
-      navigate('/dashboard')
+      navigate('/ask-lawyer')
     } catch (err) {
       setError((err as Error).message || 'Failed to create account. Please try again.')
     } finally {
@@ -53,7 +58,7 @@ export function SignUpPage() {
     setError('')
     try {
       await signInWithGoogle()
-      navigate('/dashboard')
+      navigate('/ask-lawyer')
     } catch (err) {
       setError((err as Error).message || 'Google sign-up failed. Please try again.')
     }
@@ -63,16 +68,16 @@ export function SignUpPage() {
     setError('')
     try {
       await signInWithGithub()
-      navigate('/dashboard')
+      navigate('/ask-lawyer')
     } catch (err) {
       setError((err as Error).message || 'GitHub sign-up failed. Please try again.')
     }
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col bg-white dark:bg-slate-950">
+    <div className="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950">
       {/* Header / Navigation */}
-      <div className="flex items-center bg-white dark:bg-slate-950 p-4 pb-2 justify-between">
+      <div className="flex items-center bg-white/60 dark:bg-slate-800/60 backdrop-blur-md p-4 pb-2 justify-between border-b border-slate-200/50 dark:border-slate-700/50">
         <button
           onClick={() => navigate('/')}
           className="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
@@ -85,7 +90,7 @@ export function SignUpPage() {
       </div>
 
       {/* Brand Logo Area */}
-      <div className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-gradient-to-b from-primary/10 to-transparent p-8 py-12">
+      <div className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-gradient-to-b from-primary/5 to-transparent p-8 py-12">
         <div className="w-16 h-16 mx-auto mb-4">
           <img
             src="/new-maneho-logo-removebg-preview.png"
@@ -97,10 +102,10 @@ export function SignUpPage() {
 
       {/* Welcome Text */}
       <div className="flex flex-col items-center px-4 pt-8 pb-4 text-center">
-        <h1 className="text-slate-900 dark:text-slate-100 tracking-tight font-bold leading-tight text-4xl">
+        <h1 className="text-white tracking-tight font-bold leading-tight text-4xl">
           Create Account
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 font-normal leading-normal mt-2 max-w-xs text-lg">
+        <p className="text-slate-200 font-normal leading-normal mt-2 max-w-xs text-lg">
           Join our Filipino legal driving assistant community
         </p>
       </div>
@@ -112,10 +117,10 @@ export function SignUpPage() {
         </div>
       )}
 
-      {/* Form Section */}
+      {/* Form Section - Glasmorphism Card */}
       <form
         onSubmit={handleSignUp}
-        className="flex flex-col w-full max-w-[480px] mx-auto px-4 py-3 gap-y-6"
+        className="flex flex-col w-full max-w-[480px] mx-auto px-4 py-6 gap-y-6 my-8 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-lg shadow-2xl"
       >
         {/* Full Name Field */}
         <label className="flex flex-col w-full">
@@ -195,14 +200,54 @@ export function SignUpPage() {
           </div>
         </label>
 
+        {/* Terms & Privacy Acceptance */}
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={acceptTerms}
+            onChange={e => setAcceptTerms(e.target.checked)}
+            className="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer transition-colors"
+          />
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            I agree to the{' '}
+            <button
+              type="button"
+              onClick={e => {
+                e.preventDefault()
+                setShowTerms(true)
+              }}
+              className="text-primary font-semibold hover:underline focus:outline-none"
+            >
+              Terms & Services
+            </button>{' '}
+            and{' '}
+            <button
+              type="button"
+              onClick={e => {
+                e.preventDefault()
+                setShowPrivacy(true)
+              }}
+              className="text-primary font-semibold hover:underline focus:outline-none"
+            >
+              Privacy Policy
+            </button>
+            , and understand that Maneho AI provides legal information, not legal advice.
+          </p>
+        </label>
+
         {/* Sign Up Button */}
         <button
           type="submit"
-          disabled={isSubmitting || loading}
-          className="mt-4 w-full bg-primary hover:bg-primary/90 disabled:bg-primary/60 text-white font-bold rounded-lg transition-colors shadow-sm h-16 text-lg"
+          disabled={isSubmitting || loading || !acceptTerms}
+          className="mt-4 w-full bg-primary hover:bg-primary/90 disabled:bg-primary/60 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors shadow-sm h-16 text-lg"
         >
           {isSubmitting || loading ? 'Creating Account...' : 'Create Account'}
         </button>
+
+        {/* Legal Copy */}
+        <p className="text-xs text-center text-slate-500 dark:text-slate-400 leading-relaxed">
+          By signing up with any method, you agree to our Terms & Privacy
+        </p>
 
         {/* Divider */}
         <div className="relative flex py-5 items-center">
@@ -218,8 +263,8 @@ export function SignUpPage() {
           <button
             type="button"
             onClick={handleGoogleSignUp}
-            disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
+            disabled={loading || !acceptTerms}
+            className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -244,8 +289,8 @@ export function SignUpPage() {
           <button
             type="button"
             onClick={handleGithubSignUp}
-            disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
+            disabled={loading || !acceptTerms}
+            className="flex-1 flex items-center justify-center gap-2 h-12 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -266,16 +311,26 @@ export function SignUpPage() {
       </form>
 
       {/* Footer / Trust Badges */}
-      <div className="mt-auto px-4 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
-        <div className="flex justify-center items-center gap-6 opacity-60 grayscale text-xs">
-          <span className="font-bold tracking-widest uppercase text-slate-500">
-            Authorized by LTO Guidelines
+      <div className="mt-auto px-4 py-6 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border-t border-slate-200/50 dark:border-slate-700/50">
+        <div className="flex justify-center items-center gap-3 mb-3">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Secure, encrypted authentication powered by Firebase
+          </p>
+        </div>
+        <div className="flex justify-center items-center gap-6 opacity-75">
+          <span className="text-xs font-bold tracking-widest uppercase text-slate-600 dark:text-slate-400">
+            256-bit Encryption
           </span>
-          <span className="font-bold tracking-widest uppercase text-slate-500">
-            Secure 256-bit Encryption
+          <span className="text-xs font-bold tracking-widest uppercase text-slate-600 dark:text-slate-400">
+            LTO Guidelines
           </span>
         </div>
       </div>
+
+      {/* Legal Modals */}
+      <TermsAndServicesModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+      <PrivacyPolicyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
     </div>
   )
 }

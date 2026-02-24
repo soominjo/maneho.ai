@@ -33,8 +33,6 @@ export interface AuthContextType {
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   incrementQuota: () => Promise<void>
-  signInWithGoogle: () => Promise<void>
-  signInWithGithub: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -133,94 +131,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const handleOAuthUser = async (firebaseUser: FirebaseUser, provider: string) => {
-    const db = getDb()
-    const userDocRef = doc(db, 'users', firebaseUser.uid)
-    const userDoc = await getDoc(userDocRef)
-    const today = new Date().toISOString().split('T')[0]
-
-    if (!userDoc.exists()) {
-      // New OAuth user - create Firestore document
-      const newUserData = {
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || 'User',
-        photoURL: firebaseUser.photoURL || null,
-        authProvider: provider,
-        dailyQuota: { used: 0, limit: 20, date: today },
-        acceptedTermsAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      }
-      await setDoc(userDocRef, newUserData)
-      setQuota({ used: 0, limit: 20, date: today })
-    } else {
-      // Existing user - fetch and reset quota if new day
-      const userData = userDoc.data()
-      if (userData.dailyQuota?.date === today) {
-        setQuota(userData.dailyQuota)
-      } else {
-        const resetQuota = { used: 0, limit: 20, date: today }
-        setQuota(resetQuota)
-        await setDoc(userDocRef, { dailyQuota: resetQuota }, { merge: true })
-      }
-    }
-
-    setUser({
-      uid: firebaseUser.uid,
-      email: firebaseUser.email || '',
-      name: firebaseUser.displayName || 'User',
-    })
-  }
-
-  const signInWithGoogle = async () => {
-    setLoading(true)
-    try {
-      const auth = getAuthInstance()
-      const provider = getGoogleProvider()
-      const result = await signInWithPopup(auth, provider)
-      await handleOAuthUser(result.user, 'google')
-    } catch (error: unknown) {
-      const errorMessages: Record<string, string> = {
-        'auth/popup-closed-by-user': 'Sign-in cancelled. Please try again.',
-        'auth/account-exists-with-different-credential':
-          'An account with this email already exists. Please use email/password or the original provider.',
-        'auth/popup-blocked': 'Popup blocked. Please enable popups for this site.',
-        'auth/network-request-failed': 'Network error. Please check your connection.',
-      }
-      const message =
-        (error instanceof Object && 'code' in error
-          ? errorMessages[(error as Record<string, string>).code]
-          : null) || 'Sign-in failed. Please try again.'
-      throw new Error(message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const signInWithGithub = async () => {
-    setLoading(true)
-    try {
-      const auth = getAuthInstance()
-      const provider = getGithubProvider()
-      const result = await signInWithPopup(auth, provider)
-      await handleOAuthUser(result.user, 'github')
-    } catch (error: unknown) {
-      const errorMessages: Record<string, string> = {
-        'auth/popup-closed-by-user': 'Sign-in cancelled. Please try again.',
-        'auth/account-exists-with-different-credential':
-          'An account with this email already exists. Please use email/password or the original provider.',
-        'auth/popup-blocked': 'Popup blocked. Please enable popups for this site.',
-        'auth/network-request-failed': 'Network error. Please check your connection.',
-      }
-      const message =
-        (error instanceof Object && 'code' in error
-          ? errorMessages[(error as Record<string, string>).code]
-          : null) || 'Sign-in failed. Please try again.'
-      throw new Error(message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const signOut = async () => {
     setLoading(true)
     try {
@@ -258,8 +168,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signOut,
     resetPassword,
     incrementQuota,
-    signInWithGoogle,
-    signInWithGithub,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

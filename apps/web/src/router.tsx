@@ -5,8 +5,8 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Pages
 import { LandingPage } from './pages/LandingPage'
-import { LoginPage } from './pages/auth/LoginPage'
-import { RegisterPage } from './pages/auth/RegisterPage'
+import { SignInPage } from './pages/SignInPage'
+import { SignUpPage } from './pages/SignUpPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { AskLawyerPage } from './pages/AskLawyerPage'
 import {
@@ -31,11 +31,11 @@ export const router = createBrowserRouter([
       },
       {
         path: 'login',
-        element: <LoginPage />,
+        element: <SignInPage />,
       },
       {
         path: 'register',
-        element: <RegisterPage />,
+        element: <SignUpPage />,
       },
       {
         path: 'forgot-password',
