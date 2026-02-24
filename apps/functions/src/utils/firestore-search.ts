@@ -8,9 +8,18 @@
  * - Vector queries count as regular Firestore reads
  * - No separate index/endpoint to maintain
  * - Native to our existing Firestore database
+ *
+ * Prerequisites:
+ * - Embeddings must be stored using FieldValue.vector() (see firestore-storage.ts)
+ * - A vector index must be created on the 'chunks' collection group:
+ *     gcloud firestore indexes composite create \
+ *       --collection-group=chunks \
+ *       --query-scope=COLLECTION_GROUP \
+ *       --field-config=vector-config='{"dimension":"768","flat":{}}',field-path=embedding
  */
 
 import { getFirestore } from '../lib/firebase-admin'
+import { FieldValue } from 'firebase-admin/firestore'
 
 export interface SearchResult {
   documentId: string
@@ -19,120 +28,63 @@ export interface SearchResult {
 }
 
 /**
- * Search for similar documents using Firestore native vector search
- * Finds the k-nearest vectors in the 'documents' collection
+ * Search for similar documents using Firestore native vector search (findNearest)
+ * Finds the k-nearest vectors in the 'chunks' collection group
  *
  * @param embedding - The query embedding (768-dimensional vector)
  * @param limit - Number of results to return (default: 5)
- * @returns Array of matching document IDs with distances
+ * @returns Array of matching chunk IDs with cosine similarity scores
  */
 export async function searchSimilarDocuments(
   embedding: number[],
   limit: number = 5
 ): Promise<SearchResult[]> {
   try {
-    // Validate embedding
     if (!embedding || embedding.length === 0) {
-      console.warn('[Firestore Search] ⚠️  Empty embedding provided, returning empty results')
+      console.warn('[Firestore Search] Empty embedding provided, returning empty results')
       return []
     }
 
-    console.log(
-      `[Firestore Search] 🔍 Searching with ${embedding.length}-dim embedding (k=${limit})`
-    )
+    console.log(`[Firestore Search] Searching with ${embedding.length}-dim embedding (k=${limit})`)
 
     const db = getFirestore()
 
-    // For now, implement a client-side k-NN search
-    // This is a temporary solution until Firestore Admin SDK fully supports findNearest()
-    // TODO: When Firestore Admin SDK supports vector search, replace with native query
-    const allChunksSnapshot = await db.collectionGroup('chunks').get()
+    const vectorQuery = db.collectionGroup('chunks').findNearest({
+      vectorField: 'embedding',
+      queryVector: FieldValue.vector(embedding),
+      limit,
+      distanceMeasure: 'COSINE',
+      distanceResultField: 'vectorDistance',
+    })
 
-    if (allChunksSnapshot.empty) {
-      console.log('[Firestore Search] No documents found in Firestore')
+    const snapshot = await vectorQuery.get()
+
+    if (snapshot.empty) {
+      console.log('[Firestore Search] No matching chunks found')
       return []
     }
 
-    // Calculate distances for all chunks
-    const resultsWithDistance: Array<SearchResult & { distance: number }> = []
-
-    allChunksSnapshot.forEach(doc => {
+    const results: SearchResult[] = snapshot.docs.map(doc => {
       const data = doc.data()
-      const chunkEmbedding = data.embedding as number[]
+      // Firestore COSINE distance = 1 - cosine_similarity
+      // Convert back to cosine similarity for backward compatibility with callers
+      const cosineDistance = data.vectorDistance as number | undefined
+      const cosineSimilarity = cosineDistance !== undefined ? 1 - cosineDistance : undefined
 
-      if (!chunkEmbedding || chunkEmbedding.length === 0) {
-        return // Skip chunks without embeddings
-      }
-
-      // Calculate cosine similarity
-      const distance = calculateCosineSimilarity(embedding, chunkEmbedding)
-
-      resultsWithDistance.push({
+      return {
+        // Use doc.id (the chunk doc ID, e.g. "docId_chunk_0") for backward compat
+        // Callers split on "_chunk_" to derive the parent document ID
         documentId: doc.id,
-        distance: distance,
+        distance: cosineSimilarity,
         metadata: data.metadata || {},
-      })
+      }
     })
 
-    // Sort by distance (descending) and take top k
-    const topResults = resultsWithDistance.sort((a, b) => b.distance - a.distance).slice(0, limit)
+    console.log(`[Firestore Search] Found ${results.length} results via findNearest()`)
 
-    console.log(
-      `[Firestore Search] ✓ Found ${topResults.length} results (${allChunksSnapshot.size} total chunks)`
-    )
-
-    return topResults
+    return results
   } catch (error) {
-    console.error('[Firestore Search] ❌ Search failed:', error)
+    console.error('[Firestore Search] Search failed:', error)
     return []
   }
-}
-
-/**
- * Calculate cosine similarity between two vectors
- * Range: -1 to 1 (1 = identical, 0 = orthogonal, -1 = opposite)
- */
-function calculateCosineSimilarity(vec1: number[], vec2: number[]): number {
-  if (vec1.length !== vec2.length) {
-    console.warn(
-      `[Firestore Search] ⚠️  Vector dimension mismatch: ${vec1.length} vs ${vec2.length}`
-    )
-    return 0
-  }
-
-  let dotProduct = 0
-  let magnitude1 = 0
-  let magnitude2 = 0
-
-  for (let i = 0; i < vec1.length; i++) {
-    dotProduct += vec1[i] * vec2[i]
-    magnitude1 += vec1[i] * vec1[i]
-    magnitude2 += vec2[i] * vec2[i]
-  }
-
-  magnitude1 = Math.sqrt(magnitude1)
-  magnitude2 = Math.sqrt(magnitude2)
-
-  if (magnitude1 === 0 || magnitude2 === 0) {
-    return 0
-  }
-
-  return dotProduct / (magnitude1 * magnitude2)
-}
-
-/**
- * Optimized Firestore search using indexed collection queries
- * For production use, ensure document chunks are properly indexed
- *
- * Index requirements in Firestore:
- * - Collection: documents/{documentId}/chunks
- * - Fields: embedding (Vector), metadata
- */
-export async function searchSimilarDocumentsOptimized(
-  embedding: number[],
-  limit: number = 5
-): Promise<SearchResult[]> {
-  // This is a placeholder for when Firestore Admin SDK fully supports findNearest()
-  // For now, it calls the same search function
-  return searchSimilarDocuments(embedding, limit)
 }
