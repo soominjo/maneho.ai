@@ -53,7 +53,7 @@ export function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription className="text-slate-600">
-            Sign in to your Maneho.ai account
+            Sign in to your Maneho AI account
           </CardDescription>
         </CardHeader>
         <CardContent>

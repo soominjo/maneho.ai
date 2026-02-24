@@ -100,7 +100,7 @@ export function ChatHistorySidebar({
   // Toggle button always visible
   if (!isOpen) {
     return (
-      <div className="fixed left-4 top-[72px] z-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm p-2">
+      <div className="fixed left-4 top-[72px] z-40 bg-card dark:bg-slate-900 border border-border dark:border-slate-800 rounded-lg shadow-sm p-2 transition-all duration-300">
         <Button
           variant="ghost"
           size="icon"
@@ -115,7 +115,7 @@ export function ChatHistorySidebar({
   }
 
   return (
-    <div className="fixed left-0 top-16 z-40 w-72 h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden shadow-sm">
+    <div className="fixed left-0 top-16 z-40 w-72 h-[calc(100vh-4rem)] bg-card dark:bg-slate-900 border-r border-border dark:border-slate-800 flex flex-col overflow-hidden shadow-sm transition-all duration-300 ease-in-out">
       {/* Header */}
       <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
         <Button

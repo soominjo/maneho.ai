@@ -8,7 +8,6 @@ import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
-import { DashboardHome } from './pages/DashboardHome'
 import { AskLawyerPage } from './pages/AskLawyerPage'
 import {
   CrisisManagerPage,
@@ -53,7 +52,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'dashboard',
-            element: <DashboardHome />,
+            element: <AskLawyerPage />,
           },
           {
             path: 'ask-lawyer',

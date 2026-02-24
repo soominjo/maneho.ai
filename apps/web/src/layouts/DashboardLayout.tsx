@@ -1,24 +1,12 @@
 import { useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { useTheme } from '../hooks/useTheme'
+import { UserProfileDropdown } from '../components/UserProfileDropdown'
 import { cn } from '@repo/ui/lib/utils'
-import {
-  Home,
-  Scale,
-  AlertTriangle,
-  FileCheck,
-  FileText,
-  Moon,
-  Sun,
-  Menu,
-  X,
-  LogOut,
-} from 'lucide-react'
+import { Scale, AlertTriangle, FileCheck, FileText, Menu, X } from 'lucide-react'
 
 // Primary navigation links
 const navigationItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: Home },
   { label: 'Ask Lawyer', path: '/ask-lawyer', icon: Scale },
   { label: 'Ticket Decoder', path: '/ticket-decoder', icon: FileCheck },
   { label: 'Crisis Manager', path: '/crisis-manager', icon: AlertTriangle },
@@ -26,16 +14,9 @@ const navigationItems = [
 ]
 
 export function DashboardLayout() {
-  const { quota, signOut } = useAuth()
-  const { isDarkMode, toggleDarkMode } = useTheme()
+  const { quota } = useAuth()
   const location = useLocation()
-  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/')
-  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
@@ -46,9 +27,9 @@ export function DashboardLayout() {
             {/* Branding (Left) */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-15 h-14 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
+                <div className="w-14 h-14 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
                   <img
-                    src="/maneho-logo.png"
+                    src="/new-maneho-logo-removebg-preview.png"
                     alt="Maneho Logo"
                     className="w-full h-full object-contain"
                   />
@@ -96,7 +77,8 @@ export function DashboardLayout() {
                 <span className="text-slate-600 dark:text-slate-400 text-xs">credits</span>
               </div>
 
-              {/* Theme Toggle */}
+              {/* Theme Toggle - Hidden (moved to User Profile Dropdown) */}
+              {/*
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
@@ -104,16 +86,10 @@ export function DashboardLayout() {
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
+              */}
 
-              {/* Sign Out Button */}
-              <button
-                onClick={handleSignOut}
-                className="hidden sm:inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg px-3 py-1.5 text-sm transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
+              {/* User Profile Dropdown */}
+              <UserProfileDropdown />
 
               {/* Mobile Menu Button */}
               <button
@@ -157,14 +133,12 @@ export function DashboardLayout() {
                 )
               })}
 
-              {/* Mobile Sign Out Button */}
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-base font-medium text-blue-100 hover:bg-blue-700 hover:text-white transition-colors mt-2 border-t border-blue-700"
-              >
-                <LogOut className="w-5 h-5" />
-                Sign Out
-              </button>
+              {/* Mobile Profile Menu - placeholder for profile options */}
+              <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 py-2">
+                  Account
+                </p>
+              </div>
             </div>
           </div>
         )}

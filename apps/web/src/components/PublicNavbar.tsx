@@ -14,9 +14,9 @@ export function PublicNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
+            <div className="w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
               <img
-                src="/maneho-logo.png"
+                src="/new-maneho-logo-removebg-preview.png"
                 alt="Maneho Logo"
                 className="w-full h-full object-contain"
               />

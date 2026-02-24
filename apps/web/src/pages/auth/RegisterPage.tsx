@@ -60,7 +60,7 @@ export function RegisterPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription className="text-slate-600">
-            Join Maneho.ai to access AI-powered legal assistance
+            Join Maneho AI to access AI-powered legal assistance
           </CardDescription>
         </CardHeader>
         <CardContent>

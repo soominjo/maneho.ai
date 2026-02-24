@@ -194,7 +194,7 @@ export function AskLawyerPage() {
   }
 
   return (
-    <div className="flex h-full bg-background dark:bg-slate-950 overflow-hidden">
+    <div className="flex flex-col h-full bg-background dark:bg-slate-950">
       {/* Chat History Sidebar - With New Chat Button */}
       <ChatHistorySidebar
         isOpen={sidebarOpen}
@@ -204,16 +204,16 @@ export function AskLawyerPage() {
         onNewChat={handleNewChat}
       />
 
-      {/* Main Chat Area - Fluid Elastic Scaling with Smooth Transition */}
+      {/* Main Chat Area - Full Width Centered with Smooth Transition */}
       <div
         className="flex-1 flex flex-col relative bg-background dark:bg-slate-950 overflow-hidden transition-all duration-300 ease-in-out"
         style={{
-          minWidth: 0,
+          marginLeft: sidebarOpen ? (window.innerWidth >= 1024 ? '288px' : '0') : '0',
         }}
       >
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col space-y-6 pb-48">
+          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-4 pb-48">
             {messages.length === 0 ? (
               <div className="text-center text-slate-500 py-12">
                 <img
@@ -230,8 +230,8 @@ export function AskLawyerPage() {
                   {msg.type === 'user' ? (
                     // USER BUBBLE - Right-aligned, primary blue with shadow
                     <div className="flex justify-end">
-                      <div className="max-w-[75%] bg-primary dark:bg-blue-600 text-white rounded-lg px-4 py-3 shadow-md">
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                      <div className="max-w-[75%] bg-primary dark:bg-blue-600 text-white rounded-xl px-4 py-2.5 shadow-md">
+                        <p className="text-sm">{msg.content}</p>
                       </div>
                     </div>
                   ) : (
@@ -242,9 +242,9 @@ export function AskLawyerPage() {
                         alt="Maneho Bot"
                         className="w-8 h-8 mt-1 flex-shrink-0 aspect-square object-contain"
                       />
-                      <div className="flex-1 min-w-0">
-                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm p-4">
-                          <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-900 dark:text-slate-100 leading-relaxed">
+                      <div className="flex-1">
+                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4">
+                          <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-900 dark:text-slate-100">
                             <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
                         </div>
@@ -280,11 +280,11 @@ export function AskLawyerPage() {
             {askLawyer.isPending && (
               <div className="flex justify-start gap-3">
                 <img
-                  src="/new-maneho-bot-removebg-preview.png"
+                  src="/maneho-bot.png"
                   alt="Maneho Bot"
-                  className="w-8 h-8 mt-1 flex-shrink-0 aspect-square object-contain"
+                  className="w-5 h-5 mt-1 aspect-square object-contain"
                 />
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm">
                   <div className="flex gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
                     <div
@@ -306,9 +306,14 @@ export function AskLawyerPage() {
       </div>
 
       {/* Sticky Input Area - Gradient Overlay at Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background dark:from-slate-950 via-background dark:via-slate-950 to-transparent transition-all duration-300 ease-in-out">
+      <div
+        className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background dark:from-slate-950 via-background dark:via-slate-950 to-transparent transition-all duration-300 ease-in-out"
+        style={{
+          left: sidebarOpen ? (window.innerWidth >= 1024 ? '288px' : '0') : '0',
+        }}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg shadow-xl p-2 flex items-center gap-2">
+          <div className="bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl shadow-xl p-2 flex items-center gap-2">
             {/* File Input - Hidden */}
             <input
               type="file"

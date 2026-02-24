@@ -1,6 +1,6 @@
 /**
  * Gemini AI Integration for RAG-grounded responses
- * Handles text generation, vision, and instruction-following for Maneho.ai features
+ * Handles text generation, vision, and instruction-following for Maneho AI features
  * Uses: Google Generative AI REST API (Gemini Pro model)
  */
 
