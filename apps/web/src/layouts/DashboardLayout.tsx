@@ -14,7 +14,6 @@ import {
   Menu,
   X,
   Bot,
-  Plus,
   LogOut,
 } from 'lucide-react'
 
@@ -33,13 +32,6 @@ export function DashboardLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const isAskLawyerPage = location.pathname.startsWith('/ask-lawyer')
-
-  const handleNewChat = () => {
-    navigate('/ask-lawyer')
-    setMobileMenuOpen(false)
-  }
 
   const handleSignOut = async () => {
     await signOut()
@@ -93,18 +85,6 @@ export function DashboardLayout() {
 
             {/* Right Side Tools */}
             <div className="flex items-center gap-3">
-              {/* New Chat Button - Ask Lawyer Page */}
-              {isAskLawyerPage && (
-                <button
-                  onClick={handleNewChat}
-                  className="hidden sm:inline-flex items-center gap-1.5 bg-primary text-white hover:bg-blue-800 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors shadow-sm"
-                  title="Start a new conversation"
-                >
-                  <Plus className="w-4 h-4" />
-                  New Chat
-                </button>
-              )}
-
               {/* Quota Badge */}
               <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 flex items-baseline gap-1 shadow-none hidden sm:flex">
                 <span className="text-primary dark:text-blue-400 font-bold text-sm">
@@ -147,18 +127,6 @@ export function DashboardLayout() {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Mobile New Chat Button - Ask Lawyer Page */}
-              {isAskLawyerPage && (
-                <button
-                  onClick={handleNewChat}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium bg-primary text-white hover:bg-blue-800 transition-colors border-none shadow-sm mb-2"
-                  title="Start a new conversation"
-                >
-                  <Plus className="w-5 h-5" />
-                  New Chat
-                </button>
-              )}
-
               {/* Mobile Quota display */}
               <div className="px-3 py-2 text-sm text-slate-600 dark:text-slate-400 mb-2 border-b border-slate-200 dark:border-slate-800 flex justify-between">
                 <span>AI Credits Remaining:</span>
