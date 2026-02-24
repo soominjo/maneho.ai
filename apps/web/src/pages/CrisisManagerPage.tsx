@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
   AlertCircle,
-  Ticket,
   FileText,
   DollarSign,
   BookOpen,
@@ -192,18 +191,7 @@ export function TicketDecoderPage() {
             : '0',
         }}
       >
-        {/* Page Header */}
-        <div className="mb-8 p-4 sm:p-6 lg:p-8">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Ticket className="w-8 h-8 text-blue-700" />
-            Ticket Decoder
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Upload a photo of your traffic ticket to identify the violation and look up the exact
-            fine from LTO regulations.
-          </p>
-        </div>
-        <LayoutWrapper>
+        <LayoutWrapper className="py-6 sm:py-8 lg:py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Main Area */}
             <div className="md:col-span-2 space-y-4">
@@ -238,12 +226,12 @@ export function TicketDecoderPage() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-slate-300 rounded-sm p-8 text-center hover:border-blue-700 hover:bg-blue-50 transition-colors cursor-pointer"
+                      className="w-full border-2 border-dashed border-input rounded-sm p-8 text-center hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer"
                     >
                       <div className="flex flex-col items-center gap-3">
                         <div className="flex gap-2">
-                          <Camera className="w-8 h-8 text-slate-500" />
-                          <Upload className="w-8 h-8 text-slate-500" />
+                          <Camera className="w-8 h-8 text-muted-foreground" />
+                          <Upload className="w-8 h-8 text-muted-foreground" />
                         </div>
                         <div>
                           <p className="font-medium text-foreground">
@@ -258,11 +246,11 @@ export function TicketDecoderPage() {
                   ) : (
                     /* Image preview */
                     <div className="space-y-3">
-                      <div className="relative rounded-sm overflow-hidden border border-slate-300">
+                      <div className="relative rounded-sm overflow-hidden border border-border">
                         <img
                           src={imagePreview}
                           alt="Ticket preview"
-                          className="w-full max-h-64 object-contain bg-slate-100"
+                          className="w-full max-h-64 object-contain bg-secondary"
                         />
                       </div>
                     </div>
@@ -276,13 +264,13 @@ export function TicketDecoderPage() {
                   <CardContent className="py-6">
                     <div className="flex items-center gap-4">
                       <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce" />
+                        <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" />
                         <div
-                          className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce"
+                          className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
                           style={{ animationDelay: '0.1s' }}
                         />
                         <div
-                          className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-bounce"
+                          className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce"
                           style={{ animationDelay: '0.2s' }}
                         />
                       </div>
@@ -311,12 +299,12 @@ export function TicketDecoderPage() {
                       {/* Violations Section */}
                       <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:flex prose-headings:items-center prose-headings:gap-3 prose-h2:text-lg prose-h2:font-bold prose-h2:text-foreground prose-h2:mt-0 prose-h2:mb-3 prose-ul:my-2 prose-ul:pl-5 prose-li:text-foreground">
                         <style>{`
-                      .violation-section { padding: 1rem 0; border-bottom: 1px solid rgb(226, 232, 240); }
+                      .violation-section { padding: 1rem 0; border-bottom: 1px solid hsl(var(--border)); }
                       .violation-section:last-child { border-bottom: none; }
-                      .violation-section h2 { color: rgb(15, 23, 42); margin-top: 0 !important; margin-bottom: 0.75rem !important; }
+                      .violation-section h2 { color: hsl(var(--foreground)); margin-top: 0 !important; margin-bottom: 0.75rem !important; }
                       .violation-section h2::before { content: ''; }
                       .violation-section ul { margin: 0.5rem 0 !important; }
-                      .violation-section li { margin: 0.25rem 0; color: rgb(71, 85, 105); }
+                      .violation-section li { margin: 0.25rem 0; color: hsl(var(--muted-foreground)); }
                     `}</style>
                         <ReactMarkdown
                           components={{
@@ -327,7 +315,7 @@ export function TicketDecoderPage() {
 
                               if (text.includes('Violation')) {
                                 icon = (
-                                  <CheckCircle2 className="w-5 h-5 text-blue-700 flex-shrink-0" />
+                                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                                 )
                               } else if (text.includes('Fine') || text.includes('Computed')) {
                                 icon = (
@@ -363,12 +351,12 @@ export function TicketDecoderPage() {
                             code: ({ inline, ...props }) =>
                               inline ? (
                                 <code
-                                  className="bg-slate-100 px-1.5 py-0.5 rounded-sm text-sm font-mono text-foreground"
+                                  className="bg-secondary px-1.5 py-0.5 rounded-sm text-sm font-mono text-foreground"
                                   {...props}
                                 />
                               ) : (
                                 <code
-                                  className="block bg-slate-100 p-3 rounded-sm text-xs font-mono text-foreground overflow-x-auto"
+                                  className="block bg-secondary p-3 rounded-sm text-xs font-mono text-foreground overflow-x-auto"
                                   {...props}
                                 />
                               ),
@@ -380,7 +368,7 @@ export function TicketDecoderPage() {
                     </div>
 
                     {/* Raw OCR Text (collapsible) */}
-                    <div className="border-t border-slate-300 pt-3">
+                    <div className="border-t border-border pt-3">
                       <button
                         type="button"
                         onClick={() => setShowRawText(!showRawText)}
@@ -394,7 +382,7 @@ export function TicketDecoderPage() {
                         Raw extracted text
                       </button>
                       {showRawText && (
-                        <pre className="mt-2 p-3 bg-slate-100 rounded-sm text-xs text-foreground whitespace-pre-wrap overflow-x-auto border border-slate-300">
+                        <pre className="mt-2 p-3 bg-secondary rounded-sm text-xs text-foreground whitespace-pre-wrap overflow-x-auto border border-border">
                           {result.ticketText}
                         </pre>
                       )}
@@ -433,7 +421,7 @@ export function ScriptGeneratorPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <FileText className="w-8 h-8 text-blue-700" />
+        <FileText className="w-8 h-8 text-primary" />
         Script Generator
       </h1>
       <p className="text-muted-foreground mb-8">Create persuasive traffic situation scripts</p>
@@ -458,7 +446,7 @@ export function CostEstimatorPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <DollarSign className="w-8 h-8 text-blue-700" />
+        <DollarSign className="w-8 h-8 text-primary" />
         Cost Estimator
       </h1>
       <p className="text-muted-foreground mb-8">Calculate vehicle registration renewal costs</p>
@@ -483,7 +471,7 @@ export function LicenseWizardPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <BookOpen className="w-8 h-8 text-blue-700" />
+        <BookOpen className="w-8 h-8 text-primary" />
         License Wizard
       </h1>
       <p className="text-muted-foreground mb-8">Personalized driver's license requirements</p>
@@ -508,7 +496,7 @@ export function QuizPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <GraduationCap className="w-8 h-8 text-blue-700" />
+        <GraduationCap className="w-8 h-8 text-primary" />
         Quiz & Study
       </h1>
       <p className="text-muted-foreground mb-8">Interactive LTO exam preparation</p>
