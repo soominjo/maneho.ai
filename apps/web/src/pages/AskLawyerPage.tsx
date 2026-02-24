@@ -42,16 +42,16 @@ export function AskLawyerPage() {
   useEffect(() => {
     if (threadQuery.data) {
       const loaded: ChatMessage[] = threadQuery.data.messages.map(
-        (msg: Record<string, unknown>) => {
+        (msg: { role?: string; content?: unknown; citations?: unknown; sourceCount?: unknown }) => {
           if (msg.role === 'ai') {
             return {
               type: 'ai' as const,
-              content: msg.content,
-              citations: msg.citations,
-              sourceCount: msg.sourceCount,
+              content: String(msg.content),
+              citations: Array.isArray(msg.citations) ? msg.citations : [],
+              sourceCount: typeof msg.sourceCount === 'number' ? msg.sourceCount : 0,
             }
           }
-          return { type: 'user' as const, content: msg.content }
+          return { type: 'user' as const, content: String(msg.content) }
         }
       )
       setMessages(loaded)
