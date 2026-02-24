@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown'
 import { X, Paperclip, Send, BookOpen } from 'lucide-react'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
 import { InlineCitationCard } from '../components/InlineCitationCard'
+import { LayoutWrapper } from '../components/LayoutWrapper'
+import { BotIcon } from '../components/BotIcon'
 import { trpc } from '../lib/trpc'
 import { useAuth } from '../hooks/useAuth'
 import { formatDocTitle } from '../utils/formatDocTitle'
@@ -213,14 +215,12 @@ export function AskLawyerPage() {
       >
         {/* Messages Area - Scrollable */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col space-y-6 pb-64">
+          <LayoutWrapper className="py-10 flex flex-col space-y-6 pb-64">
             {messages.length === 0 ? (
-              <div className="text-center text-slate-500 py-12">
-                <img
-                  src="/maneho-bot.png"
-                  alt="Maneho Bot"
-                  className="w-12 h-12 mx-auto mb-3 aspect-square object-contain"
-                />
+              <div className="text-center text-muted-foreground py-12">
+                <div className="flex justify-center mb-3">
+                  <BotIcon size="lg" />
+                </div>
                 <p className="text-lg font-medium">Ask me anything about LTO regulations</p>
                 <p className="text-sm mt-1">I'm grounded in official LTO documents</p>
               </div>
@@ -237,14 +237,10 @@ export function AskLawyerPage() {
                   ) : (
                     // AI BUBBLE - Left-aligned, white card with border and shadow
                     <div className="flex justify-start gap-3">
-                      <img
-                        src="/new-maneho-bot-removebg-preview.png"
-                        alt="Maneho Bot"
-                        className="w-8 h-8 mt-1 flex-shrink-0 aspect-square object-contain"
-                      />
+                      <BotIcon size="md" className="mt-1" />
                       <div className="flex-1 min-w-0">
-                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm p-4">
-                          <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-900 dark:text-slate-100 leading-relaxed">
+                        <div className="bg-card border border-border rounded-lg shadow-sm p-4">
+                          <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-card-foreground leading-relaxed">
                             <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
                         </div>
@@ -279,12 +275,8 @@ export function AskLawyerPage() {
             {/* Loading Indicator */}
             {askLawyer.isPending && (
               <div className="flex justify-start gap-3">
-                <img
-                  src="/new-maneho-bot-removebg-preview.png"
-                  alt="Maneho Bot"
-                  className="w-8 h-8 mt-1 flex-shrink-0 aspect-square object-contain"
-                />
-                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 shadow-sm">
+                <BotIcon size="md" className="mt-1" />
+                <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-sm">
                   <div className="flex gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
                     <div
@@ -301,13 +293,13 @@ export function AskLawyerPage() {
             )}
 
             <div ref={messagesEndRef} />
-          </div>
+          </LayoutWrapper>
         </div>
       </div>
 
       {/* Sticky Input Area - Gradient Overlay at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background dark:from-slate-950 via-background dark:via-slate-950 to-transparent transition-all duration-300 ease-in-out">
-        <div className="max-w-4xl mx-auto">
+        <LayoutWrapper>
           <div className="bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg shadow-xl p-2 flex items-center gap-2">
             {/* File Input - Hidden */}
             <input
@@ -323,7 +315,7 @@ export function AskLawyerPage() {
             <button
               type="button"
               onClick={() => document.getElementById('file-attach-input')?.click()}
-              className="p-2 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-blue-400 transition-colors"
+              className="p-2 text-muted-foreground hover:text-primary transition-colors"
               title="Attach file (PDF, TXT, PNG, JPG)"
             >
               <Paperclip size={20} strokeWidth={1.5} />
@@ -343,7 +335,7 @@ export function AskLawyerPage() {
                 }
               }}
               placeholder="Type your legal query here..."
-              className="flex-1 border-none focus:ring-0 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none"
+              className="flex-1 border-none focus:ring-0 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none"
             />
 
             {/* Send Button */}
@@ -363,7 +355,7 @@ export function AskLawyerPage() {
           </div>
 
           {/* Legal Disclaimer */}
-          <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-3 uppercase tracking-widest font-semibold">
+          <p className="text-center text-xs text-muted-foreground mt-3 uppercase tracking-widest font-semibold">
             Maneho AI provides information, not legal advice. Consult a professional for critical
             cases.
           </p>
@@ -374,7 +366,7 @@ export function AskLawyerPage() {
               Daily AI credits exhausted. Resets at midnight.
             </p>
           )}
-        </div>
+        </LayoutWrapper>
       </div>
 
       {/* Mobile Citations Drawer - Bottom Sheet */}

@@ -28,6 +28,7 @@ import { Button } from '@repo/ui/components/ui/button'
 import { Badge } from '@repo/ui/components/ui/badge'
 import { CitationsPanel } from '../components/CitationsPanel'
 import { TicketHistorySidebar } from '../components/TicketHistorySidebar'
+import { LayoutWrapper } from '../components/LayoutWrapper'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { getStorageInstance } from '../lib/firebase'
 import { trpc } from '../lib/trpc'
@@ -43,16 +44,16 @@ export function CrisisManagerPage() {
         <AlertCircle className="w-8 h-8 text-blue-700" />
         Crisis Manager
       </h1>
-      <p className="text-slate-600 mb-8">Post-accident checklist and insurance analysis</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Post-accident checklist and insurance analysis</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The Crisis Manager will provide step-by-step post-accident guidance and insurance policy
             analysis.
           </p>
@@ -197,17 +198,17 @@ export function TicketDecoderPage() {
             <Ticket className="w-8 h-8 text-blue-700" />
             Ticket Decoder
           </h1>
-          <p className="text-slate-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Upload a photo of your traffic ticket to identify the violation and look up the exact
             fine from LTO regulations.
           </p>
         </div>
-        <div className="px-4 sm:px-6 lg:px-8">
+        <LayoutWrapper>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Main Area */}
             <div className="md:col-span-2 space-y-4">
               {/* Upload Card */}
-              <Card className="shadow-none border border-slate-200">
+              <Card className="shadow-none border border-border">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">Upload Ticket Image</CardTitle>
@@ -218,7 +219,7 @@ export function TicketDecoderPage() {
                       </Button>
                     )}
                   </div>
-                  <CardDescription className="text-slate-600">
+                  <CardDescription className="text-muted-foreground">
                     Take a photo or upload an image of your traffic ticket (TVR)
                   </CardDescription>
                 </CardHeader>
@@ -245,10 +246,10 @@ export function TicketDecoderPage() {
                           <Upload className="w-8 h-8 text-slate-500" />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-medium text-foreground">
                             Tap to take a photo or upload an image
                           </p>
-                          <p className="text-sm text-slate-600 mt-1">
+                          <p className="text-sm text-muted-foreground mt-1">
                             JPG, PNG, or WebP up to 10MB
                           </p>
                         </div>
@@ -271,7 +272,7 @@ export function TicketDecoderPage() {
 
               {/* Loading State */}
               {decodeTicket.isPending && (
-                <Card className="shadow-none border border-slate-200">
+                <Card className="shadow-none border border-border">
                   <CardContent className="py-6">
                     <div className="flex items-center gap-4">
                       <div className="flex gap-1.5">
@@ -285,7 +286,9 @@ export function TicketDecoderPage() {
                           style={{ animationDelay: '0.2s' }}
                         />
                       </div>
-                      <p className="text-slate-600">Scanning ticket and searching LTO records...</p>
+                      <p className="text-muted-foreground">
+                        Scanning ticket and searching LTO records...
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -293,7 +296,7 @@ export function TicketDecoderPage() {
 
               {/* Results */}
               {result && (
-                <Card className="shadow-none border border-slate-200">
+                <Card className="shadow-none border border-border">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">Analysis</CardTitle>
@@ -306,7 +309,7 @@ export function TicketDecoderPage() {
                     {/* AI Explanation (main result) with enhanced styling */}
                     <div className="space-y-0">
                       {/* Violations Section */}
-                      <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:flex prose-headings:items-center prose-headings:gap-3 prose-h2:text-lg prose-h2:font-bold prose-h2:text-slate-900 prose-h2:mt-0 prose-h2:mb-3 prose-ul:my-2 prose-ul:pl-5 prose-li:text-slate-700">
+                      <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:flex prose-headings:items-center prose-headings:gap-3 prose-h2:text-lg prose-h2:font-bold prose-h2:text-foreground prose-h2:mt-0 prose-h2:mb-3 prose-ul:my-2 prose-ul:pl-5 prose-li:text-foreground">
                         <style>{`
                       .violation-section { padding: 1rem 0; border-bottom: 1px solid rgb(226, 232, 240); }
                       .violation-section:last-child { border-bottom: none; }
@@ -341,7 +344,7 @@ export function TicketDecoderPage() {
                               return (
                                 <div className={sectionClass}>
                                   <h2
-                                    className="flex items-center gap-3 text-lg font-bold text-slate-900 m-0 mb-3"
+                                    className="flex items-center gap-3 text-lg font-bold text-foreground m-0 mb-3"
                                     {...props}
                                   >
                                     {icon}
@@ -352,20 +355,20 @@ export function TicketDecoderPage() {
                             },
                             ul: ({ ...props }) => <ul className="my-2 pl-5 space-y-1" {...props} />,
                             li: ({ ...props }) => (
-                              <li className="text-slate-700 text-sm" {...props} />
+                              <li className="text-foreground text-sm" {...props} />
                             ),
                             strong: ({ ...props }) => (
-                              <strong className="font-semibold text-slate-900" {...props} />
+                              <strong className="font-semibold text-foreground" {...props} />
                             ),
                             code: ({ inline, ...props }) =>
                               inline ? (
                                 <code
-                                  className="bg-slate-100 px-1.5 py-0.5 rounded-sm text-sm font-mono text-slate-900"
+                                  className="bg-slate-100 px-1.5 py-0.5 rounded-sm text-sm font-mono text-foreground"
                                   {...props}
                                 />
                               ) : (
                                 <code
-                                  className="block bg-slate-100 p-3 rounded-sm text-xs font-mono text-slate-700 overflow-x-auto"
+                                  className="block bg-slate-100 p-3 rounded-sm text-xs font-mono text-foreground overflow-x-auto"
                                   {...props}
                                 />
                               ),
@@ -381,7 +384,7 @@ export function TicketDecoderPage() {
                       <button
                         type="button"
                         onClick={() => setShowRawText(!showRawText)}
-                        className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showRawText ? (
                           <ChevronUp className="w-4 h-4" />
@@ -391,7 +394,7 @@ export function TicketDecoderPage() {
                         Raw extracted text
                       </button>
                       {showRawText && (
-                        <pre className="mt-2 p-3 bg-slate-100 rounded-sm text-xs text-slate-700 whitespace-pre-wrap overflow-x-auto border border-slate-300">
+                        <pre className="mt-2 p-3 bg-slate-100 rounded-sm text-xs text-foreground whitespace-pre-wrap overflow-x-auto border border-slate-300">
                           {result.ticketText}
                         </pre>
                       )}
@@ -418,7 +421,7 @@ export function TicketDecoderPage() {
             </div>
           </div>{' '}
           {/* Close grid */}
-        </div>{' '}
+        </LayoutWrapper>{' '}
         {/* Close main content area */}
       </div>{' '}
       {/* Close flex container */}
@@ -433,16 +436,16 @@ export function ScriptGeneratorPage() {
         <FileText className="w-8 h-8 text-blue-700" />
         Script Generator
       </h1>
-      <p className="text-slate-600 mb-8">Create persuasive traffic situation scripts</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Create persuasive traffic situation scripts</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The Script Generator will create respectful conversation scripts for traffic situations.
           </p>
         </CardContent>
@@ -458,16 +461,16 @@ export function CostEstimatorPage() {
         <DollarSign className="w-8 h-8 text-blue-700" />
         Cost Estimator
       </h1>
-      <p className="text-slate-600 mb-8">Calculate vehicle registration renewal costs</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Calculate vehicle registration renewal costs</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The Cost Estimator will calculate all fees for vehicle registration renewal.
           </p>
         </CardContent>
@@ -483,16 +486,16 @@ export function LicenseWizardPage() {
         <BookOpen className="w-8 h-8 text-blue-700" />
         License Wizard
       </h1>
-      <p className="text-slate-600 mb-8">Personalized driver's license requirements</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Personalized driver's license requirements</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The License Wizard will provide step-by-step requirements for driver's licenses.
           </p>
         </CardContent>
@@ -508,16 +511,16 @@ export function QuizPage() {
         <GraduationCap className="w-8 h-8 text-blue-700" />
         Quiz & Study
       </h1>
-      <p className="text-slate-600 mb-8">Interactive LTO exam preparation</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Interactive LTO exam preparation</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The Quiz will provide LTO-based practice questions and AI-powered explanations.
           </p>
         </CardContent>
@@ -533,16 +536,16 @@ export function ProfilePage() {
         <User className="w-8 h-8 text-blue-700" />
         Profile
       </h1>
-      <p className="text-slate-600 mb-8">Manage your account and view usage</p>
-      <Card className="shadow-none border border-slate-200">
+      <p className="text-muted-foreground mb-8">Manage your account and view usage</p>
+      <Card className="shadow-none border border-border">
         <CardHeader>
           <CardTitle>Coming Soon</CardTitle>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             This feature is under development
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             The Profile section will show your account details and usage history.
           </p>
         </CardContent>

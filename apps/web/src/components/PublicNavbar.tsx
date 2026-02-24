@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@repo/ui/components/ui/button'
+import { Logo } from './Logo'
 
 /**
  * PublicNavbar - Simple navbar for public pages (landing, login, register)
@@ -14,13 +15,7 @@ export function PublicNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 aspect-square">
-              <img
-                src="/new-maneho-logo-removebg-preview.png"
-                alt="Maneho Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo size="md" />
             <div>
               <h1 className="text-slate-900 dark:text-white font-bold text-lg leading-tight">
                 Maneho AI

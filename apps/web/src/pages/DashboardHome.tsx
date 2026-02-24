@@ -9,6 +9,7 @@ import {
   GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { LayoutWrapper } from '../components/LayoutWrapper'
 import {
   Card,
   CardContent,
@@ -56,7 +57,7 @@ export function DashboardHome() {
   const { user, quota } = useAuth()
 
   return (
-    <div className="space-y-8">
+    <LayoutWrapper maxWidth="wide" className="space-y-8">
       {/* Welcome */}
       <div>
         <h1 className="text-3xl font-bold">Welcome back, {user?.name || 'User'}!</h1>
@@ -121,6 +122,6 @@ export function DashboardHome() {
           <p>• Visit your profile to track your usage history</p>
         </CardContent>
       </Card>
-    </div>
+    </LayoutWrapper>
   )
 }
