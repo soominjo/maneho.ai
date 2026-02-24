@@ -19,7 +19,7 @@ export function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
       {/* Top Navbar - Modern Design */}
       <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,7 +70,7 @@ export function DashboardLayout() {
             {/* Right Side Tools */}
             <div className="flex items-center gap-3">
               {/* Quota Badge */}
-              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 flex items-baseline gap-1 shadow-none hidden sm:flex">
+              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 items-baseline gap-1 shadow-none hidden sm:flex">
                 <span className="text-primary dark:text-blue-400 font-bold text-sm">
                   {quota.limit - quota.used}/{quota.limit}
                 </span>
@@ -145,7 +145,7 @@ export function DashboardLayout() {
       </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 w-full overflow-hidden">
         <Outlet />
       </main>
     </div>
