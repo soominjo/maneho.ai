@@ -79,7 +79,7 @@ export function DashboardLayout() {
                         : 'text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400'
                     )}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-5 h-5" />
                     {item.label}
                   </Link>
                 )
