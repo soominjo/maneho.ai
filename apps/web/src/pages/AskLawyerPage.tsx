@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
-import { Scale, Bot, X } from 'lucide-react'
-import { Button } from '@repo/ui/components/ui/button'
+import { Bot, X, Paperclip, Send, BookOpen } from 'lucide-react'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
-import { CitationsPanel } from '../components/CitationsPanel'
+import { InlineCitationCard } from '../components/InlineCitationCard'
 import { trpc } from '../lib/trpc'
 import { useAuth } from '../hooks/useAuth'
 import { formatDocTitle } from '../utils/formatDocTitle'
+import { parseLegalReferences } from '../utils/parseLegalReferences'
 import { toast } from 'sonner'
 
 interface Citation {
@@ -140,145 +140,147 @@ export function AskLawyerPage() {
         onNewChat={handleNewChat}
       />
 
-      {/* Main Container - Split Screen on Desktop */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Side: Chat (70% on desktop, 100% on mobile) */}
-        <div className="flex-1 flex flex-col items-center overflow-hidden">
-          <div className="w-full max-w-3xl flex flex-col h-full">
-            {/* Messages Area - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-              {messages.length === 0 ? (
-                <div className="text-center text-slate-500 py-12">
-                  <Bot className="w-12 h-12 mx-auto mb-3 text-blue-700" />
-                  <p className="text-lg font-medium">Ask me anything about LTO regulations</p>
-                  <p className="text-sm mt-1">I'm grounded in official LTO documents</p>
-                </div>
-              ) : (
-                messages.map((msg, idx) => (
-                  <div key={idx}>
-                    {msg.type === 'user' ? (
-                      // USER BUBBLE - Right-aligned, flat gray
-                      <div className="flex justify-end">
-                        <div className="max-w-[75%] bg-slate-100 border border-slate-200 rounded-sm px-4 py-2.5 shadow-none">
-                          <p className="text-slate-900 text-sm">{msg.content}</p>
-                        </div>
+      {/* Main Chat Area - Full Width Centered */}
+      <div className="flex-1 flex flex-col relative bg-background-light dark:bg-slate-950 overflow-hidden">
+        {/* Messages Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-4 pb-32">
+            {messages.length === 0 ? (
+              <div className="text-center text-slate-500 py-12">
+                <Bot className="w-12 h-12 mx-auto mb-3 text-blue-700" />
+                <p className="text-lg font-medium">Ask me anything about LTO regulations</p>
+                <p className="text-sm mt-1">I'm grounded in official LTO documents</p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <div key={idx}>
+                  {msg.type === 'user' ? (
+                    // USER BUBBLE - Right-aligned, primary blue with shadow
+                    <div className="flex justify-end">
+                      <div className="max-w-[75%] bg-primary dark:bg-blue-600 text-white rounded-xl px-4 py-2.5 shadow-md">
+                        <p className="text-sm">{msg.content}</p>
                       </div>
-                    ) : (
-                      // AI BUBBLE - Left-aligned, transparent, with bot icon
-                      <div className="flex justify-start gap-3">
-                        <Bot className="w-5 h-5 text-blue-700 mt-1 flex-shrink-0" />
-                        <div className="flex-1">
-                          <div className="bg-transparent border-none">
-                            <div className="prose prose-sm prose-slate max-w-none text-slate-900">
-                              <ReactMarkdown>{msg.content}</ReactMarkdown>
-                            </div>
+                    </div>
+                  ) : (
+                    // AI BUBBLE - Left-aligned, white card with border and shadow
+                    <div className="flex justify-start gap-3">
+                      <Bot className="w-5 h-5 text-primary dark:text-blue-400 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4">
+                          <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-900 dark:text-slate-100">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
+                        </div>
 
-                          {/* Citations - Inline Legal Tags Below Text */}
-                          {msg.citations && msg.citations.length > 0 && (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {msg.citations.map((citation, cidx) => (
-                                <button
-                                  key={`${citation.documentId}-${cidx}`}
+                        {/* Inline Citation Cards - Legal References from AI Response */}
+                        {(() => {
+                          const references = parseLegalReferences(msg.content)
+                          return references.length > 0 ? (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {references.map((ref, refIdx) => (
+                                <InlineCitationCard
+                                  key={`${ref.title}-${refIdx}`}
+                                  reference={ref}
                                   onClick={() => {
-                                    setSelectedSourceIdx(cidx)
                                     if (window.innerWidth < 768) {
+                                      setSelectedSourceIdx(refIdx)
                                       setCitationsDrawerOpen(true)
                                     }
                                   }}
-                                  className={`inline-flex items-center gap-1 border rounded-sm px-2 py-1 text-xs font-medium transition-colors shadow-none cursor-pointer ${
-                                    selectedSourceIdx === cidx
-                                      ? 'border-blue-500 bg-blue-100 text-blue-800'
-                                      : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
-                                  }`}
-                                  title={formatDocTitle(citation.documentId)}
-                                >
-                                  <Scale className="w-3 h-3" />
-                                  Source {cidx + 1}
-                                </button>
+                                />
                               ))}
                             </div>
-                          )}
-                        </div>
+                          ) : null
+                        })()}
                       </div>
-                    )}
-                  </div>
-                ))
-              )}
-
-              {/* Loading Indicator */}
-              {askLawyer.isPending && (
-                <div className="flex justify-start gap-3">
-                  <Bot className="w-5 h-5 text-blue-700 mt-1" />
-                  <div className="bg-slate-100 border border-slate-200 rounded-sm px-4 py-2.5 shadow-none">
-                    <div className="flex gap-2">
-                      <div className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"
-                        style={{ animationDelay: '0.1s' }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-blue-700 rounded-full animate-bounce"
-                        style={{ animationDelay: '0.2s' }}
-                      ></div>
                     </div>
+                  )}
+                </div>
+              ))
+            )}
+
+            {/* Loading Indicator */}
+            {askLawyer.isPending && (
+              <div className="flex justify-start gap-3">
+                <Bot className="w-5 h-5 text-primary dark:text-blue-400 mt-1" />
+                <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm">
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: '0.1s' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Area - Sticky Bottom with Legal Disclaimer */}
-            <div className="border-t border-slate-200 bg-white px-4 py-4 shadow-none">
-              <form onSubmit={handleSubmit} className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={question}
-                    onChange={e => setQuestion(e.target.value)}
-                    placeholder="Ask about traffic, vehicle, or LTO regulations..."
-                    className="flex-1 px-4 py-3 border border-slate-300 rounded-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 shadow-none"
-                  />
-                  <Button
-                    type="submit"
-                    disabled={askLawyer.isPending || quota.used >= quota.limit}
-                    className="bg-blue-700 text-white hover:bg-blue-800 border-none rounded-sm px-6 shadow-none"
-                  >
-                    Send
-                  </Button>
-                </div>
-
-                {/* Legal Disclaimer */}
-                <p className="text-xs text-slate-500 text-center">
-                  AI-generated responses are for informational purposes only and do not constitute
-                  legal advice.
-                </p>
-
-                {quota.used >= quota.limit && (
-                  <p className="text-sm text-red-600 text-center">
-                    Daily AI credits exhausted. Resets at midnight.
-                  </p>
-                )}
-              </form>
-            </div>
+            <div ref={messagesEndRef} />
           </div>
         </div>
+      </div>
 
-        {/* Right Side: Citations Panel (30% width, hidden on mobile) */}
-        <div className="hidden md:flex md:w-[30%] border-l border-slate-200 bg-slate-50 p-4 overflow-y-auto">
-          {mostRecentAiMessage && mostRecentAiMessage.type === 'ai' ? (
-            <CitationsPanel
-              citations={mostRecentAiMessage.citations || []}
-              sourceCount={mostRecentAiMessage.sourceCount || 0}
-              isLoading={askLawyer.isPending}
-              selectedSourceIdx={selectedSourceIdx}
-              onSourceSelect={setSelectedSourceIdx}
+      {/* Sticky Input Area - Gradient Overlay at Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light dark:from-slate-950 via-background-light dark:via-slate-950 to-transparent">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-2 flex items-center gap-2">
+            {/* Attach Button */}
+            <button
+              type="button"
+              className="p-2 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-blue-400 transition-colors"
+              title="Attach file"
+            >
+              <Paperclip size={20} strokeWidth={1.5} />
+            </button>
+
+            {/* Message Input */}
+            <input
+              type="text"
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
+              onKeyPress={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  const formEvent = new Event('submit') as unknown as React.FormEvent
+                  formEvent.preventDefault = () => {}
+                  handleSubmit(formEvent)
+                }
+              }}
+              placeholder="Type your legal query here..."
+              className="flex-1 border-none focus:ring-0 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none"
             />
-          ) : (
-            <div className="text-center text-slate-500">
-              <p className="text-sm">Citations will appear here</p>
-            </div>
+
+            {/* Send Button */}
+            <button
+              type="button"
+              onClick={() => {
+                const event = new Event('submit') as unknown as React.FormEvent
+                event.preventDefault = () => {}
+                handleSubmit(event)
+              }}
+              disabled={askLawyer.isPending || quota.used >= quota.limit}
+              className="bg-primary dark:bg-blue-600 text-white h-10 w-10 rounded-lg flex items-center justify-center hover:bg-blue-800 dark:hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Send message"
+            >
+              <Send size={18} strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {/* Legal Disclaimer */}
+          <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-3 uppercase tracking-widest font-semibold">
+            Maneho AI provides information, not legal advice. Consult a professional for critical
+            cases.
+          </p>
+
+          {/* Quota Warning */}
+          {quota.used >= quota.limit && (
+            <p className="text-center text-sm text-red-600 dark:text-red-400 mt-2">
+              Daily AI credits exhausted. Resets at midnight.
+            </p>
           )}
         </div>
       </div>
@@ -344,10 +346,10 @@ export function AskLawyerPage() {
         (mostRecentAiMessage.citations?.length ?? 0) > 0 && (
           <button
             onClick={() => setCitationsDrawerOpen(true)}
-            className="md:hidden fixed bottom-6 right-6 z-40 bg-blue-700 text-white rounded-full p-3 shadow-lg hover:bg-blue-800 transition-colors flex items-center justify-center"
+            className="md:hidden fixed bottom-20 right-6 z-40 bg-primary dark:bg-blue-600 text-white rounded-full p-3 shadow-lg hover:bg-blue-800 dark:hover:bg-blue-700 transition-colors flex items-center justify-center"
             title="View sources"
           >
-            <Scale className="w-5 h-5" />
+            <BookOpen className="w-5 h-5" />
           </button>
         )}
     </div>

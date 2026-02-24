@@ -4,45 +4,46 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%; /* Slate-50 - Clean light background */
+    --background: 210 40% 98%; /* Slate-50 - Light background */
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    
-    /* LTO Philippine Blue */
-    --primary: 221 100% 33%; 
+
+    /* New Primary Color: #2463eb - Modern Lighter Blue */
+    --primary: 219 91% 60%;
     --primary-foreground: 210 40% 98%;
-    
+
     /* Subtle flat secondary */
     --secondary: 210 40% 90%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    
-    /* LTO Accent (Subtle Gold/Yellow for warnings) */
+
+    /* Accent (Subtle Gold/Yellow for warnings) */
     --accent: 45 93% 47%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 100% 33%;
-    
-    /* Sharp corners for Flat UI */
-    --radius: 0.25rem; 
+    --ring: 219 91% 60%;
+
+    /* Default border radius - 4px for base, others defined in Tailwind */
+    --radius: 0.25rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* Midnight Road */
+    --background: 222.2 84% 4.9%; /* Dark background */
     --foreground: 210 40% 98%;
     --card: 217.2 32.6% 10%; /* Slightly lighter than background */
     --card-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    /* Updated primary for dark mode - brighter variant of #2463eb */
+    --primary: 219 91% 65%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --border: 217.2 32.6% 17.5%;
   }

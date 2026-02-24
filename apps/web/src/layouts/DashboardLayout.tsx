@@ -48,29 +48,29 @@ export function DashboardLayout() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
-      {/* Top Navbar - LTO Flat Design */}
-      <nav className="sticky top-0 z-50 bg-[#0038A8] dark:bg-slate-900 border-b border-blue-900 dark:border-slate-800 shadow-none">
+      {/* Top Navbar - Modern Design */}
+      <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Branding (Left) */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-[#0038A8]" />
+                <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-white font-bold text-lg leading-tight tracking-tight">
+                  <h1 className="text-slate-900 dark:text-white font-bold text-lg leading-tight tracking-tight">
                     Maneho.ai
                   </h1>
-                  <p className="text-blue-200 text-[10px] uppercase tracking-wider hidden sm:block">
-                    LTO Legal Assistant
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wider hidden sm:block">
+                    Legal Assistant
                   </p>
                 </div>
               </Link>
             </div>
 
             {/* Desktop Navigation (Center) - Hidden on mobile */}
-            <div className="hidden lg:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-8">
               {navigationItems.map(item => {
                 const isActive = location.pathname.startsWith(item.path)
                 return (
@@ -78,10 +78,10 @@ export function DashboardLayout() {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      'px-3 py-2 rounded-sm text-sm font-medium transition-colors shadow-none flex items-center gap-1.5',
+                      'text-sm font-medium transition-colors py-4 px-1 border-b-2 border-transparent flex items-center gap-1.5',
                       isActive
-                        ? 'bg-blue-800 text-white'
-                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                        ? 'text-primary border-primary'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400'
                     )}
                   >
                     <item.icon className="w-4 h-4" />
@@ -97,7 +97,7 @@ export function DashboardLayout() {
               {isAskLawyerPage && (
                 <button
                   onClick={handleNewChat}
-                  className="hidden sm:inline-flex items-center gap-1.5 bg-transparent border border-white text-white hover:bg-blue-600 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors shadow-none"
+                  className="hidden sm:inline-flex items-center gap-1.5 bg-primary text-white hover:bg-blue-800 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors shadow-sm"
                   title="Start a new conversation"
                 >
                   <Plus className="w-4 h-4" />
@@ -106,17 +106,17 @@ export function DashboardLayout() {
               )}
 
               {/* Quota Badge */}
-              <div className="bg-blue-800 border border-blue-600 rounded-sm px-3 py-1.5 flex items-baseline gap-1 shadow-none hidden sm:flex">
-                <span className="text-[#FCD116] font-bold text-sm">
+              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 flex items-baseline gap-1 shadow-none hidden sm:flex">
+                <span className="text-primary dark:text-blue-400 font-bold text-sm">
                   {quota.limit - quota.used}/{quota.limit}
                 </span>
-                <span className="text-blue-200 text-xs">credits</span>
+                <span className="text-slate-600 dark:text-slate-400 text-xs">credits</span>
               </div>
 
               {/* Theme Toggle */}
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-sm text-blue-200 hover:text-white hover:bg-blue-800 transition-colors hidden sm:block"
+                className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
                 title="Toggle Theme"
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -125,7 +125,7 @@ export function DashboardLayout() {
               {/* Sign Out Button */}
               <button
                 onClick={handleSignOut}
-                className="hidden sm:inline-flex items-center gap-1.5 text-blue-200 hover:text-white hover:bg-blue-800 rounded-sm px-3 py-1.5 text-sm transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg px-3 py-1.5 text-sm transition-colors"
                 title="Sign Out"
               >
                 <LogOut className="w-4 h-4" />
@@ -145,13 +145,13 @@ export function DashboardLayout() {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-blue-800 dark:bg-slate-800 border-t border-blue-700 dark:border-slate-700 shadow-none">
+          <div className="lg:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {/* Mobile New Chat Button - Ask Lawyer Page */}
               {isAskLawyerPage && (
                 <button
                   onClick={handleNewChat}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-base font-medium bg-blue-700 text-white hover:bg-blue-600 transition-colors border-none shadow-none mb-2"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium bg-primary text-white hover:bg-blue-800 transition-colors border-none shadow-sm mb-2"
                   title="Start a new conversation"
                 >
                   <Plus className="w-5 h-5" />
@@ -160,9 +160,9 @@ export function DashboardLayout() {
               )}
 
               {/* Mobile Quota display */}
-              <div className="px-3 py-2 text-sm text-blue-200 mb-2 border-b border-blue-700 flex justify-between">
+              <div className="px-3 py-2 text-sm text-slate-600 dark:text-slate-400 mb-2 border-b border-slate-200 dark:border-slate-800 flex justify-between">
                 <span>AI Credits Remaining:</span>
-                <span className="text-[#FCD116] font-bold">
+                <span className="text-primary dark:text-blue-400 font-bold">
                   {quota.limit - quota.used}/{quota.limit}
                 </span>
               </div>
@@ -174,10 +174,10 @@ export function DashboardLayout() {
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-sm text-base font-medium',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-colors',
                       isActive
-                        ? 'bg-blue-900 text-white'
-                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                        ? 'bg-slate-100 dark:bg-slate-800 text-primary dark:text-blue-400'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-blue-400'
                     )}
                   >
                     <item.icon className="w-5 h-5" />
