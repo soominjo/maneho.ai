@@ -75,7 +75,7 @@ export function RegisterPage() {
                 {...register('name')}
                 type="text"
                 placeholder="Juan Dela Cruz"
-                className="w-full px-3 py-2 border border-input rounded-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-none"
+                className="w-full px-3 py-2.5 border border-input rounded-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-none"
               />
               {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
             </div>
@@ -86,7 +86,7 @@ export function RegisterPage() {
                 {...register('email')}
                 type="email"
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 border border-input rounded-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-none"
+                className="w-full px-3 py-2.5 border border-input rounded-sm bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-none"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
@@ -97,7 +97,7 @@ export function RegisterPage() {
                 {...register('password')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-destructive">{errors.password.message}</p>
@@ -110,7 +110,7 @@ export function RegisterPage() {
                 {...register('confirmPassword')}
                 type="password"
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-destructive">{errors.confirmPassword.message}</p>

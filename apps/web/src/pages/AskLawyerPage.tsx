@@ -300,7 +300,7 @@ export function AskLawyerPage() {
       {/* Sticky Input Area - Gradient Overlay at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background dark:from-slate-950 via-background dark:via-slate-950 to-transparent transition-all duration-300 ease-in-out">
         <LayoutWrapper>
-          <div className="bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg shadow-xl p-2 flex items-center gap-2">
+          <div className="bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg shadow-xl p-2 md:p-3 flex items-center gap-2">
             {/* File Input - Hidden */}
             <input
               type="file"
@@ -347,7 +347,7 @@ export function AskLawyerPage() {
                 handleSubmit(event)
               }}
               disabled={askLawyer.isPending || quota.used >= quota.limit}
-              className="bg-primary dark:bg-blue-600 text-white h-10 w-10 rounded-lg flex items-center justify-center hover:bg-blue-800 dark:hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary dark:bg-blue-600 text-white h-10 w-10 md:h-11 md:w-11 rounded-lg flex items-center justify-center hover:bg-blue-800 dark:hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               title="Send message"
             >
               <Send size={18} strokeWidth={1.5} />
