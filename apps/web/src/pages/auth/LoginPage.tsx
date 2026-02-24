@@ -57,7 +57,7 @@ export function LoginPage() {
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign in to your Maneho AI account
+            Sign in to access your Filipino legal driving assistant
           </CardDescription>
         </CardHeader>
         <CardContent>
