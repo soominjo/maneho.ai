@@ -36,8 +36,13 @@ export function ThemeProvider({ children, defaultDarkMode = false }: ThemeProvid
     setIsDarkMode(prev => !prev)
   }
 
-  // Persist to localStorage
+  // Apply dark class to document root and persist to localStorage
   useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
     localStorage.setItem('theme-preference', isDarkMode ? 'dark' : 'light')
   }, [isDarkMode])
 

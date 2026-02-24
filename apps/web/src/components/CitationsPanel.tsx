@@ -36,7 +36,7 @@ export function CitationsPanel({
   const displayText = sourceCount === 1 ? 'source' : 'sources'
 
   return (
-    <Card className="h-fit sticky top-20 border border-slate-200 shadow-none bg-white rounded-sm">
+    <Card className="h-fit sticky top-20 border border-slate-200 shadow-none bg-white rounded-sm max-h-[calc(100vh-6rem)]">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Sources</CardTitle>
