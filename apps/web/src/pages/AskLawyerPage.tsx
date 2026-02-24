@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
-import { Bot, X, Paperclip, Send, BookOpen } from 'lucide-react'
+import { X, Paperclip, Send, BookOpen } from 'lucide-react'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
 import { InlineCitationCard } from '../components/InlineCitationCard'
 import { trpc } from '../lib/trpc'
@@ -147,7 +147,7 @@ export function AskLawyerPage() {
           <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col gap-4 pb-32">
             {messages.length === 0 ? (
               <div className="text-center text-slate-500 py-12">
-                <Bot className="w-12 h-12 mx-auto mb-3 text-blue-700" />
+                <img src="/maneho-bot.png" alt="Maneho Bot" className="w-12 h-12 mx-auto mb-3" />
                 <p className="text-lg font-medium">Ask me anything about LTO regulations</p>
                 <p className="text-sm mt-1">I'm grounded in official LTO documents</p>
               </div>
@@ -164,7 +164,11 @@ export function AskLawyerPage() {
                   ) : (
                     // AI BUBBLE - Left-aligned, white card with border and shadow
                     <div className="flex justify-start gap-3">
-                      <Bot className="w-5 h-5 text-primary dark:text-blue-400 mt-1 flex-shrink-0" />
+                      <img
+                        src="/maneho-bot.png"
+                        alt="Maneho Bot"
+                        className="w-5 h-5 mt-1 flex-shrink-0"
+                      />
                       <div className="flex-1">
                         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-4">
                           <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-900 dark:text-slate-100">
@@ -202,7 +206,7 @@ export function AskLawyerPage() {
             {/* Loading Indicator */}
             {askLawyer.isPending && (
               <div className="flex justify-start gap-3">
-                <Bot className="w-5 h-5 text-primary dark:text-blue-400 mt-1" />
+                <img src="/maneho-bot.png" alt="Maneho Bot" className="w-5 h-5 mt-1" />
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 shadow-sm">
                   <div className="flex gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
