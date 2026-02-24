@@ -10,6 +10,7 @@
  */
 
 import { getFirestore } from './firebase-admin'
+import { FieldValue } from 'firebase-admin/firestore'
 import type { DocumentData, WriteResult } from 'firebase-admin/firestore'
 
 export interface DocumentRecord {
@@ -30,7 +31,7 @@ export interface ChunkRecord {
   documentId: string
   chunkIndex: number
   text: string
-  embedding?: number[]
+  embedding?: number[] | FieldValue
   metadata: Record<string, unknown>
   createdAt: Date
 }
@@ -97,12 +98,12 @@ export async function storeChunks(
       try {
         // Prepare batch operations
         for (const chunk of batchChunks) {
-          const chunkData: ChunkRecord = {
+          const chunkData = {
             chunkId: chunk.chunkId,
             documentId,
             chunkIndex: chunk.chunkIndex,
             text: chunk.text,
-            embedding: chunk.embedding,
+            embedding: chunk.embedding ? FieldValue.vector(chunk.embedding) : undefined,
             metadata: chunk.metadata,
             createdAt: new Date(),
           }
@@ -133,12 +134,12 @@ export async function storeChunks(
           // Fallback: write each chunk individually
           for (const chunk of batchChunks) {
             try {
-              const chunkData: ChunkRecord = {
+              const chunkData = {
                 chunkId: chunk.chunkId,
                 documentId,
                 chunkIndex: chunk.chunkIndex,
                 text: chunk.text,
-                embedding: chunk.embedding,
+                embedding: chunk.embedding ? FieldValue.vector(chunk.embedding) : undefined,
                 metadata: chunk.metadata,
                 createdAt: new Date(),
               }
