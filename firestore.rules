@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────
+    // User profiles & daily quota
+    // Written by client SDK (AuthContext) on sign-up / quota reset
+    // ─────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Ticket decode history
+    // Written / read / deleted directly by the client SDK
+    // ─────────────────────────────────────────────────────────────
+    match /ticketHistory/{ticketId} {
+      // List query: where('userId', '==', uid) — Firestore can verify the
+      // constraint matches the rule, so the collection query is allowed
+      allow read:   if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId;
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Chat threads & messages  (users/{uid}/threads/…)
+    // Only accessed via Firebase Admin SDK through the tRPC backend —
+    // no direct client access needed, so no rules are granted here.
+    // ─────────────────────────────────────────────────────────────
+
+    // ─────────────────────────────────────────────────────────────
+    // RAG source documents & chunks
+    // Written only by admin ingest scripts (Firebase Admin SDK).
+    // Read only by the tRPC backend (Firebase Admin SDK).
+    // No direct client access is required.
+    // ─────────────────────────────────────────────────────────────
+  }
+}

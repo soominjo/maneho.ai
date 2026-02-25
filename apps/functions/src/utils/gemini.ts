@@ -84,9 +84,9 @@ interface GeminiResponse {
 export async function generateRAGAnswer(context: RAGContext): Promise<GeminiResponse> {
   const { query, sourceDocuments } = context
 
-  // Build context from source documents
+  // Build context from source documents (no [DOC X] labels to avoid them appearing in answers)
   const contextText = sourceDocuments
-    .map((doc, idx) => `[DOC ${idx + 1}] (ID: ${doc.documentId})\n${doc.chunk}`)
+    .map(doc => `--- Source: ${doc.documentId} ---\n${doc.chunk}`)
     .join('\n\n')
 
   const systemPrompt = `You are a knowledgeable Filipino traffic lawyer AI assistant specialized in LTO (Land Transportation Office) regulations, vehicle licensing, and traffic enforcement matters.
@@ -94,17 +94,17 @@ export async function generateRAGAnswer(context: RAGContext): Promise<GeminiResp
 Guidelines:
 1. Answer based ONLY on the provided documents
 2. If information is not in documents, say "I don't have information about this in the LTO documents"
-3. Always cite which document you're referencing
-4. Be clear, concise, and practical
-5. Provide specific regulatory references when available
-6. For ambiguous questions, ask for clarification`
+3. Cite laws, administrative orders, and regulations by their proper name (e.g. "Republic Act 4136", "LTO Administrative Order No. 2014-012") — never use tags like [DOC 1] or [Source:...]
+4. Be clear, concise, and practical — keep answers focused and avoid unnecessary repetition
+5. Provide specific regulatory references (fines, penalties, section numbers) when available
+6. Structure your answer with clear headings or bullet points when listing multiple items`
 
   const userPrompt = `Question: ${query}
 
 Context from LTO Documents:
 ${contextText}
 
-Provide a clear, helpful answer with citations to the specific documents used.`
+Provide a clear, helpful answer citing specific laws or regulations by name.`
 
   try {
     console.log('[RAG] Generating answer via Gemini API...')

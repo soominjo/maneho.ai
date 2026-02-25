@@ -61,8 +61,10 @@ export function useTicketHistory(userId: string | undefined) {
   const saveToHistory = async (record: Omit<TicketHistory, 'id' | 'createdAt'>) => {
     try {
       const db = getDb()
+      // Firestore rejects `undefined` values — strip optional fields that weren't set
+      const clean = Object.fromEntries(Object.entries(record).filter(([, v]) => v !== undefined))
       await addDoc(collection(db, 'ticketHistory'), {
-        ...record,
+        ...clean,
         createdAt: serverTimestamp(),
       })
     } catch (err) {

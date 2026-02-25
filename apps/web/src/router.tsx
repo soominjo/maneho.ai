@@ -16,8 +16,8 @@ import {
   CostEstimatorPage,
   LicenseWizardPage,
   QuizPage,
-  ProfilePage,
 } from './pages/CrisisManagerPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 export const router = createBrowserRouter([

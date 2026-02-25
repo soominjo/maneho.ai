@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { UserProfileDropdown } from '../components/UserProfileDropdown'
 import { Logo } from '../components/Logo'
 import { cn } from '@repo/ui/lib/utils'
-import { Scale, AlertTriangle, FileCheck, FileText, Menu, X } from 'lucide-react'
+import { Scale, AlertTriangle, FileCheck, FileText, Menu, X, GraduationCap } from 'lucide-react'
 
 // Primary navigation links
 const navigationItems = [
@@ -12,6 +12,7 @@ const navigationItems = [
   { label: 'Ticket Decoder', path: '/ticket-decoder', icon: FileCheck },
   { label: 'Crisis Manager', path: '/crisis-manager', icon: AlertTriangle },
   { label: 'Script Generator', path: '/script-generator', icon: FileText },
+  { label: 'Quiz & Study', path: '/quiz', icon: GraduationCap },
 ]
 
 export function DashboardLayout() {
@@ -20,15 +21,15 @@ export function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
-      {/* Top Navbar - Modern Design */}
+    <div className="flex flex-col h-screen bg-background font-sans overflow-hidden">
+      {/* Top Navbar */}
       <nav className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Branding (Left) */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="flex items-center gap-2">
-                <Logo size="xl" />
+                <Logo size="lg" />
                 <div>
                   <h1 className="text-card-foreground font-bold text-lg leading-tight tracking-tight">
                     Maneho AI
@@ -40,7 +41,7 @@ export function DashboardLayout() {
               </Link>
             </div>
 
-            {/* Desktop Navigation (Center) - Hidden on mobile */}
+            {/* Desktop Navigation (Center) */}
             <div className="hidden lg:flex items-center space-x-8">
               {navigationItems.map(item => {
                 const isActive = location.pathname.startsWith(item.path)
@@ -72,23 +73,12 @@ export function DashboardLayout() {
                 <span className="text-muted-foreground text-xs">credits</span>
               </div>
 
-              {/* Theme Toggle - Hidden (moved to User Profile Dropdown) */}
-              {/*
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
-                title="Toggle Theme"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              */}
-
               {/* User Profile Dropdown */}
               <UserProfileDropdown />
 
               {/* Mobile Menu Button */}
               <button
-                className="lg:hidden p-2 rounded-sm text-blue-200 hover:text-white hover:bg-blue-800"
+                className="lg:hidden p-2 rounded-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -118,8 +108,8 @@ export function DashboardLayout() {
                     className={cn(
                       'flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium transition-colors',
                       isActive
-                        ? 'bg-slate-100 dark:bg-slate-800 text-primary dark:text-blue-400'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-blue-400'
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                     )}
                   >
                     <item.icon className="w-5 h-5" />
@@ -128,9 +118,9 @@ export function DashboardLayout() {
                 )
               })}
 
-              {/* Mobile Profile Menu - placeholder for profile options */}
-              <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 py-2">
+              {/* Mobile Profile section */}
+              <div className="mt-2 pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider px-3 py-2">
                   Account
                 </p>
               </div>

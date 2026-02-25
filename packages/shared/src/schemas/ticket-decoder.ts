@@ -10,3 +10,15 @@ export const TicketDecoderSchema = z
   })
 
 export type TicketDecoder = z.infer<typeof TicketDecoderSchema>
+
+export interface TicketHistory {
+  id?: string
+  userId: string
+  imageUrl: string
+  ticketText: string
+  explanation: string
+  ticketNumber?: string
+  violationType?: string
+  citations: Array<{ documentId: string; chunkText: string }>
+  createdAt: Date
+}

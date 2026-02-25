@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { Logo } from '../components/Logo'
 import { TermsAndServicesModal } from '../components/TermsAndServices'
 import { PrivacyPolicyModal } from '../components/PrivacyPolicy'
@@ -76,7 +76,7 @@ export function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-slate-950 flex flex-col justify-between">
+    <div className="h-screen w-full bg-white dark:bg-slate-950 flex flex-col">
       {/* Error Message */}
       {error && (
         <div className="max-w-md mx-auto mt-6 w-full px-4">
@@ -87,10 +87,10 @@ export function SignUpPage() {
       )}
 
       {/* Center Container */}
-      <div className="flex flex-1 items-center justify-center px-4 py-10">
+      <div className="flex-1 flex items-center justify-center px-4 py-4">
         <form
           onSubmit={handleSignUp}
-          className="w-full max-w-md bg-white dark:bg-card border border-slate-200 dark:border-border rounded-2xl shadow-sm p-8 space-y-6"
+          className="w-full max-w-md bg-white dark:bg-card border border-slate-200 dark:border-border rounded-2xl shadow-sm p-6 space-y-4"
         >
           {/* Logo and Header */}
           <div className="text-center space-y-3">
@@ -318,18 +318,6 @@ export function SignUpPage() {
             </Link>
           </p>
         </form>
-      </div>
-
-      {/* Footer */}
-      <div className="pb-6 text-center space-y-2">
-        <div className="flex justify-center items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
-          <ShieldCheck size={16} />
-          Secure authentication
-        </div>
-
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          LTO-compliant Filipino Legal Driving Assistant
-        </p>
       </div>
 
       {/* Legal Modals */}

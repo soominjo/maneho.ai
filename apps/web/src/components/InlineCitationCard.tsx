@@ -1,4 +1,5 @@
 import { ParsedReference } from '../utils/parseLegalReferences'
+import { cn } from '@repo/ui/lib/utils'
 
 interface InlineCitationCardProps {
   reference: ParsedReference
@@ -21,29 +22,26 @@ export function InlineCitationCard({
   return (
     <div
       onClick={onClick}
-      className={`
-        bg-slate-100 dark:bg-slate-800/50
-        border border-slate-200 dark:border-slate-700
-        p-3 rounded-lg
-        flex items-center gap-3
-        w-fit
-        cursor-pointer
-        hover:bg-slate-200 dark:hover:bg-slate-700
-        hover:border-slate-300 dark:hover:border-slate-600
-        transition-all duration-200
-        ${className}
-      `}
+      className={cn(
+        'bg-secondary border border-border',
+        'p-3 rounded-lg',
+        'flex items-center gap-3',
+        'w-fit cursor-pointer',
+        'hover:bg-secondary/80 hover:border-border',
+        'transition-all duration-200',
+        className
+      )}
       title={`Click to view: ${reference.title}`}
     >
       {/* Icon */}
       <div className="flex-shrink-0">
-        <IconComponent size={20} className="text-primary dark:text-blue-400" strokeWidth={2} />
+        <IconComponent size={20} className="text-primary" strokeWidth={2} />
       </div>
 
       {/* Content */}
       <div className="flex flex-col min-w-0">
         {/* Type Label */}
-        <span className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
           {reference.type === 'AdminOrder' && 'Admin Order'}
           {reference.type === 'RA' && 'Law'}
           {reference.type === 'Memo' && 'Memorandum'}
@@ -53,9 +51,7 @@ export function InlineCitationCard({
         </span>
 
         {/* Title */}
-        <span className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-          {reference.title}
-        </span>
+        <span className="text-sm font-medium text-foreground truncate">{reference.title}</span>
       </div>
     </div>
   )

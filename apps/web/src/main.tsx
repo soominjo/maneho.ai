@@ -8,8 +8,6 @@ import { router } from './router'
 import { RouterProvider } from 'react-router-dom'
 import { Toaster } from 'sonner'
 
-console.log('APP IS LIVE')
-
 createRoot(document.getElementById('app')!).render(
   <React.StrictMode>
     <AuthProvider>

@@ -7,7 +7,7 @@ export { AskLawyerSchema } from './ask-lawyer'
 export type { AskLawyer } from './ask-lawyer'
 
 export { TicketDecoderSchema } from './ticket-decoder'
-export type { TicketDecoder } from './ticket-decoder'
+export type { TicketDecoder, TicketHistory } from './ticket-decoder'
 
 export { CostEstimatorSchema } from './cost-estimator'
 export type { CostEstimator } from './cost-estimator'

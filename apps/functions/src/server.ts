@@ -11,11 +11,17 @@
 // Load environment variables from .env file
 // IMPORTANT: Load local .env first so it takes precedence
 import dotenv from 'dotenv'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
 
-// Try loading from current directory first (apps/functions/.env)
-dotenv.config({ path: '.env' })
-// Then try from workspace root (maneho.ai/.env)
-dotenv.config({ path: '../../.env' })
+// Use import.meta.url for reliable path resolution regardless of CWD
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// apps/functions/src/server.ts → apps/functions/.env
+dotenv.config({ path: resolve(__dirname, '../.env') })
+// Fallback: apps/functions/src/server.ts → maneho.ai/.env
+dotenv.config({ path: resolve(__dirname, '../../../.env') })
 
 console.log('[ENV] Loaded: GEMINI_API_KEY =', process.env.GEMINI_API_KEY ? '✓ SET' : '✗ MISSING')
 

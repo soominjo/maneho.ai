@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { Car, Scale, AlertCircle, Ticket, DollarSign, BookOpen, GraduationCap } from 'lucide-react'
+import { Scale, AlertCircle, Ticket, DollarSign, GraduationCap } from 'lucide-react'
+
 import { Button } from '@repo/ui/components/ui/button'
 import {
   Card,
@@ -13,151 +14,172 @@ export function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-[calc(100vh-60px)] bg-slate-50">
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-5xl font-bold mb-4 flex items-center justify-center gap-3">
-          <Car className="w-12 h-12 text-blue-700" />
-          Maneho AI
-        </h1>
-        <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-          Your AI-powered Filipino traffic and vehicle legal assistant. Get instant answers about
-          LTO regulations, vehicle registration, and traffic violations.
+    <div className="min-h-[calc(100vh-60px)] bg-gradient-to-b from-white to-slate-100 dark:from-slate-950 dark:to-slate-900">
+      {/* HERO */}
+      <section className="container mx-auto px-6 py-28 text-center">
+        {/* Logo */}
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-blue-600/10 p-4 rounded-2xl shadow-sm">
+            <img
+              src="/new-maneho-logo-removebg-preview.png"
+              alt="Maneho AI Logo"
+              className="w-14 h-14 object-contain"
+            />
+          </div>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">Maneho AI</h1>
+
+        {/* Subtitle */}
+        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Your AI-powered legal assistant for Filipino motorists. Instantly understand LTO
+          regulations, violations, and vehicle requirements with confidence.
         </p>
-        <div className="flex gap-4 justify-center">
-          <Button size="lg" onClick={() => navigate('/register')}>
+
+        {/* CTA */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button
+            size="lg"
+            className="text-base px-8 py-6 rounded-xl shadow-sm hover:shadow-md transition"
+            onClick={() => navigate('/register')}
+          >
             Get Started Free
           </Button>
-          <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="text-base px-8 py-6 rounded-xl"
+            onClick={() => navigate('/login')}
+          >
             Sign In
           </Button>
         </div>
       </section>
 
-      {/* Features Overview */}
-      <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="shadow-none border border-slate-200">
+      {/* FEATURES */}
+      <section className="container mx-auto px-6 pb-28">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-4">Everything You Need</h2>
+
+          <p className="text-slate-600 dark:text-slate-400">
+            Powerful AI tools designed for Philippine motorists
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Feature Card Template */}
+
+          {/* Lawyer */}
+          <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-800 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Scale className="w-6 h-6 text-blue-700" />
-                The Lawyer
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Ask legal questions about traffic and vehicle regulations
+              <div className="mb-3 w-fit p-3 rounded-xl bg-blue-600/10">
+                <Scale className="w-6 h-6 text-blue-600" />
+              </div>
+
+              <CardTitle className="text-xl">LTO Lex</CardTitle>
+
+              <CardDescription>
+                AI Bot that answers legal questions grounded in official LTO documents
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>
-                Get RAG-grounded answers with citations to actual LTO documents and regulations.
-                Perfect for understanding your rights and obligations on Philippine roads.
-              </p>
+
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Get citation-backed legal explanations about violations, regulations, and your rights
+              as a motorist.
             </CardContent>
           </Card>
 
-          <Card className="shadow-none border border-slate-200">
+          {/* Crisis */}
+          <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-800 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <AlertCircle className="w-6 h-6 text-blue-700" />
-                Crisis Manager
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Post-accident guidance and insurance analysis
-              </CardDescription>
+              <div className="mb-3 w-fit p-3 rounded-xl bg-blue-600/10">
+                <AlertCircle className="w-6 h-6 text-blue-600" />
+              </div>
+
+              <CardTitle className="text-xl">Crisis Manager</CardTitle>
+
+              <CardDescription>Guidance after accidents</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>
-                Step-by-step checklists for handling accidents and detailed insurance policy
-                analysis to understand your coverage options.
-              </p>
+
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400">
+              Step-by-step instructions and insurance insights to help you respond properly during
+              road incidents.
             </CardContent>
           </Card>
 
-          <Card className="shadow-none border border-slate-200">
+          {/* Ticket */}
+          <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-800 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Ticket className="w-6 h-6 text-blue-700" />
-                Ticket Decoder
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Extract and understand traffic tickets
-              </CardDescription>
+              <div className="mb-3 w-fit p-3 rounded-xl bg-blue-600/10">
+                <Ticket className="w-6 h-6 text-blue-600" />
+              </div>
+
+              <CardTitle className="text-xl">Ticket Decoder</CardTitle>
+
+              <CardDescription>Understand your violations instantly</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>
-                Upload a photo of your traffic ticket, get the text extracted via AI, and instantly
-                find out the fine amount from LTO fee tables.
-              </p>
+
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400">
+              Upload your ticket and get violation explanations, penalties, and legal references.
             </CardContent>
           </Card>
 
-          <Card className="shadow-none border border-slate-200">
+          {/* Cost */}
+          <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-800 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-blue-700" />
-                Cost Estimator
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Calculate vehicle registration renewal costs
-              </CardDescription>
+              <div className="mb-3 w-fit p-3 rounded-xl bg-blue-600/10">
+                <DollarSign className="w-6 h-6 text-blue-600" />
+              </div>
+
+              <CardTitle className="text-xl">Cost Estimator</CardTitle>
+
+              <CardDescription>Calculate renewal fees</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>
-                Enter your vehicle details and months overdue to get an accurate breakdown of all
-                fees including penalties, emission tests, and insurance.
-              </p>
+
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400">
+              Get accurate fee breakdowns including penalties, insurance, and registration costs.
             </CardContent>
           </Card>
 
-          <Card className="shadow-none border border-slate-200">
+          {/* Quiz */}
+          <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 dark:border-slate-800 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-blue-700" />
-                License Wizard
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Personalized driver's license requirements
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                Get step-by-step checklists and timelines for student permits, non-professional
-                licenses, professional licenses, and renewals.
-              </p>
-            </CardContent>
-          </Card>
+              <div className="mb-3 w-fit p-3 rounded-xl bg-blue-600/10">
+                <GraduationCap className="w-6 h-6 text-blue-600" />
+              </div>
 
-          <Card className="shadow-none border border-slate-200">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <GraduationCap className="w-6 h-6 text-blue-700" />
-                Quiz & Study
-              </CardTitle>
-              <CardDescription className="text-slate-600">
-                Interactive LTO exam preparation
-              </CardDescription>
+              <CardTitle className="text-xl">Quiz & Study</CardTitle>
+
+              <CardDescription>Prepare for LTO exams</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p>
-                Test your knowledge with LTO-based quizzes and get AI-powered explanations for every
-                answer. Built-in study mode with AI tutoring.
-              </p>
+
+            <CardContent className="text-sm text-slate-600 dark:text-slate-400">
+              Practice quizzes with AI explanations to help you pass your driving exam.
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-bold mb-4">Always Free During Beta</h2>
-        <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
-          20 AI-powered interactions per day. No credit card required. Sign up now and start getting
-          expert legal guidance instantly.
-        </p>
-        <Button size="lg" onClick={() => navigate('/register')}>
-          Start Free Today
-        </Button>
+      {/* CTA */}
+      <section className="container mx-auto px-6 pb-32 text-center">
+        <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 shadow-sm">
+          <h2 className="text-3xl font-bold mb-4">Free During Beta</h2>
+
+          <p className="text-slate-600 dark:text-slate-400 mb-8">
+            Start using Maneho AI today with free daily access. No credit card required.
+          </p>
+
+          <Button
+            size="lg"
+            className="px-10 py-6 text-base rounded-xl shadow hover:shadow-lg transition"
+            onClick={() => navigate('/register')}
+          >
+            Start Free Today
+          </Button>
+        </div>
       </section>
     </div>
   )

@@ -47,9 +47,9 @@ export function UserProfileDropdown() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 dark:border-slate-700',
-          'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100',
-          'hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors'
+          'flex items-center justify-center w-9 h-9 rounded-lg border border-border',
+          'bg-card text-foreground',
+          'hover:bg-secondary transition-colors'
         )}
         title="Profile"
       >
@@ -64,23 +64,19 @@ export function UserProfileDropdown() {
       {isOpen && (
         <div
           className={cn(
-            'absolute right-0 mt-2 w-56 rounded-lg border border-slate-200 dark:border-slate-700',
-            'bg-white dark:bg-slate-800 shadow-sm z-50'
+            'absolute right-0 mt-2 w-56 rounded-lg border border-border',
+            'bg-card shadow-sm z-50'
           )}
         >
           {/* User Info Section */}
-          <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Account
             </p>
             {user?.name && (
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 truncate">
-                {user.name}
-              </p>
+              <p className="text-sm font-medium text-foreground mt-1 truncate">{user.name}</p>
             )}
-            {user?.email && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
-            )}
+            {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
           </div>
 
           {/* Menu Items */}
@@ -91,8 +87,7 @@ export function UserProfileDropdown() {
               onClick={() => setIsOpen(false)}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium',
-                'text-slate-700 dark:text-slate-300',
-                'hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
+                'text-foreground hover:bg-secondary transition-colors'
               )}
             >
               <Settings className="w-4 h-4" />
@@ -107,8 +102,7 @@ export function UserProfileDropdown() {
               }}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium',
-                'text-slate-700 dark:text-slate-300',
-                'hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
+                'text-foreground hover:bg-secondary transition-colors'
               )}
             >
               {isDarkMode ? (
@@ -125,16 +119,14 @@ export function UserProfileDropdown() {
             </button>
 
             {/* Divider */}
-            <div className="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+            <div className="my-1 border-t border-border" />
 
             {/* Sign Out */}
             <button
               onClick={handleSignOut}
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium',
-                'text-slate-700 dark:text-slate-300',
-                'hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400',
-                'transition-colors'
+                'text-foreground hover:bg-destructive/10 hover:text-destructive transition-colors'
               )}
             >
               <LogOut className="w-4 h-4" />

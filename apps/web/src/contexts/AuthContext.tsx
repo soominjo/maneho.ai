@@ -35,6 +35,7 @@ export interface AuthContextType {
   incrementQuota: () => Promise<void>
   signInWithGoogle: () => Promise<void>
   signInWithGithub: () => Promise<void>
+  refreshUser: () => void
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -249,6 +250,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await setDoc(doc(db, 'users', user.uid), { dailyQuota: newQuota }, { merge: true })
   }
 
+  const refreshUser = () => {
+    const auth = getAuthInstance()
+    const firebaseUser = auth.currentUser
+    if (firebaseUser) {
+      setUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName,
+      })
+    }
+  }
+
   const value: AuthContextType = {
     user,
     loading,
@@ -260,6 +273,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     incrementQuota,
     signInWithGoogle,
     signInWithGithub,
+    refreshUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
