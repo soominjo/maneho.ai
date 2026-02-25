@@ -8,7 +8,7 @@ import { Scale, AlertTriangle, FileCheck, FileText, Menu, X } from 'lucide-react
 
 // Primary navigation links
 const navigationItems = [
-  { label: 'Ask Lawyer', path: '/ask-lawyer', icon: Scale },
+  { label: 'LTO Lex', path: '/ask-lawyer', icon: Scale },
   { label: 'Ticket Decoder', path: '/ticket-decoder', icon: FileCheck },
   { label: 'Crisis Manager', path: '/crisis-manager', icon: AlertTriangle },
   { label: 'Script Generator', path: '/script-generator', icon: FileText },

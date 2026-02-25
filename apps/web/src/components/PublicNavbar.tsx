@@ -1,5 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Button } from '@repo/ui/components/ui/button'
+import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
 
 /**
@@ -7,8 +6,6 @@ import { Logo } from './Logo'
  * LTO Flat Design: Philippine Blue (#0038A8), sharp corners, no shadows
  */
 export function PublicNavbar() {
-  const navigate = useNavigate()
-
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,22 +22,6 @@ export function PublicNavbar() {
               </p>
             </div>
           </Link>
-
-          {/* Navigation Links */}
-          <div className="flex items-center gap-4">
-            <Link
-              to="/login"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-[#0038A8] dark:hover:text-blue-400 transition-colors"
-            >
-              Login
-            </Link>
-            <Button
-              onClick={() => navigate('/register')}
-              className="bg-[#0038A8] text-white hover:bg-blue-900 border-none rounded-sm shadow-none px-4 py-2"
-            >
-              Sign Up
-            </Button>
-          </div>
         </div>
       </div>
     </nav>
