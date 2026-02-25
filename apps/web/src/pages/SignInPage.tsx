@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { Eye, EyeOff, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { Logo } from '../components/Logo'
 import { TermsAndServicesModal } from '../components/TermsAndServices'
 import { PrivacyPolicyModal } from '../components/PrivacyPolicy'
 
@@ -52,39 +53,7 @@ export function SignInPage() {
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950">
-      {/* Header / Navigation */}
-      <div className="flex items-center bg-white/60 dark:bg-slate-800/60 backdrop-blur-md p-4 pb-2 justify-between border-b border-slate-200/50 dark:border-slate-700/50">
-        <button
-          onClick={() => navigate('/')}
-          className="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-12">
-          Maneho AI
-        </h2>
-      </div>
-
-      {/* Brand Logo Area */}
-      <div className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-gradient-to-b from-primary/10 to-transparent p-8 py-12">
-        <div className="w-16 h-16 mx-auto mb-4">
-          <img
-            src="/new-maneho-logo-removebg-preview.png"
-            alt="Maneho AI Logo"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      </div>
-
-      {/* Welcome Text */}
-      <div className="flex flex-col items-center px-4 pt-8 pb-4 text-center">
-        <h1 className="text-white tracking-tight font-bold leading-tight text-4xl">Welcome Back</h1>
-        <p className="text-slate-200 font-normal leading-normal mt-2 max-w-xs text-lg">
-          Sign in to access your Filipino legal driving assistant
-        </p>
-      </div>
-
+    <div className="relative flex h-auto min-h-screen w-full flex-col bg-background dark:bg-slate-950">
       {/* Error Message */}
       {error && (
         <div className="mx-4 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -95,8 +64,20 @@ export function SignInPage() {
       {/* Form Section - Glasmorphism Card */}
       <form
         onSubmit={handleSignIn}
-        className="flex flex-col w-full max-w-[480px] mx-auto px-4 py-6 gap-y-6 my-8 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-lg shadow-2xl"
+        className="flex flex-col w-full px-4 py-6 gap-y-6 my-8 bg-card dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg shadow-md"
       >
+        {/* Brand Logo Area with Welcome Header */}
+        <div className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-primary/10 to-transparent p-8 py-8">
+          <div className="flex flex-col items-center gap-3">
+            <Logo size="lg" />
+            <h1 className="text-white tracking-tight font-bold leading-tight text-3xl">
+              Welcome Back
+            </h1>
+            <p className="text-slate-200 font-normal leading-normal text-center max-w-xs">
+              Sign in to access your Filipino legal driving assistant
+            </p>
+          </div>
+        </div>
         {/* Email Field */}
         <label className="flex flex-col w-full">
           <p className="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal pb-2">
@@ -243,9 +224,6 @@ export function SignInPage() {
           </p>
         </div>
         <div className="flex justify-center items-center gap-6 opacity-75">
-          <span className="text-xs font-bold tracking-widest uppercase text-slate-600 dark:text-slate-400">
-            256-bit Encryption
-          </span>
           <span className="text-xs font-bold tracking-widest uppercase text-slate-600 dark:text-slate-400">
             LTO Guidelines
           </span>
