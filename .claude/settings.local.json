@@ -19,7 +19,12 @@
       "Bash(pnpm --filter web typecheck)",
       "Bash(pnpm --filter functions typecheck)",
       "Bash(pnpm lint)",
-      "Bash(pnpm test)"
+      "Bash(pnpm test)",
+      "Bash(pnpm --filter @repo/functions run build)",
+      "Bash(pnpm build --filter ./apps/web)",
+      "Bash(ls \"c:/maneho.ai/.eslint\"*)",
+      "Bash(ls \"c:/maneho.ai/apps/functions/.eslint\"*)",
+      "Bash(xxd)"
     ]
   }
 }

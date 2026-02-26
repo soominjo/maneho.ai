@@ -38,7 +38,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
+      "eslint --fix --no-error-on-unmatched-pattern",
       "prettier --write"
     ],
     "*.{json,md,yaml,yml}": [

@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "maneho.ai",
+    "public": "apps/web/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
@@ -16,7 +16,8 @@
   "functions": {
     "source": "apps/functions",
     "codebase": "default",
-    "runtime": "nodejs20"
+    "runtime": "nodejs20",
+    "predeploy": ["cd apps/functions && pnpm run build"]
   },
   "emulators": {
     "auth": {

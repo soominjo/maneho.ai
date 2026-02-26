@@ -3,13 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/functions.js",
   "exports": {
     ".": "./src/index.ts",
     "./router": "./src/trpc/router.ts"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild src/functions.ts --bundle --format=esm --platform=node --target=node20 --external:firebase-functions --external:'firebase-functions/*' --external:firebase-admin --external:'firebase-admin/*' --external:'@google-cloud/aiplatform' --external:'@google-cloud/vision' --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=dist/functions.js",
     "dev": "tsx watch src/server.ts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
@@ -31,6 +31,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "firebase-admin": "^12.7.0",
+    "firebase-functions": "^7.0.6",
     "google-auth-library": "^9.14.1",
     "long": "^5.3.2",
     "pdf-parse": "^1.1.1",
@@ -43,6 +44,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.6",
     "@types/pdf-parse": "^1.1.5",
+    "esbuild": "^0.25.0",
     "eslint": "^8.57.0",
     "tsx": "^4.7.0",
     "typescript": "5.7.3",
