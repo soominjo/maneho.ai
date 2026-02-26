@@ -4,6 +4,7 @@ import { Button } from '@repo/ui/components/ui/button'
 import { trpc } from '../lib/trpc'
 import { useAuth } from '../hooks/useAuth'
 import { cn } from '@repo/ui/lib/utils'
+import { IconButton } from './IconButton' // <-- Imported your accessible IconButton
 
 interface ChatHistorySidebarProps {
   isOpen: boolean
@@ -105,10 +106,11 @@ export function ChatHistorySidebar({
           variant="ghost"
           size="icon"
           onClick={onToggle}
+          aria-label="Open chat history"
           title="Open chat history"
           className="hover:bg-secondary shadow-none"
         >
-          <PanelLeft className="w-5 h-5 text-muted-foreground" />
+          <PanelLeft aria-hidden="true" className="w-5 h-5 text-muted-foreground" />
         </Button>
       </div>
     )
@@ -117,9 +119,17 @@ export function ChatHistorySidebar({
   return (
     <>
       {/* Mobile backdrop overlay */}
-      <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={onToggle} />
+      <div
+        className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+        onClick={onToggle}
+        aria-hidden="true"
+      />
 
-      <div className="fixed left-0 top-16 z-40 w-72 h-[calc(100vh-4rem)] bg-card border-r border-border flex flex-col overflow-hidden shadow-sm transition-all duration-300 ease-in-out">
+      <div
+        className="fixed left-0 top-16 z-40 w-72 h-[calc(100vh-4rem)] bg-card border-r border-border flex flex-col overflow-hidden shadow-sm transition-all duration-300 ease-in-out"
+        role="navigation"
+        aria-label="Chat History"
+      >
         {/* Header */}
         <div className="p-3 border-b border-border bg-card flex items-center justify-between">
           <Button
@@ -128,16 +138,18 @@ export function ChatHistorySidebar({
             onClick={onNewChat}
             className="flex-1 justify-start gap-2 bg-primary text-white border-none hover:bg-primary/90 rounded-lg shadow-sm"
           >
-            <Plus className="w-4 h-4" />
+            <Plus aria-hidden="true" className="w-4 h-4" />
             New Chat
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggle}
+            aria-label="Close chat history"
+            title="Close chat history"
             className="ml-2 hover:bg-secondary shadow-none"
           >
-            <PanelLeft className="w-4 h-4 text-muted-foreground" />
+            <PanelLeft aria-hidden="true" className="w-4 h-4 text-muted-foreground" />
           </Button>
         </div>
 
@@ -152,13 +164,18 @@ export function ChatHistorySidebar({
 
               return (
                 <div key={group}>
-                  <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider bg-secondary rounded-lg">
+                  <div
+                    className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider bg-secondary rounded-lg"
+                    aria-hidden="true"
+                  >
                     {group}
                   </div>
-                  <div className="space-y-0.5">
+                  <div className="space-y-0.5" role="list" aria-label={group}>
                     {items.map(thread => (
                       <div
                         key={thread.id}
+                        role="listitem"
+                        aria-current={thread.id === activeThreadId ? 'page' : undefined}
                         className={cn(
                           'group flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors border',
                           thread.id === activeThreadId
@@ -171,13 +188,17 @@ export function ChatHistorySidebar({
                           }
                         }}
                       >
-                        <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground" />
+                        <MessageSquare
+                          aria-hidden="true"
+                          className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground"
+                        />
 
                         {editingId === thread.id ? (
                           <div className="flex-1 flex items-center gap-1">
                             <input
                               type="text"
                               value={editTitle}
+                              aria-label="Edit conversation title"
                               onChange={e => setEditTitle(e.target.value)}
                               onKeyDown={e => {
                                 if (e.key === 'Enter') handleRename(thread.id)
@@ -187,24 +208,32 @@ export function ChatHistorySidebar({
                               autoFocus
                               onClick={e => e.stopPropagation()}
                             />
-                            <button
+
+                            {/* Replaced with accessible IconButton */}
+                            <IconButton
+                              label="Confirm rename"
+                              icon={
+                                <Check className="w-3 h-3 text-muted-foreground hover:text-primary transition-colors" />
+                              }
                               onClick={e => {
-                                e.stopPropagation()
+                                e?.stopPropagation()
                                 handleRename(thread.id)
                               }}
-                              className="p-0.5 text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button
+                              className="p-0.5"
+                            />
+
+                            {/* Replaced with accessible IconButton */}
+                            <IconButton
+                              label="Cancel rename"
+                              icon={
+                                <X className="w-3 h-3 text-muted-foreground hover:text-destructive transition-colors" />
+                              }
                               onClick={e => {
-                                e.stopPropagation()
+                                e?.stopPropagation()
                                 setEditingId(null)
                               }}
-                              className="p-0.5 text-muted-foreground hover:text-destructive transition-colors"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
+                              className="p-0.5"
+                            />
                           </div>
                         ) : (
                           <>
@@ -212,27 +241,32 @@ export function ChatHistorySidebar({
                               {thread.title}
                             </span>
                             <div className="hidden group-hover:flex items-center gap-0.5">
-                              <button
+                              {/* Replaced bare <button> with IconButton */}
+                              <IconButton
+                                label="Rename conversation"
+                                icon={
+                                  <Pencil className="w-3 h-3 text-muted-foreground hover:text-primary" />
+                                }
                                 onClick={e => {
-                                  e.stopPropagation()
+                                  e?.stopPropagation()
                                   setEditingId(thread.id)
                                   setEditTitle(thread.title)
                                 }}
                                 className="p-1 rounded-sm hover:bg-secondary"
-                                title="Rename"
-                              >
-                                <Pencil className="w-3 h-3 text-muted-foreground hover:text-primary" />
-                              </button>
-                              <button
+                              />
+
+                              {/* Replaced bare <button> with IconButton */}
+                              <IconButton
+                                label="Delete conversation"
+                                icon={
+                                  <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                                }
                                 onClick={e => {
-                                  e.stopPropagation()
+                                  e?.stopPropagation()
                                   handleDelete(thread.id)
                                 }}
                                 className="p-1 rounded-sm hover:bg-secondary"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                              </button>
+                              />
                             </div>
                           </>
                         )}
