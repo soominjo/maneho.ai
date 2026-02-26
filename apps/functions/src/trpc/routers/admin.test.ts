@@ -1,12 +1,15 @@
 /**
- * Admin Router Test
- * Tests the document ingestion pipeline
+ * Admin Router Integration Tests
+ * Requires live Firebase + GCP credentials (GCP_PROJECT_ID env var).
+ * These tests are skipped in CI unless credentials are available.
  */
 
 import { describe, it, expect } from 'vitest'
 import { adminRouter } from './admin'
 
-describe('Admin Router', () => {
+const hasCredentials = !!process.env.GCP_PROJECT_ID
+
+describe.skipIf(!hasCredentials)('Admin Router', () => {
   it('ingestDocuments should handle document ingestion', async () => {
     // Create a tRPC caller for testing
     const caller = adminRouter.createCaller({})

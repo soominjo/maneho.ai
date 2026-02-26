@@ -12,13 +12,14 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, Loader2, XCircle } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
+import { Card, CardContent, CardHeader } from '@repo/ui/components/ui/card'
 import { Badge } from '@repo/ui/components/ui/badge'
 import { cn } from '@repo/ui/lib/utils'
 import { LayoutWrapper } from '../components/LayoutWrapper'
 import { PhaseResults } from '../components/PhaseResults'
+import { BotIcon } from '../components/BotIcon'
 import { trpc } from '../lib/trpc'
 import { toast } from 'sonner'
 
@@ -59,11 +60,11 @@ type ExamState = 'intro' | 'answering' | 'reviewing'
 // OptionButton — radio-group-style multiple choice option
 //
 // Behaves like a Shadcn RadioGroupItem:
-//   - idle:         outlined circle, hover highlight
-//   - selected:     filled circle + primary border
-//   - result/correct:   emerald fill + CheckCircle icon
-//   - result/wrong choice: red fill + XCircle icon
-//   - result/other:     faded
+//   - idle:              outlined circle, hover highlight
+//   - selected:          filled circle + primary border
+//   - result/correct:    emerald fill + CheckCircle icon
+//   - result/wrong:      red fill + XCircle icon
+//   - result/other:      faded
 // ---------------------------------------------------------------------------
 
 function OptionButton({
@@ -107,7 +108,7 @@ function OptionButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full text-left px-4 py-3 rounded border text-sm transition-colors flex items-start gap-3',
+        'w-full text-left px-4 py-4 rounded border text-sm transition-colors flex items-start gap-3',
         colorCls
       )}
     >
@@ -141,21 +142,24 @@ function OptionButton({
 }
 
 // ---------------------------------------------------------------------------
-// ProgressBar — shows overall exam progress + phase segment strip
+// ProgressBar — phase segments + per-question answered indicators
 // ---------------------------------------------------------------------------
 
 function ProgressBar({
   currentPhase,
-  answeredCount,
+  currentQuestionIdx,
+  answeredBitmap,
 }: {
   currentPhase: number
-  answeredCount: number
+  currentQuestionIdx: number
+  answeredBitmap: boolean[]
 }) {
+  const answeredCount = answeredBitmap.filter(Boolean).length
   const totalAnswered = currentPhase * QUESTIONS_PER_PHASE + answeredCount
-  const pct = Math.round((totalAnswered / (TOTAL_PHASES * QUESTIONS_PER_PHASE)) * 100)
 
   return (
     <div className="mb-6 space-y-2">
+      {/* Labels row */}
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-foreground">
           Phase {currentPhase + 1} of {TOTAL_PHASES}
@@ -178,12 +182,18 @@ function ProgressBar({
         ))}
       </div>
 
-      {/* Thin overall progress bar */}
-      <div className="h-1 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
-          style={{ width: `${pct}%` }}
-        />
+      {/* Per-question answered bar for this phase */}
+      <div className="flex gap-0.5">
+        {answeredBitmap.map((answered, i) => (
+          <div
+            key={i}
+            className={cn(
+              'flex-1 rounded-full transition-all duration-200',
+              i === currentQuestionIdx ? 'h-2' : 'h-1.5',
+              answered ? 'bg-primary' : i === currentQuestionIdx ? 'bg-primary/40' : 'bg-muted'
+            )}
+          />
+        ))}
       </div>
     </div>
   )
@@ -200,6 +210,7 @@ export function ExamPage() {
   // ── Local state ───────────────────────────────────────────────────────────
   const [examState, setExamState] = useState<ExamState>('intro')
   const [currentPhase, setCurrentPhase] = useState(0)
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({})
   const [phaseResults, setPhaseResults] = useState<Record<number, PhaseResult>>({})
 
@@ -227,27 +238,55 @@ export function ExamPage() {
   // ── Derived ───────────────────────────────────────────────────────────────
   type RawQuestion = { id: string; domain: string; questionText: string; options: string[] }
   const questions: RawQuestion[] = (phaseQuery.data?.questions as RawQuestion[]) ?? []
-  const answeredCount = Object.keys(userAnswers).length
-  const allAnswered = questions.length > 0 && questions.every(q => userAnswers[q.id] !== undefined)
+  const answeredBitmap = questions.map(q => userAnswers[q.id] !== undefined)
+  const answeredCount = answeredBitmap.filter(Boolean).length
+  const allAnswered = questions.length > 0 && answeredBitmap.every(Boolean)
+  const isLastQuestion = questions.length > 0 && currentQuestionIdx === questions.length - 1
+  const currentQuestion = questions[currentQuestionIdx] ?? null
 
-  // Reset user answers when entering a new phase
+  // Reset answers + question index when entering a new phase
   useEffect(() => {
     if (examState === 'answering') {
       setUserAnswers({})
+      setCurrentQuestionIdx(0)
     }
   }, [currentPhase, examState])
+
+  // Auto-advance to next unanswered question after selection
+  function handleSelectOption(questionId: string, optionIndex: number) {
+    setUserAnswers(prev => {
+      const updated = { ...prev, [questionId]: optionIndex }
+      // Find next unanswered question
+      const nextIdx = questions.findIndex(
+        (q, i) => i > currentQuestionIdx && updated[q.id] === undefined
+      )
+      if (nextIdx !== -1) {
+        setTimeout(() => setCurrentQuestionIdx(nextIdx), 350)
+      }
+      return updated
+    })
+  }
+
+  function handleNextQuestion() {
+    if (currentQuestionIdx < questions.length - 1) {
+      setCurrentQuestionIdx(i => i + 1)
+    }
+  }
+
+  function handlePrevQuestion() {
+    if (currentQuestionIdx > 0) {
+      setCurrentQuestionIdx(i => i - 1)
+    }
+  }
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   function handleStartExam() {
     setCurrentPhase(0)
     setPhaseResults({})
     setUserAnswers({})
+    setCurrentQuestionIdx(0)
     setExamState('answering')
     topRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  function handleSelectOption(questionId: string, optionIndex: number) {
-    setUserAnswers(prev => ({ ...prev, [questionId]: optionIndex }))
   }
 
   function handleSubmitPhase() {
@@ -272,6 +311,7 @@ export function ExamPage() {
     setCurrentPhase(0)
     setPhaseResults({})
     setUserAnswers({})
+    setCurrentQuestionIdx(0)
     setExamState('intro')
     topRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -292,7 +332,7 @@ export function ExamPage() {
 
           {/* ================================================================
             INTRO
-        ================================================================ */}
+          ================================================================ */}
           {examState === 'intro' && (
             <div className="max-w-lg">
               <h1 className="text-xl font-semibold text-foreground mb-1">60-Item LTO Mock Exam</h1>
@@ -326,10 +366,10 @@ export function ExamPage() {
           )}
 
           {/* ================================================================
-            ANSWERING
-        ================================================================ */}
+            ANSWERING — one question at a time
+          ================================================================ */}
           {examState === 'answering' && (
-            <div className="max-w-2xl">
+            <div>
               <h1 className="text-xl font-semibold text-foreground mb-4">
                 Phase {currentPhase + 1}{' '}
                 <span className="text-base font-normal text-muted-foreground">
@@ -337,115 +377,167 @@ export function ExamPage() {
                 </span>
               </h1>
 
-              <ProgressBar currentPhase={currentPhase} answeredCount={answeredCount} />
+              <ProgressBar
+                currentPhase={currentPhase}
+                currentQuestionIdx={currentQuestionIdx}
+                answeredBitmap={answeredBitmap}
+              />
 
-              {/* Loading skeleton */}
+              {/* Loading state */}
               {phaseQuery.isLoading && (
-                <div className="space-y-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <Card key={i} className="shadow-none border border-border">
-                      <CardContent className="pt-5 space-y-3">
-                        <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
-                        {Array.from({ length: 4 }).map((_, j) => (
-                          <div key={j} className="h-11 bg-muted animate-pulse rounded" />
-                        ))}
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div className="flex flex-col items-center gap-4 py-16 text-muted-foreground">
+                  <BotIcon size="lg" className="animate-pulse" />
+                  <div className="flex items-center gap-2 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading questions…
+                  </div>
                 </div>
               )}
 
               {/* Error state */}
               {phaseQuery.isError && !phaseQuery.isLoading && (
-                <Card className="shadow-none border border-destructive/30">
-                  <CardContent className="pt-5">
-                    <p className="text-sm text-destructive mb-3">
-                      Failed to load questions. Please check your connection and try again.
-                    </p>
-                    <Button variant="outline" size="sm" onClick={() => phaseQuery.refetch()}>
-                      Retry
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col items-center gap-4 py-16 text-muted-foreground">
+                  <BotIcon size="md" />
+                  <p className="text-sm text-destructive text-center max-w-xs">
+                    Failed to load questions. Please check your connection and try again.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => phaseQuery.refetch()}>
+                    Retry
+                  </Button>
+                </div>
               )}
 
-              {/* Question cards */}
-              {!phaseQuery.isLoading && questions.length > 0 && (
+              {/* Single question card */}
+              {!phaseQuery.isLoading && currentQuestion && (
                 <>
-                  <div className="space-y-5">
-                    {questions.map((question, qIdx) => {
-                      const selected = userAnswers[question.id]
-                      const globalNum = currentPhase * QUESTIONS_PER_PHASE + qIdx + 1
-
-                      return (
-                        <Card
-                          key={question.id}
-                          className={cn(
-                            'shadow-none border transition-colors',
-                            selected !== undefined ? 'border-primary/30' : 'border-border'
-                          )}
-                        >
-                          <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between mb-1">
-                              <CardTitle className="text-xs font-normal text-muted-foreground">
-                                Question {globalNum} of {TOTAL_PHASES * QUESTIONS_PER_PHASE}
-                              </CardTitle>
-                              <Badge variant="outline" className="text-xs font-normal">
-                                {question.domain}
-                              </Badge>
-                            </div>
-                            <p className="text-sm font-medium text-foreground leading-relaxed">
-                              {question.questionText}
-                            </p>
-                          </CardHeader>
-
-                          {/* Radio-group-style options */}
-                          <CardContent className="space-y-2">
-                            {question.options.map((opt, optIdx) => (
-                              <OptionButton
-                                key={optIdx}
-                                label={OPTION_LABELS[optIdx]}
-                                text={opt}
-                                selected={selected === optIdx}
-                                disabled={false}
-                                resultMode={false}
-                                isCorrect={false}
-                                isUserChoice={false}
-                                onClick={() => handleSelectOption(question.id, optIdx)}
-                              />
-                            ))}
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-
-                  {/* Sticky submit bar */}
-                  <div className="sticky bottom-4 mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-background/95 backdrop-blur border border-border rounded px-4 py-3 shadow-sm">
-                    <p className="flex-1 text-sm text-muted-foreground">
-                      {allAnswered ? (
-                        <span className="text-emerald-600 font-medium">
-                          All {QUESTIONS_PER_PHASE} questions answered ✓
+                  <Card
+                    className={cn(
+                      'shadow-none border transition-colors',
+                      userAnswers[currentQuestion.id] !== undefined
+                        ? 'border-primary/30'
+                        : 'border-border'
+                    )}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-muted-foreground">
+                          Question {currentPhase * QUESTIONS_PER_PHASE + currentQuestionIdx + 1} of{' '}
+                          {TOTAL_PHASES * QUESTIONS_PER_PHASE}
                         </span>
-                      ) : (
-                        <>
-                          <span className="font-medium text-foreground">
-                            {QUESTIONS_PER_PHASE - answeredCount}
-                          </span>{' '}
-                          question{QUESTIONS_PER_PHASE - answeredCount !== 1 ? 's' : ''} remaining
-                        </>
-                      )}
-                    </p>
+                        <Badge variant="outline" className="text-xs font-normal">
+                          {currentQuestion.domain}
+                        </Badge>
+                      </div>
+                      <p className="text-sm font-medium text-foreground leading-relaxed">
+                        {currentQuestion.questionText}
+                      </p>
+                    </CardHeader>
+
+                    <CardContent className="space-y-2">
+                      {currentQuestion.options.map((opt, optIdx) => (
+                        <OptionButton
+                          key={optIdx}
+                          label={OPTION_LABELS[optIdx]}
+                          text={opt}
+                          selected={userAnswers[currentQuestion.id] === optIdx}
+                          disabled={false}
+                          resultMode={false}
+                          isCorrect={false}
+                          isUserChoice={false}
+                          onClick={() => handleSelectOption(currentQuestion.id, optIdx)}
+                        />
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  {/* Navigation bar */}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    {/* Previous */}
                     <Button
-                      onClick={handleSubmitPhase}
-                      disabled={!allAnswered || submitMutation.isPending}
-                      className="w-full sm:w-auto"
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevQuestion}
+                      disabled={currentQuestionIdx === 0}
+                      className="flex items-center gap-1"
                     >
-                      {submitMutation.isPending
-                        ? 'Submitting…'
-                        : `Submit Phase ${currentPhase + 1}`}
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
                     </Button>
+
+                    {/* Dot indicators */}
+                    <div className="flex items-center gap-1.5">
+                      {questions.map((q, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setCurrentQuestionIdx(i)}
+                          aria-label={`Question ${i + 1}`}
+                          className={cn(
+                            'rounded-full transition-all duration-200',
+                            i === currentQuestionIdx
+                              ? 'w-3 h-3 bg-primary'
+                              : userAnswers[q.id] !== undefined
+                                ? 'w-2 h-2 bg-primary/60'
+                                : 'w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/60'
+                          )}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Next / Review & Submit / Submit */}
+                    {isLastQuestion ? (
+                      <Button
+                        onClick={handleSubmitPhase}
+                        disabled={!allAnswered || submitMutation.isPending}
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        {submitMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Submitting…
+                          </>
+                        ) : (
+                          `Submit Phase ${currentPhase + 1}`
+                        )}
+                      </Button>
+                    ) : allAnswered ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentQuestionIdx(questions.length - 1)}
+                        className="flex items-center gap-1 border-primary text-primary hover:bg-primary/10"
+                      >
+                        Review & Submit
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextQuestion}
+                        disabled={currentQuestionIdx === questions.length - 1}
+                        className="flex items-center gap-1"
+                      >
+                        Next
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
+
+                  {/* Answered status line */}
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    {allAnswered ? (
+                      <span className="text-emerald-600 font-medium">
+                        All {QUESTIONS_PER_PHASE} answered ✓ — navigate to the last question to
+                        submit
+                      </span>
+                    ) : (
+                      <>
+                        {answeredCount} of {QUESTIONS_PER_PHASE} answered
+                      </>
+                    )}
+                  </p>
                 </>
               )}
             </div>
@@ -453,7 +545,7 @@ export function ExamPage() {
 
           {/* ================================================================
             REVIEWING
-        ================================================================ */}
+          ================================================================ */}
           {examState === 'reviewing' && phaseResults[currentPhase] && (
             <PhaseResults
               result={phaseResults[currentPhase]}

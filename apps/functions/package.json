@@ -11,7 +11,6 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
-    "dev:old": "tsc --watch",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -36,19 +35,17 @@
     "long": "^5.3.2",
     "pdf-parse": "^1.1.1",
     "protobufjs": "^7.2.5",
-    "react-markdown": "^10.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
     "@repo/eslint-config": "workspace:*",
-    "@tailwindcss/typography": "^0.5.19",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.6",
     "@types/pdf-parse": "^1.1.5",
     "eslint": "^8.57.0",
     "tsx": "^4.7.0",
-    "typescript": "5.5.4",
+    "typescript": "5.7.3",
     "vitest": "^2.1.8"
   }
 }

@@ -4,14 +4,12 @@ import { useAuth } from '../hooks/useAuth'
 import { UserProfileDropdown } from '../components/UserProfileDropdown'
 import { Logo } from '../components/Logo'
 import { cn } from '@repo/ui/lib/utils'
-import { Scale, AlertTriangle, FileCheck, FileText, Menu, X, GraduationCap } from 'lucide-react'
+import { Scale, FileCheck, Menu, X, GraduationCap } from 'lucide-react'
 
 // Primary navigation links
 const navigationItems = [
   { label: 'LTO Lex', path: '/ask-lawyer', icon: Scale },
   { label: 'Ticket Decoder', path: '/ticket-decoder', icon: FileCheck },
-  { label: 'Crisis Manager', path: '/crisis-manager', icon: AlertTriangle },
-  { label: 'Script Generator', path: '/script-generator', icon: FileText },
   { label: 'Quiz & Study', path: '/quiz', icon: GraduationCap },
 ]
 

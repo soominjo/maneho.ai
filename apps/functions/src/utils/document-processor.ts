@@ -15,9 +15,11 @@ import {
 
 interface DocumentMetadata {
   documentType: string
+  category?: string
   year?: number
   date?: string
   jurisdiction?: string
+  originalFilename?: string
 }
 
 /**

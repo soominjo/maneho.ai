@@ -1,12 +1,15 @@
 /**
- * RAG Router Test
- * Tests the user-facing RAG endpoints
+ * RAG Router Integration Tests
+ * Requires live GCP credentials (GCP_PROJECT_ID + GEMINI_API_KEY env vars).
+ * These tests are skipped in CI unless credentials are available.
  */
 
 import { describe, it, expect } from 'vitest'
 import { ragRouter } from './rag'
 
-describe('RAG Router', () => {
+const hasCredentials = !!process.env.GCP_PROJECT_ID && !!process.env.GEMINI_API_KEY
+
+describe.skipIf(!hasCredentials)('RAG Router', () => {
   it('askLawyer should return answer with citations', async () => {
     const caller = ragRouter.createCaller({})
 

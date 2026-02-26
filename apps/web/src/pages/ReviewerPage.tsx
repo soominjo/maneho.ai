@@ -11,14 +11,25 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import type { LucideIcon } from 'lucide-react'
 import {
+  AlertTriangle,
   ArrowLeft,
   BookOpen,
   ChevronRight,
+  ClipboardList,
+  CreditCard,
+  DollarSign,
+  FileText,
+  Gauge,
   GraduationCap,
   Loader2,
+  Navigation,
+  PhoneOff,
   RefreshCw,
+  ShieldCheck,
   Sparkles,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@repo/ui/components/ui/button'
 import { Card, CardContent } from '@repo/ui/components/ui/card'
@@ -37,7 +48,7 @@ interface ReviewTopic {
   id: string
   title: string
   domain: string // matches PhaseResultItem.domain from ExamPage
-  icon: string
+  icon: LucideIcon
   hiddenPrompt: string
 }
 
@@ -46,7 +57,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'road-signs',
     title: 'Road Signs & Signals',
     domain: 'Traffic Signs',
-    icon: '🚦',
+    icon: AlertTriangle,
     hiddenPrompt:
       'Summarize all Philippine road signs and traffic signals from the LTO manual. ' +
       'Group them by category (Regulatory, Warning, Guide/Informational). ' +
@@ -57,7 +68,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'right-of-way',
     title: 'Right of Way',
     domain: 'Right of Way',
-    icon: '⬆️',
+    icon: Navigation,
     hiddenPrompt:
       'Summarize the Right of Way rules from the LTO manual and RA 4136 using bullet points. ' +
       'Cover: intersections without signals, four-way stops, T-intersections, roundabouts, ' +
@@ -68,7 +79,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'speed-limits',
     title: 'Speed Limits',
     domain: 'Speed Limits',
-    icon: '🚗',
+    icon: Gauge,
     hiddenPrompt:
       'List all official speed limits in the Philippines from RA 4136 and MMDA regulations. ' +
       'Include limits for: expressways, national highways, urban roads, school zones, ' +
@@ -79,7 +90,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'traffic-rules',
     title: 'Traffic Rules & Regulations',
     domain: 'Traffic Rules',
-    icon: '📋',
+    icon: ClipboardList,
     hiddenPrompt:
       'Summarize the core traffic rules and regulations every Filipino driver must know from RA 4136. ' +
       'Cover: lane discipline, overtaking rules, U-turns, merging, use of signals/horn, ' +
@@ -89,7 +100,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'fines-penalties',
     title: 'Fines & Penalties',
     domain: 'Fines & Penalties',
-    icon: '💰',
+    icon: DollarSign,
     hiddenPrompt:
       'List the fines and penalties for traffic violations in the Philippines under RA 4136, ' +
       'RA 10913 (Anti-Distracted Driving), RA 8750 (Seat Belt), and MMDA regulations. ' +
@@ -99,7 +110,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'emergency-procedures',
     title: 'Emergency Procedures',
     domain: 'Emergencies',
-    icon: '🚨',
+    icon: Zap,
     hiddenPrompt:
       'Explain the correct procedures a Filipino driver must follow in road emergencies. ' +
       'Cover: vehicle breakdown on the highway, road accidents (steps to follow, RA 10054), ' +
@@ -110,7 +121,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'defensive-driving',
     title: 'Defensive Driving',
     domain: 'Defensive Driving',
-    icon: '🛡️',
+    icon: ShieldCheck,
     hiddenPrompt:
       'Summarize defensive driving principles and techniques as taught in Philippine LTO driver education. ' +
       'Cover: the Smith System (5 keys), safe following distance, scanning and anticipating hazards, ' +
@@ -120,7 +131,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'driver-license',
     title: "Driver's License",
     domain: "Driver's License",
-    icon: '🪪',
+    icon: CreditCard,
     hiddenPrompt:
       "Summarize the requirements and procedures for obtaining a Philippine driver's license from the LTO. " +
       'Cover: Student Permit requirements, Non-Professional and Professional license requirements, ' +
@@ -131,7 +142,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'vehicle-registration',
     title: 'Vehicle Registration',
     domain: 'Vehicle Registration',
-    icon: '📄',
+    icon: FileText,
     hiddenPrompt:
       'Explain the vehicle registration process and requirements in the Philippines under LTO rules. ' +
       'Cover: new vehicle registration, annual renewal, required documents, ' +
@@ -142,7 +153,7 @@ const TOPICS: ReviewTopic[] = [
     id: 'distracted-driving',
     title: 'Anti-Distracted Driving',
     domain: 'Distracted Driving',
-    icon: '📵',
+    icon: PhoneOff,
     hiddenPrompt:
       'Explain RA 10913 (Anti-Distracted Driving Act) in the Philippines. ' +
       'Cover: prohibited acts while driving, definition of "mobile communications device," ' +
@@ -250,7 +261,19 @@ export function ReviewerPage() {
                   )}
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-base leading-none">{topic.icon}</span>
+                    <span
+                      className={cn(
+                        'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
+                        selectedId === topic.id ? 'bg-primary/15' : 'bg-muted'
+                      )}
+                    >
+                      <topic.icon
+                        className={cn(
+                          'w-3.5 h-3.5',
+                          selectedId === topic.id ? 'text-primary' : 'text-muted-foreground'
+                        )}
+                      />
+                    </span>
                     <span>{topic.title}</span>
                   </span>
                   {loadingId === topic.id && (
@@ -308,8 +331,10 @@ export function ReviewerPage() {
                 <CardContent className="pt-5 pb-6">
                   {/* Content header + refresh button */}
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl leading-none">{activeTopic.icon}</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <activeTopic.icon className="w-4 h-4 text-primary" />
+                      </span>
                       <h2 className="text-base font-semibold text-foreground">
                         {activeTopic.title}
                       </h2>

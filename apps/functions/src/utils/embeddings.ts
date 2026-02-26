@@ -36,11 +36,13 @@ export function chunkText(text: string, chunkSize = CHUNK_SIZE, overlap = CHUNK_
       chunks.push(chunk)
     }
 
-    // Move start position with overlap
-    // Ensure we always move forward by at least 1 character to avoid infinite loops
-    const nextStartIdx = Math.max(endIdx - overlap, startIdx + 1)
+    // If we've consumed to the end of the text, we're done
+    if (endIdx >= text.length) {
+      break
+    }
 
-    // If we're at the end, break
+    // Move start position with overlap, always advancing at least 1 character
+    const nextStartIdx = Math.max(endIdx - overlap, startIdx + 1)
     if (nextStartIdx >= text.length) {
       break
     }
