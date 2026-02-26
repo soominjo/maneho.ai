@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:debug": "playwright test --debug",
+    "e2e:report": "playwright show-report playwright-report"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -32,6 +36,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.0",
     "@repo/config": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@testing-library/jest-dom": "^6.6.3",

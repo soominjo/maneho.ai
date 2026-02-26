@@ -1,28 +1,84 @@
+/**
+ * App Router — route-based code splitting via React.lazy()
+ *
+ * Every page component is loaded lazily so Vite emits a separate chunk
+ * per route. The shared layouts (RootLayout, DashboardLayout) and the
+ * tiny ProtectedRoute guard are kept as eager imports — they are needed
+ * on every navigation and add negligible weight.
+ *
+ * Each route element is wrapped in <Suspense fallback={<PageLoader />}> via
+ * the `s()` helper, so users see a spinner instead of a blank screen while
+ * the chunk downloads.
+ *
+ * Bundle impact (rough estimates before tree-shaking):
+ *   Initial load  ~150 kB gzipped (layout + providers + auth)
+ *   Per route     ~10–50 kB gzipped (typically < 5 kB for most pages)
+ */
+
+import { lazy, Suspense, type ReactElement } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
+
+// ── Eager imports (tiny + used on every route) ──────────────────────────────
 import { RootLayout } from './layouts/RootLayout'
 import { DashboardLayout } from './layouts/DashboardLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { PageLoader } from './components/PageLoader'
 
-// Pages
-import { LandingPage } from './pages/LandingPage'
-import { SignInPage } from './pages/SignInPage'
-import { SignUpPage } from './pages/SignUpPage'
-import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
-import { AskLawyerPage } from './pages/AskLawyerPage'
-import {
-  CrisisManagerPage,
-  TicketDecoderPage,
-  ScriptGeneratorPage,
-  CostEstimatorPage,
-  LicenseWizardPage,
-} from './pages/CrisisManagerPage'
-import { QuizPage } from './pages/QuizPage'
-import { ReviewerPage } from './pages/ReviewerPage'
-import { ExamPage } from './pages/ExamPage'
-import { ExamResultsPage } from './pages/ExamResultsPage'
-import { ProfilePage } from './pages/ProfilePage'
-import { NotFoundPage } from './pages/NotFoundPage'
+// ── Lazy page imports (one chunk per page) ───────────────────────────────────
+// Named exports are re-wrapped as default so React.lazy() can resolve them.
 
+const LandingPage = lazy(() =>
+  import('./pages/LandingPage').then(m => ({ default: m.LandingPage }))
+)
+const SignInPage = lazy(() => import('./pages/SignInPage').then(m => ({ default: m.SignInPage })))
+const SignUpPage = lazy(() => import('./pages/SignUpPage').then(m => ({ default: m.SignUpPage })))
+const ForgotPasswordPage = lazy(() =>
+  import('./pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage }))
+)
+const AskLawyerPage = lazy(() =>
+  import('./pages/AskLawyerPage').then(m => ({ default: m.AskLawyerPage }))
+)
+
+// CrisisManagerPage exports multiple pages from a single file.
+const CrisisManagerPage = lazy(() =>
+  import('./pages/CrisisManagerPage').then(m => ({ default: m.CrisisManagerPage }))
+)
+const TicketDecoderPage = lazy(() =>
+  import('./pages/CrisisManagerPage').then(m => ({ default: m.TicketDecoderPage }))
+)
+const ScriptGeneratorPage = lazy(() =>
+  import('./pages/CrisisManagerPage').then(m => ({ default: m.ScriptGeneratorPage }))
+)
+const CostEstimatorPage = lazy(() =>
+  import('./pages/CrisisManagerPage').then(m => ({ default: m.CostEstimatorPage }))
+)
+const LicenseWizardPage = lazy(() =>
+  import('./pages/CrisisManagerPage').then(m => ({ default: m.LicenseWizardPage }))
+)
+
+const QuizPage = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })))
+const ReviewerPage = lazy(() =>
+  import('./pages/ReviewerPage').then(m => ({ default: m.ReviewerPage }))
+)
+const ExamPage = lazy(() => import('./pages/ExamPage').then(m => ({ default: m.ExamPage })))
+const ExamResultsPage = lazy(() =>
+  import('./pages/ExamResultsPage').then(m => ({ default: m.ExamResultsPage }))
+)
+const ProfilePage = lazy(() =>
+  import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage }))
+)
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage }))
+)
+
+// ── Suspense helper ──────────────────────────────────────────────────────────
+// Plain function (not a component) so React does not re-create the boundary
+// on every parent render — the Suspense instance stays stable.
+function s(element: ReactElement) {
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>
+}
+
+// ── Router definition ────────────────────────────────────────────────────────
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -30,22 +86,22 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <LandingPage />,
+        element: s(<LandingPage />),
       },
       {
         path: 'login',
-        element: <SignInPage />,
+        element: s(<SignInPage />),
       },
       {
         path: 'register',
-        element: <SignUpPage />,
+        element: s(<SignUpPage />),
       },
       {
         path: 'forgot-password',
-        element: <ForgotPasswordPage />,
+        element: s(<ForgotPasswordPage />),
       },
 
-      // Protected Dashboard Routes
+      // ── Protected Dashboard Routes ────────────────────────────────────────
       {
         element: (
           <ProtectedRoute>
@@ -55,63 +111,63 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'dashboard',
-            element: <AskLawyerPage />,
+            element: s(<AskLawyerPage />),
           },
           {
             path: 'ask-lawyer',
-            element: <AskLawyerPage />,
+            element: s(<AskLawyerPage />),
           },
           {
             path: 'ask-lawyer/:threadId',
-            element: <AskLawyerPage />,
+            element: s(<AskLawyerPage />),
           },
           {
             path: 'crisis-manager',
-            element: <CrisisManagerPage />,
+            element: s(<CrisisManagerPage />),
           },
           {
             path: 'ticket-decoder',
-            element: <TicketDecoderPage />,
+            element: s(<TicketDecoderPage />),
           },
           {
             path: 'script-generator',
-            element: <ScriptGeneratorPage />,
+            element: s(<ScriptGeneratorPage />),
           },
           {
             path: 'cost-estimator',
-            element: <CostEstimatorPage />,
+            element: s(<CostEstimatorPage />),
           },
           {
             path: 'license-wizard',
-            element: <LicenseWizardPage />,
+            element: s(<LicenseWizardPage />),
           },
           {
             path: 'quiz',
-            element: <QuizPage />,
+            element: s(<QuizPage />),
           },
           {
             path: 'quiz/reviewer',
-            element: <ReviewerPage />,
+            element: s(<ReviewerPage />),
           },
           {
             path: 'quiz/exam',
-            element: <ExamPage />,
+            element: s(<ExamPage />),
           },
           {
             path: 'quiz/results',
-            element: <ExamResultsPage />,
+            element: s(<ExamResultsPage />),
           },
           {
             path: 'profile',
-            element: <ProfilePage />,
+            element: s(<ProfilePage />),
           },
         ],
       },
 
-      // 404
+      // ── 404 ───────────────────────────────────────────────────────────────
       {
         path: '*',
-        element: <NotFoundPage />,
+        element: s(<NotFoundPage />),
       },
     ],
   },

@@ -184,3 +184,85 @@ jobs:
           echo "- [ ] Verify application is accessible" >> $GITHUB_STEP_SUMMARY
           echo "- [ ] Check error monitoring (Sentry, etc.)" >> $GITHUB_STEP_SUMMARY
           echo "- [ ] Monitor performance metrics" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================================================
+  # Notification Job — Discord webhook (runs after deploy, always)
+  # ==========================================================================
+  notify:
+    name: Discord Notification
+    runs-on: ubuntu-latest
+    # Always run, even if deploy was skipped or failed
+    needs: [validate, test, deploy]
+    if: always()
+
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          COMMIT_SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # ── Resolve outcome ────────────────────────────────────────────────
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            COLOR=3066993        # Discord green
+            EMOJI="✅"
+            TITLE="Production Deployment Succeeded"
+            DESCRIPTION="Maneho AI is live on production."
+          elif [ "$DEPLOY_RESULT" = "skipped" ]; then
+            COLOR=10181046       # Discord grey
+            EMOJI="⏭️"
+            TITLE="Deployment Skipped"
+            DESCRIPTION="Tests or validation failed — deploy was not attempted."
+          else
+            COLOR=15158332       # Discord red
+            EMOJI="❌"
+            TITLE="Production Deployment FAILED"
+            DESCRIPTION="Immediate attention required. Check the workflow logs."
+          fi
+
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          # ── Build JSON payload ─────────────────────────────────────────────
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "Maneho CI/CD",
+            "avatar_url": "https://github.com/favicon.ico",
+            "embeds": [{
+              "title": "$EMOJI $TITLE",
+              "description": "$DESCRIPTION",
+              "color": $COLOR,
+              "fields": [
+                { "name": "Commit",       "value": "\`$SHORT_SHA\`",   "inline": true },
+                { "name": "Triggered by", "value": "@$ACTOR",          "inline": true },
+                { "name": "Tests",        "value": "$TEST_RESULT",     "inline": true },
+                { "name": "Run logs",     "value": "[View run]($RUN_URL)", "inline": false }
+              ],
+              "footer": { "text": "Maneho AI • Production Environment" },
+              "timestamp": "$TIMESTAMP"
+            }]
+          }
+          JSON
+          )
+
+          # ── Post to Discord ────────────────────────────────────────────────
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "⚠️  DISCORD_WEBHOOK secret is not set — skipping notification."
+            exit 0
+          fi
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -X POST "$DISCORD_WEBHOOK" \
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "✅ Discord notification sent (HTTP $HTTP_STATUS)"
+          else
+            echo "⚠️  Discord notification failed (HTTP $HTTP_STATUS)" >&2
+            # Non-blocking — do not fail the workflow over a notification
+            exit 0
+          fi
