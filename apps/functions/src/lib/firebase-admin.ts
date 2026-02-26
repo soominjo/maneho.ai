@@ -34,19 +34,10 @@ function initializeFirebaseAdmin(): void {
       return
     }
 
-    const projectId = process.env.GCP_PROJECT_ID
-
-    if (!projectId) {
-      throw new Error(
-        'GCP_PROJECT_ID environment variable not set. ' +
-          'Set it in your .env file or as an environment variable.'
-      )
-    }
-
     // Initialize Firebase Admin with Application Default Credentials
     // For local development with issues, set FIRESTORE_EMULATOR_HOST=localhost:8080
     admin.initializeApp({
-      projectId,
+      projectId: 'maneho-ai',
       // credentials are automatically loaded from GOOGLE_APPLICATION_CREDENTIALS
       // or from the environment if running on GCP
       // or from Workload Identity Federation in Cloud Run
@@ -60,7 +51,7 @@ function initializeFirebaseAdmin(): void {
 
     isInitialized = true
 
-    console.log(`[Firebase Admin] ✓ Initialized for project: ${projectId}`)
+    console.log(`[Firebase Admin] ✓ Initialized for project: maneho-ai`)
 
     // Check if using emulator
     if (process.env.FIRESTORE_EMULATOR_HOST) {

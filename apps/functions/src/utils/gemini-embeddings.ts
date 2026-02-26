@@ -15,11 +15,7 @@ const MODEL = 'text-embedding-004'
 
 // Helper to get PROJECT_ID at runtime (after dotenv loads)
 function getProjectId(): string {
-  const projectId = process.env.GCP_PROJECT_ID
-  if (!projectId) {
-    throw new Error('GCP_PROJECT_ID environment variable not configured')
-  }
-  return projectId
+  return process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT_ID || 'maneho-ai'
 }
 
 /**

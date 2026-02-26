@@ -16,10 +16,7 @@ const apiBaseUrl = 'https://generativelanguage.googleapis.com/v1/models'
  * Note: v1 API doesn't support systemInstruction field, so we include it in the prompt
  */
 export async function callGeminiAPI(prompt: string, systemPrompt: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    throw new Error('Gemini API key not configured. Set GEMINI_API_KEY environment variable.')
-  }
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDIhzHvgvkxseivbrNQdV7b2up8EM5IXgw'
 
   try {
     // Combine system prompt with user prompt for v1 API compatibility
@@ -212,10 +209,7 @@ export async function extractTicketText(input: {
   imageUrl?: string
   imageBase64?: string
 }): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    throw new Error('Gemini API key not configured. Set GEMINI_API_KEY environment variable.')
-  }
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDIhzHvgvkxseivbrNQdV7b2up8EM5IXgw'
 
   let base64Data: string
   let mimeType: string

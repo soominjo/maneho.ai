@@ -31,4 +31,4 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-export const api = onRequest(app)
+export const api = onRequest({ cors: true }, app)
