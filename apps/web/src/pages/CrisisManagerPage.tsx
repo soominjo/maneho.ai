@@ -500,26 +500,3 @@ export function LicenseWizardPage() {
     </LayoutWrapper>
   )
 }
-
-export function QuizPage() {
-  return (
-    <LayoutWrapper className="py-6 sm:py-8 lg:py-10">
-      <div className="max-w-2xl">
-        <p className="text-muted-foreground mb-8">Interactive LTO exam preparation</p>
-        <Card className="shadow-none border border-border">
-          <CardHeader>
-            <CardTitle>Coming Soon</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              This feature is under development
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              The Quiz will provide LTO-based practice questions and AI-powered explanations.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </LayoutWrapper>
-  )
-}

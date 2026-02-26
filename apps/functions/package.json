@@ -18,7 +18,9 @@
     "ingest": "tsx src/scripts/ingest-firebase-storage.ts",
     "ingest:file": "tsx src/scripts/ingest-single-file.ts",
     "test:ingest": "tsx src/scripts/test-single-ingest.ts",
-    "test:rag": "tsx src/scripts/test-rag-query.ts"
+    "test:rag": "tsx src/scripts/test-rag-query.ts",
+    "seed:exam": "tsx src/scripts/seed-exam.ts",
+    "seed:quiz": "tsx src/scripts/seed-quiz.ts"
   },
   "dependencies": {
     "@google-cloud/aiplatform": "^3.16.0",

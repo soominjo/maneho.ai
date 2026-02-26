@@ -6,7 +6,19 @@
       "Bash(pnpm run ingest:*)",
       "Bash(powershell:*)",
       "Bash(gcloud auth application-default print-access-token:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(pnpm install)",
+      "Bash(pnpm build)",
+      "Bash(pnpm tsc --noEmit)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npx tsc --noEmit --project apps/functions/tsconfig.json)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm seed:exam)",
+      "Bash(npx tsc --noEmit -p apps/web/tsconfig.json)",
+      "Bash(npx tsc --noEmit -p apps/functions/tsconfig.json)",
+      "Bash(pnpm --filter web typecheck)",
+      "Bash(pnpm --filter functions typecheck)",
+      "Bash(pnpm lint)"
     ]
   }
 }

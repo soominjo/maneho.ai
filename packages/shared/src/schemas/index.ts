@@ -12,8 +12,13 @@ export type { TicketDecoder, TicketHistory } from './ticket-decoder'
 export { CostEstimatorSchema } from './cost-estimator'
 export type { CostEstimator } from './cost-estimator'
 
-export { ExamQuizSchema } from './exam-quiz'
-export type { ExamQuiz } from './exam-quiz'
+export {
+  ExamQuizSchema,
+  ReviewerModuleSchema,
+  QuizQuestionSchema,
+  QuizPhaseSubmitSchema,
+} from './exam-quiz'
+export type { ExamQuiz, ReviewerModule, QuizQuestion, QuizPhaseSubmit } from './exam-quiz'
 
 export { IngestDocumentSchema } from './ingest-document'
 export type { IngestDocument } from './ingest-document'

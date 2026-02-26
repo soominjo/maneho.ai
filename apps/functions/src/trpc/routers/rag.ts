@@ -112,16 +112,22 @@ export const ragRouter = router({
         sourceDocuments,
       })
 
+      // Strip citations when the AI signals the query is out of domain
+      const OUT_OF_DOMAIN_PHRASE = "I don't have information about this in the LTO documents."
+      const isOutOfDomain = response.content.includes(OUT_OF_DOMAIN_PHRASE)
+      const finalCitations = isOutOfDomain ? [] : response.citations
+      const finalSourceCount = isOutOfDomain ? 0 : sourceDocuments.length
+
       console.log(
-        `[RAG] ✅ Answer generated successfully! Citations found: ${response.citations.length}`
+        `[RAG] ✅ Answer generated successfully! Citations: ${finalCitations.length}${isOutOfDomain ? ' (out-of-domain — citations cleared)' : ''}`
       )
 
       // Save AI response to thread
       await threadStorage.addMessage(input.userId, threadId, {
         role: 'ai',
         content: response.content,
-        citations: response.citations,
-        sourceCount: sourceDocuments.length,
+        citations: finalCitations,
+        sourceCount: finalSourceCount,
       })
 
       return {
@@ -129,8 +135,8 @@ export const ragRouter = router({
         threadId,
         query: input.query,
         answer: response.content,
-        citations: response.citations,
-        sourceCount: sourceDocuments.length,
+        citations: finalCitations,
+        sourceCount: finalSourceCount,
       }
     } catch (error) {
       console.error('[RAG] ❌ askLawyer error:', error)
@@ -233,7 +239,7 @@ export const ragRouter = router({
 
       // Step 6: Generate RAG-grounded fine explanation using Gemini
       const contextText = sourceDocuments
-        .map((doc, idx) => `[DOC ${idx + 1}] (ID: ${doc.documentId})\n${doc.chunk}`)
+        .map((doc, idx) => `--- Official Document ${idx + 1}: ${doc.documentId} ---\n${doc.chunk}`)
         .join('\n\n')
 
       const systemPrompt = `You are an expert LTO (Land Transportation Office) legal assistant specializing in Philippine traffic enforcement regulations. Your role is to provide accurate, citation-backed analysis of traffic violations.
@@ -265,8 +271,9 @@ You MUST structure your response with these THREE sections, using Markdown:
 - Any deadline information
 
 **Citation Rules:**
-- ALWAYS cite the specific law, section, or document ID when stating a fine
-- If information comes from the provided LTO context, mention the source document
+- ALWAYS cite the specific law, section, or document name when stating a fine (e.g., "RA 4136 Section X" or "MMDA JAO Circular")
+- NEVER use generic labels like "DOC", "[DOC 1]", or "[Source X]" — always use the actual law title or document name
+- NEVER use the words "chunk" or "chunks" in your response
 - If certain information cannot be found in documents, say "Information not available in LTO documents"
 
 **Tone:**

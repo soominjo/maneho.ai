@@ -14,7 +14,9 @@
     "./components/ui/button": "./components/ui/button.tsx",
     "./components/ui/card": "./components/ui/card.tsx",
     "./components/ui/badge": "./components/ui/badge.tsx",
+    "./components/ui/alert": "./components/ui/alert.tsx",
     "./components/ui/scroll-area": "./components/ui/scroll-area.tsx",
+    "./components/ui/textarea": "./components/ui/textarea.tsx",
     "./lib/utils": "./lib/utils.ts"
   },
   "scripts": {

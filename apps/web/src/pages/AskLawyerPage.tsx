@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import { X, Paperclip, Send, BookOpen, FileText, Download } from 'lucide-react'
+import { Textarea } from '@repo/ui/components/ui/textarea'
 import { ChatHistorySidebar } from '../components/ChatHistorySidebar'
 import { InlineCitationCard } from '../components/InlineCitationCard'
 import { LayoutWrapper } from '../components/LayoutWrapper'
@@ -51,6 +52,7 @@ export function AskLawyerPage() {
   const trpcUtils = trpc.useUtils()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const [question, setQuestion] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -145,6 +147,9 @@ export function AskLawyerPage() {
       threadId: threadId,
     })
     setQuestion('')
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+    }
   }
 
   const handleNewChat = () => {
@@ -395,7 +400,7 @@ export function AskLawyerPage() {
         {/* Sticky Input Area - Gradient Overlay at Bottom */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background to-transparent transition-all duration-300 ease-in-out">
           <LayoutWrapper>
-            <div className="bg-card border border-border rounded-lg shadow-xl p-2 md:p-3 flex items-center gap-2">
+            <div className="bg-card border border-border rounded-lg shadow-xl p-2 md:p-3 flex items-end gap-2">
               {/* File Input - Hidden */}
               <input
                 type="file"
@@ -417,11 +422,17 @@ export function AskLawyerPage() {
               </button>
 
               {/* Message Input */}
-              <input
-                type="text"
+              <Textarea
+                ref={textareaRef}
                 value={question}
-                onChange={e => setQuestion(e.target.value)}
-                onKeyPress={e => {
+                onChange={e => {
+                  setQuestion(e.target.value)
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto'
+                    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+                  }
+                }}
+                onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
                     const formEvent = new Event('submit') as unknown as React.FormEvent
@@ -430,7 +441,8 @@ export function AskLawyerPage() {
                   }
                 }}
                 placeholder="Type your legal query here..."
-                className="flex-1 border-none focus:ring-0 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none"
+                rows={1}
+                className="flex-1 border-none focus:ring-0 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus-visible:ring-0 shadow-none resize-none min-h-[44px] max-h-[150px] overflow-y-auto py-2.5"
               />
 
               {/* Send Button */}

@@ -15,8 +15,11 @@ import {
   ScriptGeneratorPage,
   CostEstimatorPage,
   LicenseWizardPage,
-  QuizPage,
 } from './pages/CrisisManagerPage'
+import { QuizPage } from './pages/QuizPage'
+import { ReviewerPage } from './pages/ReviewerPage'
+import { ExamPage } from './pages/ExamPage'
+import { ExamResultsPage } from './pages/ExamResultsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
@@ -85,6 +88,18 @@ export const router = createBrowserRouter([
           {
             path: 'quiz',
             element: <QuizPage />,
+          },
+          {
+            path: 'quiz/reviewer',
+            element: <ReviewerPage />,
+          },
+          {
+            path: 'quiz/exam',
+            element: <ExamPage />,
+          },
+          {
+            path: 'quiz/results',
+            element: <ExamResultsPage />,
           },
           {
             path: 'profile',

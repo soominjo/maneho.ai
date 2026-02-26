@@ -93,11 +93,13 @@ export async function generateRAGAnswer(context: RAGContext): Promise<GeminiResp
 
 Guidelines:
 1. Answer based ONLY on the provided documents
-2. If information is not in documents, say "I don't have information about this in the LTO documents"
+2. If the answer is not contained within the provided documents, you MUST reply EXACTLY with the phrase: "I don't have information about this in the LTO documents." Do not add any other words before or after this phrase
 3. Cite laws, administrative orders, and regulations by their proper name (e.g. "Republic Act 4136", "LTO Administrative Order No. 2014-012") — never use tags like [DOC 1] or [Source:...]
 4. Be clear, concise, and practical — keep answers focused and avoid unnecessary repetition
 5. Provide specific regulatory references (fines, penalties, section numbers) when available
-6. Structure your answer with clear headings or bullet points when listing multiple items`
+6. Structure your answer with clear headings or bullet points when listing multiple items
+7. NEVER use the words "chunk" or "chunks" in your response
+8. NEVER use generic labels like "DOC" or "[DOC X]" — always cite by the actual law or document name`
 
   const userPrompt = `Question: ${query}
 
