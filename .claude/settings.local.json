@@ -18,7 +18,8 @@
       "Bash(npx tsc --noEmit -p apps/functions/tsconfig.json)",
       "Bash(pnpm --filter web typecheck)",
       "Bash(pnpm --filter functions typecheck)",
-      "Bash(pnpm lint)"
+      "Bash(pnpm lint)",
+      "Bash(pnpm test)"
     ]
   }
 }
