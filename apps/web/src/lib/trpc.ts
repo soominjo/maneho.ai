@@ -4,19 +4,19 @@ import type { AppRouter } from '@repo/functions/router'
 
 export const trpc = createTRPCReact<AppRouter>()
 
-/**
- * Construct the full tRPC endpoint URL
- * Example: http://localhost:3001 → http://localhost:3001/trpc
- */
-function getTRPCEndpoint(): string {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-  return `${apiUrl}/trpc`
+const getBaseUrl = () => {
+  // If we're in a browser, ALWAYS use a relative path for production
+  if (typeof window !== 'undefined') {
+    return '/api'
+  }
+  // Only use localhost if specifically running in a local Node environment
+  return process.env.VITE_API_URL || 'http://localhost:3001'
 }
 
 export const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: getTRPCEndpoint(),
+      url: `${getBaseUrl()}/trpc`,
       // Enable batch requests for efficiency (multiple calls in single HTTP request)
       maxURLLength: 2083, // Standard browser URL length limit
     }),

@@ -24,7 +24,14 @@
       "Bash(pnpm build --filter ./apps/web)",
       "Bash(ls \"c:/maneho.ai/.eslint\"*)",
       "Bash(ls \"c:/maneho.ai/apps/functions/.eslint\"*)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(pnpm run build)",
+      "Bash(git add firestore.indexes.json)",
+      "Bash(git -C \"c:/maneho.ai\" add firestore.indexes.json)",
+      "Bash(git -C \"c:/maneho.ai\" status --short firestore.indexes.json)",
+      "Bash(node -e \":*)",
+      "Bash(git -C \"c:/maneho.ai\" add .gitattributes)",
+      "Bash(git -C \"c:/maneho.ai\" status --short)"
     ]
   }
 }

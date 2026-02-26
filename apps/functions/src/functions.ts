@@ -20,14 +20,14 @@ app.use((req, res, next) => {
 app.use(express.json())
 
 app.use(
-  '/trpc',
+  ['/api/trpc', '/trpc'],
   createHTTPHandler({
     router: appRouter,
     createContext: () => ({}),
   })
 )
 
-app.get('/health', (_req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
