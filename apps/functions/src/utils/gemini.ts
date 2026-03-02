@@ -16,7 +16,8 @@ const apiBaseUrl = 'https://generativelanguage.googleapis.com/v1/models'
  * Note: v1 API doesn't support systemInstruction field, so we include it in the prompt
  */
 export async function callGeminiAPI(prompt: string, systemPrompt: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDIhzHvgvkxseivbrNQdV7b2up8EM5IXgw'
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY environment variable is not set.')
 
   try {
     // Combine system prompt with user prompt for v1 API compatibility
